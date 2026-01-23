@@ -1,0 +1,669 @@
+<!-- ================= FOOTER ================= -->
+<footer class="bg-gradient-to-b from-primary-900 to-primary-950 text-white">
+    <!-- Top Footer Section -->
+    <div class="border-b border-primary-700/30">
+        <div class="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+            <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-10">
+                <!-- Company Info -->
+                <div>
+                    <div class="flex items-center space-x-3 mb-6">
+                        <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-brand to-accent flex items-center justify-center shadow-lg">
+                            <i class="fas fa-mobile-alt text-white text-xl"></i>
+                        </div>
+                        <div>
+                            <h2 class="text-2xl font-bold">
+                                Mobile<span class="text-accent">Shop</span>
+                            </h2>
+                            <p class="text-primary-300 text-xs -mt-0.5">Premium Smartphones</p>
+                        </div>
+                    </div>
+                    <p class="text-primary-300 mb-6 leading-relaxed">
+                        Your trusted partner for authentic smartphones in Bangladesh since 2015. 
+                        We deliver cutting-edge technology with genuine warranty.
+                    </p>
+                    
+                    <!-- App Store & Play Store -->
+                    <div class="mb-6">
+                        <p class="text-primary-300 text-sm mb-3">Download Our App</p>
+                        <div class="flex space-x-3">
+                            <a href="#" class="flex items-center bg-black hover:bg-gray-900 rounded-xl px-4 py-2 transition-all group">
+                                <i class="fab fa-apple text-2xl mr-2 group-hover:text-white"></i>
+                                <div>
+                                    <div class="text-xs text-primary-300">Download on the</div>
+                                    <div class="text-sm font-semibold">App Store</div>
+                                </div>
+                            </a>
+                            <a href="#" class="flex items-center bg-black hover:bg-gray-900 rounded-xl px-4 py-2 transition-all group">
+                                <i class="fab fa-google-play text-xl mr-2 group-hover:text-green-400"></i>
+                                <div>
+                                    <div class="text-xs text-primary-300">Get it on</div>
+                                    <div class="text-sm font-semibold">Google Play</div>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+                    
+                    <!-- Social Media -->
+                    <div>
+                        <p class="text-primary-300 text-sm mb-3">Follow Us</p>
+                        <div class="flex space-x-3">
+                            {% for social in social_links %}
+                            <a href="{{ social.url }}" 
+                               target="_blank" 
+                               rel="noopener noreferrer"
+                               class="w-10 h-10 rounded-full bg-primary-800/50 hover:bg-primary-700 flex items-center justify-center transition-all group"
+                               aria-label="{{ social.name }}">
+                                <i class="{{ social.icon }} group-hover:scale-110 transition-transform"></i>
+                            </a>
+                            {% empty %}
+                            <a href="#" class="w-10 h-10 rounded-full bg-primary-800/50 hover:bg-primary-700 flex items-center justify-center transition-all group">
+                                <i class="fab fa-facebook-f group-hover:scale-110 transition-transform"></i>
+                            </a>
+                            <a href="#" class="w-10 h-10 rounded-full bg-primary-800/50 hover:bg-primary-700 flex items-center justify-center transition-all group">
+                                <i class="fab fa-instagram group-hover:scale-110 transition-transform"></i>
+                            </a>
+                            <a href="#" class="w-10 h-10 rounded-full bg-primary-800/50 hover:bg-primary-700 flex items-center justify-center transition-all group">
+                                <i class="fab fa-twitter group-hover:scale-110 transition-transform"></i>
+                            </a>
+                            <a href="#" class="w-10 h-10 rounded-full bg-primary-800/50 hover:bg-primary-700 flex items-center justify-center transition-all group">
+                                <i class="fab fa-youtube group-hover:scale-110 transition-transform"></i>
+                            </a>
+                            <a href="#" class="w-10 h-10 rounded-full bg-primary-800/50 hover:bg-primary-700 flex items-center justify-center transition-all group">
+                                <i class="fab fa-linkedin-in group-hover:scale-110 transition-transform"></i>
+                            </a>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Quick Links -->
+                <div>
+                    <h4 class="text-lg font-bold mb-6 relative inline-block">
+                        Quick Links
+                        <span class="absolute -bottom-2 left-0 w-8 h-1 bg-accent rounded-full"></span>
+                    </h4>
+                    <ul class="space-y-3">
+                        <li>
+                            <a href="{% url 'home' %}" 
+                               class="text-primary-300 hover:text-white transition-colors flex items-center group">
+                                <i class="fas fa-chevron-right text-xs mr-2 text-accent opacity-0 group-hover:opacity-100 transition-opacity"></i>
+                                <span>Home</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{% url 'shop_all' %}" 
+                               class="text-primary-300 hover:text-white transition-colors flex items-center group">
+                                <i class="fas fa-chevron-right text-xs mr-2 text-accent opacity-0 group-hover:opacity-100 transition-opacity"></i>
+                                <span>Shop All Products</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{% url 'brand_list' %}" 
+                               class="text-primary-300 hover:text-white transition-colors flex items-center group">
+                                <i class="fas fa-chevron-right text-xs mr-2 text-accent opacity-0 group-hover:opacity-100 transition-opacity"></i>
+                                <span>Brands</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{% url 'new_arrivals' %}" 
+                               class="text-primary-300 hover:text-white transition-colors flex items-center group">
+                                <i class="fas fa-chevron-right text-xs mr-2 text-accent opacity-0 group-hover:opacity-100 transition-opacity"></i>
+                                <span>New Arrivals</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{% url 'best_sellers' %}" 
+                               class="text-primary-300 hover:text-white transition-colors flex items-center group">
+                                <i class="fas fa-chevron-right text-xs mr-2 text-accent opacity-0 group-hover:opacity-100 transition-opacity"></i>
+                                <span>Best Sellers</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{% url 'special_offers' %}" 
+                               class="text-primary-300 hover:text-white transition-colors flex items-center group">
+                                <i class="fas fa-chevron-right text-xs mr-2 text-accent opacity-0 group-hover:opacity-100 transition-opacity"></i>
+                                <span>Special Offers</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{% url 'apple_products' %}" 
+                               class="text-primary-300 hover:text-white transition-colors flex items-center group">
+                                <i class="fas fa-chevron-right text-xs mr-2 text-accent opacity-0 group-hover:opacity-100 transition-opacity"></i>
+                                <span>Apple Products</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{% url 'gaming_phones' %}" 
+                               class="text-primary-300 hover:text-white transition-colors flex items-center group">
+                                <i class="fas fa-chevron-right text-xs mr-2 text-accent opacity-0 group-hover:opacity-100 transition-opacity"></i>
+                                <span>Gaming Phones</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+                
+                <!-- Customer Support -->
+                <div>
+                    <h4 class="text-lg font-bold mb-6 relative inline-block">
+                        Customer Support
+                        <span class="absolute -bottom-2 left-0 w-8 h-1 bg-accent rounded-full"></span>
+                    </h4>
+                    <ul class="space-y-3">
+                        <li>
+                            <a href="{% url 'contact_us' %}" 
+                               class="text-primary-300 hover:text-white transition-colors flex items-center group">
+                                <i class="fas fa-chevron-right text-xs mr-2 text-accent opacity-0 group-hover:opacity-100 transition-opacity"></i>
+                                <span>Contact Us</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{% url 'faq' %}" 
+                               class="text-primary-300 hover:text-white transition-colors flex items-center group">
+                                <i class="fas fa-chevron-right text-xs mr-2 text-accent opacity-0 group-hover:opacity-100 transition-opacity"></i>
+                                <span>FAQs</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{% url 'shipping_policy' %}" 
+                               class="text-primary-300 hover:text-white transition-colors flex items-center group">
+                                <i class="fas fa-chevron-right text-xs mr-2 text-accent opacity-0 group-hover:opacity-100 transition-opacity"></i>
+                                <span>Shipping Policy</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{% url 'return_policy' %}" 
+                               class="text-primary-300 hover:text-white transition-colors flex items-center group">
+                                <i class="fas fa-chevron-right text-xs mr-2 text-accent opacity-0 group-hover:opacity-100 transition-opacity"></i>
+                                <span>Return & Refund Policy</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{% url 'privacy_policy' %}" 
+                               class="text-primary-300 hover:text-white transition-colors flex items-center group">
+                                <i class="fas fa-chevron-right text-xs mr-2 text-accent opacity-0 group-hover:opacity-100 transition-opacity"></i>
+                                <span>Privacy Policy</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{% url 'terms_conditions' %}" 
+                               class="text-primary-300 hover:text-white transition-colors flex items-center group">
+                                <i class="fas fa-chevron-right text-xs mr-2 text-accent opacity-0 group-hover:opacity-100 transition-opacity"></i>
+                                <span>Terms & Conditions</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{% url 'warranty_policy' %}" 
+                               class="text-primary-300 hover:text-white transition-colors flex items-center group">
+                                <i class="fas fa-chevron-right text-xs mr-2 text-accent opacity-0 group-hover:opacity-100 transition-opacity"></i>
+                                <span>Warranty Policy</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{% url 'track_order' %}" 
+                               class="text-primary-300 hover:text-white transition-colors flex items-center group">
+                                <i class="fas fa-chevron-right text-xs mr-2 text-accent opacity-0 group-hover:opacity-100 transition-opacity"></i>
+                                <span>Track Your Order</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+                
+                <!-- Contact Info & Newsletter -->
+                <div>
+                    <h4 class="text-lg font-bold mb-6 relative inline-block">
+                        Contact Info
+                        <span class="absolute -bottom-2 left-0 w-8 h-1 bg-accent rounded-full"></span>
+                    </h4>
+                    <ul class="space-y-4 text-primary-300 mb-8">
+                        <li class="flex items-start space-x-3">
+                            <div class="w-8 h-8 rounded-full bg-primary-800/50 flex items-center justify-center flex-shrink-0 mt-1">
+                                <i class="fas fa-map-marker-alt text-accent"></i>
+                            </div>
+                            <div>
+                                <p class="font-medium">Head Office</p>
+                                <p class="text-sm">Gulshan 1, Dhaka 1212, Bangladesh</p>
+                            </div>
+                        </li>
+                        <li class="flex items-center space-x-3">
+                            <div class="w-8 h-8 rounded-full bg-primary-800/50 flex items-center justify-center flex-shrink-0">
+                                <i class="fas fa-phone text-accent"></i>
+                            </div>
+                            <div>
+                                <p class="font-medium">Call Us</p>
+                                <a href="tel:+8801234567890" class="text-sm hover:text-white transition-colors">+880 1234 567890</a>
+                            </div>
+                        </li>
+                        <li class="flex items-center space-x-3">
+                            <div class="w-8 h-8 rounded-full bg-primary-800/50 flex items-center justify-center flex-shrink-0">
+                                <i class="fas fa-envelope text-accent"></i>
+                            </div>
+                            <div>
+                                <p class="font-medium">Email Us</p>
+                                <a href="mailto:info@mobileshop.com" class="text-sm hover:text-white transition-colors">info@mobileshop.com</a>
+                            </div>
+                        </li>
+                        <li class="flex items-center space-x-3">
+                            <div class="w-8 h-8 rounded-full bg-primary-800/50 flex items-center justify-center flex-shrink-0">
+                                <i class="fas fa-clock text-accent"></i>
+                            </div>
+                            <div>
+                                <p class="font-medium">Business Hours</p>
+                                <p class="text-sm">9:00 AM - 10:00 PM (Everyday)</p>
+                            </div>
+                        </li>
+                    </ul>
+                    
+                    <!-- Newsletter Subscription -->
+                    <div class="bg-primary-800/30 rounded-xl p-4 border border-primary-700/50">
+                        <h5 class="font-bold mb-2">Stay Updated</h5>
+                        <p class="text-primary-300 text-sm mb-3">
+                            Subscribe to our newsletter for latest deals and offers.
+                        </p>
+                        <form method="POST" action="{% url 'newsletter_subscribe' %}" class="space-y-3" id="newsletter-form">
+                            {% csrf_token %}
+                            <div class="relative">
+                                <input type="email" 
+                                       name="email"
+                                       placeholder="Enter your email" 
+                                       class="w-full pl-10 pr-4 py-2 rounded-lg bg-primary-900 border border-primary-700 focus:outline-none focus:border-accent text-sm"
+                                       required>
+                                <i class="fas fa-envelope absolute left-3 top-2.5 text-primary-400"></i>
+                            </div>
+                            <button type="submit" 
+                                    class="w-full py-2.5 bg-gradient-to-r from-brand to-brand-dark text-white font-semibold rounded-lg hover:opacity-90 transition-opacity text-sm">
+                                Subscribe Now
+                            </button>
+                        </form>
+                        <p class="text-primary-400 text-xs mt-2">
+                            We respect your privacy. Unsubscribe at any time.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Middle Footer Section (Payment & Shipping) -->
+    <div class="border-b border-primary-700/30">
+        <div class="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <div class="grid md:grid-cols-3 gap-8">
+                <!-- Secure Payment -->
+                <div class="flex items-center space-x-4">
+                    <div class="w-12 h-12 rounded-xl bg-primary-800/50 flex items-center justify-center">
+                        <i class="fas fa-lock text-accent text-xl"></i>
+                    </div>
+                    <div>
+                        <h5 class="font-bold">100% Secure Payments</h5>
+                        <p class="text-primary-300 text-sm">SSL encrypted & secure payment gateways</p>
+                    </div>
+                </div>
+                
+                <!-- Fast Delivery -->
+                <div class="flex items-center space-x-4">
+                    <div class="w-12 h-12 rounded-xl bg-primary-800/50 flex items-center justify-center">
+                        <i class="fas fa-shipping-fast text-accent text-xl"></i>
+                    </div>
+                    <div>
+                        <h5 class="font-bold">Fast Delivery</h5>
+                        <p class="text-primary-300 text-sm">Same day delivery in Dhaka city</p>
+                    </div>
+                </div>
+                
+                <!-- Easy Returns -->
+                <div class="flex items-center space-x-4">
+                    <div class="w-12 h-12 rounded-xl bg-primary-800/50 flex items-center justify-center">
+                        <i class="fas fa-exchange-alt text-accent text-xl"></i>
+                    </div>
+                    <div>
+                        <h5 class="font-bold">Easy Returns</h5>
+                        <p class="text-primary-300 text-sm">7-day return policy for all products</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Bottom Footer Section -->
+    <div class="py-8">
+        <div class="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col md:flex-row justify-between items-center">
+                <!-- Copyright -->
+                <div class="mb-6 md:mb-0 text-center md:text-left">
+                    <p class="text-primary-300">
+                        &copy; <span id="current-year"></span> MobileShop. All rights reserved. 
+                        | 
+                        <a href="{% url 'privacy_policy' %}" class="hover:text-white transition-colors">Privacy Policy</a>
+                        • 
+                        <a href="{% url 'terms_conditions' %}" class="hover:text-white transition-colors">Terms & Conditions</a>
+                    </p>
+                    <p class="text-primary-400 text-sm mt-1">
+                        Designed with <i class="fas fa-heart text-red-400 mx-1"></i> for mobile enthusiasts
+                    </p>
+                </div>
+                
+                <!-- Payment Methods -->
+                <div class="flex flex-col items-center md:items-end">
+                    <p class="text-primary-300 text-sm mb-2">We Accept</p>
+                    <div class="flex items-center space-x-3">
+                        <!-- Credit Cards -->
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/b7/MasterCard_Logo.svg/2560px-MasterCard_Logo.svg.png" 
+                             class="h-5 filter brightness-0 invert opacity-80 hover:opacity-100 transition-opacity" 
+                             alt="Mastercard"
+                             loading="lazy">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/Visa_Inc._logo.svg/2560px-Visa_Inc._logo.svg.png" 
+                             class="h-5 filter brightness-0 invert opacity-80 hover:opacity-100 transition-opacity" 
+                             alt="Visa"
+                             loading="lazy">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/a4/Discover_Card_logo.svg/2560px-Discover_Card_logo.svg.png" 
+                             class="h-5 filter brightness-0 invert opacity-80 hover:opacity-100 transition-opacity" 
+                             alt="Discover"
+                             loading="lazy">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/f/f2/Google_Pay_Logo.svg/2560px-Google_Pay_Logo.svg.png" 
+                             class="h-5 filter brightness-0 invert opacity-80 hover:opacity-100 transition-opacity" 
+                             alt="Google Pay"
+                             loading="lazy">
+                        
+                        <!-- Mobile Banking -->
+                        <div class="h-6 w-px bg-primary-700"></div>
+                        
+                        <!-- Bangladeshi Payment Methods -->
+                        <div class="flex items-center space-x-2">
+                            <div class="w-8 h-8 rounded bg-white flex items-center justify-center p-1">
+                                <span class="text-xs font-bold text-black">bKash</span>
+                            </div>
+                            <div class="w-8 h-8 rounded bg-blue-600 flex items-center justify-center p-1">
+                                <span class="text-xs font-bold text-white">Nagad</span>
+                            </div>
+                            <div class="w-8 h-8 rounded bg-green-600 flex items-center justify-center p-1">
+                                <span class="text-xs font-bold text-white">Rocket</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Trust Seals -->
+                    <div class="flex items-center space-x-4 mt-4">
+                        <div class="text-center">
+                            <div class="w-8 h-8 rounded-full bg-green-500/20 flex items-center justify-center mx-auto mb-1">
+                                <i class="fas fa-shield-alt text-green-400"></i>
+                            </div>
+                            <span class="text-xs text-primary-300">SSL Secure</span>
+                        </div>
+                        <div class="text-center">
+                            <div class="w-8 h-8 rounded-full bg-blue-500/20 flex items-center justify-center mx-auto mb-1">
+                                <i class="fas fa-check-circle text-blue-400"></i>
+                            </div>
+                            <span class="text-xs text-primary-300">Verified</span>
+                        </div>
+                        <div class="text-center">
+                            <div class="w-8 h-8 rounded-full bg-purple-500/20 flex items-center justify-center mx-auto mb-1">
+                                <i class="fas fa-award text-purple-400"></i>
+                            </div>
+                            <span class="text-xs text-primary-300">Trusted</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Back to Top Button -->
+    <button id="footer-back-to-top" 
+            class="fixed bottom-24 right-8 w-12 h-12 bg-brand text-white rounded-full shadow-lg hover:bg-brand-dark transition-all duration-300 opacity-0 invisible z-40 flex items-center justify-center group">
+        <i class="fas fa-chevron-up group-hover:-translate-y-0.5 transition-transform"></i>
+    </button>
+</footer>
+
+<!-- Footer JavaScript -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Set current year in copyright
+    document.getElementById('current-year').textContent = new Date().getFullYear();
+    
+    // Newsletter form submission
+    const newsletterForm = document.getElementById('newsletter-form');
+    if (newsletterForm) {
+        newsletterForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            const submitBtn = this.querySelector('button[type="submit"]');
+            const originalText = submitBtn.textContent;
+            
+            // Show loading state
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Subscribing...';
+            submitBtn.disabled = true;
+            
+            // Simulate API call
+            setTimeout(() => {
+                // Success message
+                const successMsg = document.createElement('div');
+                successMsg.className = 'mt-3 p-3 bg-green-500/20 border border-green-500/30 rounded-lg';
+                successMsg.innerHTML = `
+                    <div class="flex items-center">
+                        <i class="fas fa-check-circle text-green-400 mr-2"></i>
+                        <span class="text-sm text-green-300">Thank you for subscribing!</span>
+                    </div>
+                `;
+                
+                this.appendChild(successMsg);
+                submitBtn.textContent = originalText;
+                submitBtn.disabled = false;
+                this.reset();
+                
+                // Remove message after 5 seconds
+                setTimeout(() => {
+                    successMsg.remove();
+                }, 5000);
+            }, 1000);
+        });
+    }
+    
+    // Back to top button (footer specific)
+    const footerBackToTop = document.getElementById('footer-back-to-top');
+    
+    window.addEventListener('scroll', () => {
+        if (window.scrollY > 500) {
+            footerBackToTop.classList.remove('opacity-0', 'invisible');
+            footerBackToTop.classList.add('opacity-100', 'visible');
+        } else {
+            footerBackToTop.classList.remove('opacity-100', 'visible');
+            footerBackToTop.classList.add('opacity-0', 'invisible');
+        }
+    });
+    
+    footerBackToTop.addEventListener('click', () => {
+        window.scrollTo({
+            top: 0,
+            behavior: 'smooth'
+        });
+    });
+    
+    // Animate payment logos on hover
+    const paymentLogos = document.querySelectorAll('.payment-logo');
+    paymentLogos.forEach(logo => {
+        logo.addEventListener('mouseenter', function() {
+            this.style.transform = 'scale(1.1)';
+        });
+        
+        logo.addEventListener('mouseleave', function() {
+            this.style.transform = 'scale(1)';
+        });
+    });
+    
+    // Smooth scroll for anchor links in footer
+    document.querySelectorAll('footer a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function(e) {
+            const href = this.getAttribute('href');
+            
+            // Only smooth scroll for on-page anchors
+            if (href !== '#') {
+                const target = document.querySelector(href);
+                if (target) {
+                    e.preventDefault();
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            }
+        });
+    });
+    
+    // Business hours display with current time
+    function updateBusinessStatus() {
+        const now = new Date();
+        const hour = now.getHours();
+        const day = now.getDay();
+        const businessHoursEl = document.getElementById('business-hours-status');
+        
+        if (businessHoursEl) {
+            const isWeekend = day === 0 || day === 6; // Sunday = 0, Saturday = 6
+            const isOpen = !isWeekend && hour >= 9 && hour < 22;
+            
+            if (isOpen) {
+                businessHoursEl.innerHTML = `
+                    <div class="flex items-center text-green-400">
+                        <i class="fas fa-circle text-xs mr-2 animate-pulse"></i>
+                        <span>Open Now • Closes at 10:00 PM</span>
+                    </div>
+                `;
+            } else {
+                businessHoursEl.innerHTML = `
+                    <div class="flex items-center text-red-400">
+                        <i class="fas fa-circle text-xs mr-2"></i>
+                        <span>Closed Now • Opens at 9:00 AM</span>
+                    </div>
+                `;
+            }
+        }
+    }
+    
+    // Update business status initially and every minute
+    updateBusinessStatus();
+    setInterval(updateBusinessStatus, 60000);
+    
+    // Visitor counter (simulated)
+    function updateVisitorCounter() {
+        const counterEl = document.getElementById('visitor-counter');
+        if (counterEl) {
+            // Generate a random number between 1000 and 5000
+            const count = Math.floor(Math.random() * 4000) + 1000;
+            counterEl.textContent = count.toLocaleString();
+        }
+    }
+    
+    // Uncomment to show visitor counter
+    // updateVisitorCounter();
+    // setInterval(updateVisitorCounter, 30000);
+});
+</script>
+
+<!-- Additional CSS for Footer -->
+<style>
+/* Footer specific styles */
+footer a {
+    position: relative;
+    transition: all 0.3s ease;
+}
+
+footer a:hover {
+    transform: translateX(3px);
+}
+
+/* Social media hover effects */
+footer .social-link {
+    position: relative;
+    overflow: hidden;
+}
+
+footer .social-link::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+    transition: left 0.5s ease;
+}
+
+footer .social-link:hover::before {
+    left: 100%;
+}
+
+/* Newsletter form focus effects */
+footer input:focus {
+    box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.2);
+}
+
+/* Payment logo animation */
+.payment-logo {
+    transition: all 0.3s ease;
+    filter: grayscale(50%);
+}
+
+.payment-logo:hover {
+    filter: grayscale(0%);
+    transform: scale(1.1);
+}
+
+/* Mobile banking logo styles */
+.mobile-banking-logo {
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.mobile-banking-logo:hover {
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    transform: translateY(-2px);
+}
+
+/* Section heading underline animation */
+footer h4:hover::after {
+    width: 100%;
+}
+
+footer h4::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background: linear-gradient(90deg, #F59E0B, #3B82F6);
+    transition: width 0.3s ease;
+}
+
+footer h4:hover::after {
+    width: 100%;
+}
+
+/* List item hover effect */
+footer ul li a::before {
+    content: '';
+    position: absolute;
+    left: -20px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 6px;
+    height: 6px;
+    background-color: #F59E0B;
+    border-radius: 50%;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+footer ul li a:hover::before {
+    opacity: 1;
+}
+
+/* Back to top button animation */
+#footer-back-to-top {
+    box-shadow: 0 4px 20px rgba(59, 130, 246, 0.3);
+}
+
+#footer-back-to-top:hover {
+    box-shadow: 0 6px 25px rgba(59, 130, 246, 0.4);
+    transform: translateY(-3px);
+}
+</style>

@@ -1,0 +1,379 @@
+<!-- ================= MOBILE RESPONSIVE HEADER ================= -->
+<header class="sticky top-0 z-50 bg-white/95 backdrop-blur-lg border-b border-gray-100 shadow-sm">
+
+    <!-- ===== TOP BAR ===== -->
+    <div class="max-w-8xl mx-auto px-3 sm:px-4 lg:px-8">
+        <div class="flex items-center justify-between h-14 lg:h-16">
+
+            <!-- Mobile Menu Button -->
+            <button id="mobile-menu-button" class="lg:hidden p-2 rounded-lg hover:bg-gray-100">
+                <i class="fas fa-bars text-gray-700 text-lg"></i>
+            </button>
+
+            <!-- Logo -->
+            <a href="{% url 'home' %}" class="flex items-center gap-2 lg:gap-3 group">
+                <div class="w-8 h-8 lg:w-9 lg:h-9 rounded-xl bg-gradient-to-br from-brand to-blue-600 flex items-center justify-center shadow-sm group-hover:shadow-md transition-shadow">
+                    <i class="fas fa-mobile-alt text-white text-xs lg:text-sm"></i>
+                </div>
+                <div class="flex flex-col">
+                    <p class="text-base lg:text-lg font-bold tracking-tight text-gray-900">
+                        Gadget<span class="text-transparent bg-clip-text bg-gradient-to-r from-brand to-blue-600">Carnival</span>
+                    </p>
+                    <p class="text-[10px] lg:text-xs text-gray-400 font-medium tracking-wide hidden sm:block">Premium Tech Store</p>
+                </div>
+            </a>
+
+            <!-- Search Bar - Desktop Only -->
+            <form method="GET" action="{#}" class="hidden lg:flex flex-1 max-w-2xl mx-4 lg:mx-8 relative">
+                <div class="relative w-full">
+                    <input
+                        type="text"
+                        name="q"
+                        value="{{ request.GET.q|default:'' }}"
+                        placeholder="Search products, brands, or categories..."
+                        class="w-full h-9 lg:h-10 pl-11 lg:pl-12 pr-4 rounded-full border border-gray-200 bg-gray-50/50 focus:bg-white focus:ring-2 focus:ring-brand/20 focus:border-brand/30 outline-none transition-all text-sm placeholder-gray-400"
+                    >
+                    <i class="fas fa-search absolute left-3.5 lg:left-4 top-2.5 lg:top-3 text-gray-400 text-sm"></i>
+                    <button type="submit" class="absolute right-2.5 lg:right-3 top-2 lg:top-2 text-brand hover:text-blue-600 transition-colors">
+                        <i class="fas fa-arrow-right text-sm"></i>
+                    </button>
+                </div>
+            </form>
+
+            <!-- Actions -->
+            <div class="flex items-center gap-1 lg:gap-2">
+
+                <!-- Mobile Search Button -->
+                <button id="mobile-search-button" class="lg:hidden p-2 rounded-xl hover:bg-gray-50 transition-colors">
+                    <i class="fas fa-search text-gray-600"></i>
+                </button>
+
+                <!-- Wishlist -->
+                <a href="{#}" class="relative p-2 lg:p-2.5 rounded-xl hover:bg-gray-50 transition-colors group">
+                    <i class="far fa-heart text-gray-600 text-base lg:text-lg group-hover:text-red-500 transition-colors"></i>
+                    {% if wishlist_count > 0 %}
+                    <span class="absolute -top-1 -right-1 w-4 h-4 lg:w-5 lg:h-5 text-[10px] lg:text-xs bg-gradient-to-br from-red-500 to-pink-500 text-white rounded-full flex items-center justify-center shadow-sm">
+                        {{ wishlist_count }}
+                    </span>
+                    {% endif %}
+                </a>
+
+                <!-- Cart -->
+                <a href="{% url 'cart_detail' %}" class="relative p-2 lg:p-2.5 rounded-xl hover:bg-gray-50 transition-colors group">
+                    <i class="fas fa-shopping-bag text-gray-600 text-base lg:text-lg group-hover:text-brand transition-colors"></i>
+                    {% if cart_count > 0 %}
+                    <span class="absolute -top-1 -right-1 w-4 h-4 lg:w-5 lg:h-5 text-[10px] lg:text-xs bg-gradient-to-br from-brand to-blue-600 text-white rounded-full flex items-center justify-center shadow-sm">
+                        {{ cart_count }}
+                    </span>
+                    {% endif %}
+                </a>
+
+                <!-- User Menu -->
+                {% if user.is_authenticated %}
+                <div class="relative group ml-1">
+                    <button class="flex items-center gap-1 lg:gap-2 p-1 lg:p-1.5 rounded-xl hover:bg-gray-50 transition-colors group">
+                        <div class="w-7 h-7 lg:w-9 lg:h-9 rounded-full bg-gradient-to-br from-brand to-blue-600 text-white flex items-center justify-center text-xs lg:text-sm font-semibold shadow-sm">
+                            {{ user.username|first|upper }}
+                        </div>
+                        <i class="fas fa-chevron-down text-xs text-gray-400 group-hover:text-gray-600 transition-colors hidden sm:block"></i>
+                    </button>
+
+                    <!-- Dropdown -->
+                    <div class="absolute right-0 mt-2 lg:mt-3 w-56 lg:w-64 bg-white border border-gray-100 rounded-xl lg:rounded-2xl shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 shadow-lg hidden lg:block">
+                        <!-- User Info -->
+                        <div class="px-4 lg:px-5 py-3 lg:py-4 border-b border-gray-50 bg-gradient-to-r from-gray-50/50 to-white/50">
+                            <p class="font-semibold text-gray-900 truncate text-sm">
+                                {{ user.get_full_name|default:user.username }}
+                            </p>
+                            <p class="text-xs text-gray-400 truncate mt-0.5">{{ user.email }}</p>
+                        </div>
+
+                        <!-- Menu Items -->
+                        <div class="py-2">
+                            {% if user.is_staff %}
+                            <a href="{% url 'admin_dashboard' %}" class="flex items-center gap-3 px-4 lg:px-5 py-2 lg:py-2.5 text-sm text-gray-700 hover:bg-blue-50 hover:text-brand transition-colors">
+                                <i class="fas fa-tachometer-alt w-4 text-gray-400"></i>
+                                <span>Admin Dashboard</span>
+                            </a>
+                            {% else %}
+                            <a href="{% url 'user_dashboard' %}" class="flex items-center gap-3 px-4 lg:px-5 py-2 lg:py-2.5 text-sm text-gray-700 hover:bg-blue-50 hover:text-brand transition-colors">
+                                <i class="fas fa-user-circle w-4 text-gray-400"></i>
+                                <span>Dashboard</span>
+                            </a>
+                            {% endif %}
+
+                            <a href="{% url 'profile' %}" class="flex items-center gap-3 px-4 lg:px-5 py-2 lg:py-2.5 text-sm text-gray-700 hover:bg-blue-50 hover:text-brand transition-colors">
+                                <i class="fas fa-user w-4 text-gray-400"></i>
+                                <span>Profile</span>
+                            </a>
+
+                            <a href="{% url 'order_history' %}" class="flex items-center gap-3 px-4 lg:px-5 py-2 lg:py-2.5 text-sm text-gray-700 hover:bg-blue-50 hover:text-brand transition-colors">
+                                <i class="fas fa-shopping-bag w-4 text-gray-400"></i>
+                                <span>My Orders</span>
+                            </a>
+
+                            <div class="border-t border-gray-50 mt-2 pt-2">
+                                <form method="post" action="{% url 'logout' %}">
+                                    {% csrf_token %}
+                                    <button type="submit" class="flex items-center gap-3 w-full px-4 lg:px-5 py-2 lg:py-2.5 text-sm text-red-600 hover:bg-red-50 transition-colors">
+                                        <i class="fas fa-sign-out-alt w-4"></i>
+                                        <span>Sign Out</span>
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% else %}
+                <div class="hidden sm:flex items-center gap-2 ml-1 lg:ml-2">
+                    <a href="{% url 'login' %}" class="px-3 lg:px-4 py-1.5 lg:py-2 text-sm font-medium text-gray-700 rounded-xl hover:bg-gray-50 transition-colors border border-gray-200 hover:border-gray-300">
+                        Sign In
+                    </a>
+                    <a href="{% url 'register' %}" class="px-3 lg:px-4 py-1.5 lg:py-2 text-sm font-medium bg-gradient-to-r from-brand to-blue-600 text-white rounded-xl shadow-sm hover:shadow-md transition-all">
+                        Get Started
+                    </a>
+                </div>
+                {% endif %}
+
+            </div>
+        </div>
+
+        <!-- Mobile Search Bar (Hidden by default) -->
+        <div id="mobile-search-container" class="lg:hidden hidden pb-3">
+            <form method="GET" action="{#}" class="relative">
+                <input
+                    type="text"
+                    name="q"
+                    value="{{ request.GET.q|default:'' }}"
+                    placeholder="Search products..."
+                    class="w-full h-10 pl-11 pr-4 rounded-full border border-gray-300 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-brand/20 focus:border-brand outline-none transition-all text-sm"
+                >
+                <i class="fas fa-search absolute left-4 top-3 text-gray-400"></i>
+                <button type="submit" class="absolute right-3 top-2.5 text-brand">
+                    <i class="fas fa-arrow-right"></i>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- ===== NAVIGATION BAR (Desktop Only) ===== -->
+    <nav class="border-t border-gray-50 bg-white/80 hidden lg:block">
+        <div class="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center h-12">
+
+                <!-- Category Navigation -->
+                <div class="flex items-center gap-1">
+                    {% for category in nav_categories %}
+                    <div class="relative group">
+                        <a href="{% url 'category_products' category.slug %}"
+                           class="flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium text-gray-700 hover:text-brand transition-colors group-hover:bg-blue-50/50">
+                            <span>{{ category.name }}</span>
+                            {% if category.subcategories.all %}
+                            <i class="fas fa-chevron-down text-xs text-gray-400 group-hover:text-brand transition-colors"></i>
+                            {% endif %}
+                        </a>
+
+                        {% if category.subcategories.all %}
+                        <div class="absolute left-0 top-full mt-2 w-64 bg-white border border-gray-100 rounded-xl shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 shadow-lg">
+                            <div class="p-2">
+                                {% for sub in category.subcategories.all|slice:":6" %}
+                                <a href="{% url 'subcategory_products' sub.slug %}"
+                                   class="flex items-center gap-3 px-3 py-2.5 text-sm text-gray-700 rounded-lg hover:bg-blue-50 hover:text-brand transition-colors">
+                                    <i class="fas fa-chevron-right text-xs text-gray-400 w-3"></i>
+                                    <span>{{ sub.name }}</span>
+                                </a>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+
+                    <!-- Offers Badge -->
+                    <a href="{#}" class="ml-2 px-4 py-2 text-sm font-medium text-white rounded-lg bg-gradient-to-r from-red-500 to-orange-500 shadow-sm hover:shadow-md transition-all flex items-center gap-2 group">
+                        <i class="fas fa-bolt text-xs"></i>
+                        <span>Hot Offers</span>
+                        <span class="animate-pulse">🔥</span>
+                    </a>
+                </div>
+
+            </div>
+        </div>
+    </nav>
+
+    <!-- ===== MOBILE MENU OVERLAY ===== -->
+    <div id="mobile-menu-overlay" class="fixed inset-0 bg-black/50 z-40 hidden lg:hidden"></div>
+
+    <!-- ===== MOBILE SIDEBAR MENU ===== -->
+    <div id="mobile-menu-sidebar" class="fixed left-0 top-0 h-full w-72 bg-white shadow-xl z-50 transform -translate-x-full transition-transform duration-300 lg:hidden">
+        <div class="p-5 border-b">
+            <div class="flex items-center justify-between mb-4">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-brand to-blue-600 flex items-center justify-center">
+                        <i class="fas fa-mobile-alt text-white"></i>
+                    </div>
+                    <div>
+                        <p class="font-bold text-gray-900">GadgetCarnival</p>
+                        <p class="text-xs text-gray-500">Premium Tech Store</p>
+                    </div>
+                </div>
+                <button id="mobile-menu-close" class="p-2 rounded-lg hover:bg-gray-100">
+                    <i class="fas fa-times text-gray-600"></i>
+                </button>
+            </div>
+
+            <!-- User Info in Mobile Menu -->
+            {% if user.is_authenticated %}
+            <div class="bg-gray-50 rounded-xl p-3 mb-4">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-full bg-gradient-to-br from-brand to-blue-600 text-white flex items-center justify-center font-semibold">
+                        {{ user.username|first|upper }}
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <p class="font-semibold text-gray-900 truncate text-sm">
+                            {{ user.get_full_name|default:user.username }}
+                        </p>
+                        <p class="text-xs text-gray-500 truncate">{{ user.email }}</p>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        <div class="overflow-y-auto h-[calc(100vh-140px)]">
+            <!-- Categories -->
+            <div class="px-3 py-2">
+                <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider px-3 mb-2">Categories</p>
+                <div class="space-y-1">
+                    {% for category in nav_categories %}
+                    <a href="{% url 'category_products' category.slug %}"
+                       class="flex items-center justify-between px-3 py-3 rounded-lg hover:bg-gray-50 transition-colors">
+                        <div class="flex items-center gap-3">
+                            <i class="fas fa-layer-group text-gray-400 w-4"></i>
+                            <span class="font-medium text-gray-700">{{ category.name }}</span>
+                        </div>
+                        {% if category.subcategories.all %}
+                        <i class="fas fa-chevron-right text-xs text-gray-400"></i>
+                        {% endif %}
+                    </a>
+                    {% endfor %}
+                    
+                    <!-- Offers -->
+                    <a href="{#}" class="flex items-center gap-3 px-3 py-3 rounded-lg bg-gradient-to-r from-red-50 to-orange-50 text-red-600">
+                        <i class="fas fa-bolt"></i>
+                        <span class="font-semibold">Hot Offers</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Menu Links -->
+            <div class="border-t border-gray-100 px-3 py-4">
+                <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider px-3 mb-2">Menu</p>
+                <div class="space-y-1">
+                    {% if user.is_authenticated %}
+                    {% if user.is_staff %}
+                    <a href="{% url 'admin_dashboard' %}" class="flex items-center gap-3 px-3 py-3 rounded-lg hover:bg-gray-50 transition-colors">
+                        <i class="fas fa-tachometer-alt text-gray-400"></i>
+                        <span>Admin Dashboard</span>
+                    </a>
+                    {% else %}
+                    <a href="{% url 'user_dashboard' %}" class="flex items-center gap-3 px-3 py-3 rounded-lg hover:bg-gray-50 transition-colors">
+                        <i class="fas fa-user-circle text-gray-400"></i>
+                        <span>Dashboard</span>
+                    </a>
+                    {% endif %}
+                    <a href="{% url 'profile' %}" class="flex items-center gap-3 px-3 py-3 rounded-lg hover:bg-gray-50 transition-colors">
+                        <i class="fas fa-user text-gray-400"></i>
+                        <span>Profile</span>
+                    </a>
+                    <a href="{% url 'order_history' %}" class="flex items-center gap-3 px-3 py-3 rounded-lg hover:bg-gray-50 transition-colors">
+                        <i class="fas fa-shopping-bag text-gray-400"></i>
+                        <span>My Orders</span>
+                    </a>
+                    {% endif %}
+                    
+                    <a href="{#}" class="flex items-center gap-3 px-3 py-3 rounded-lg hover:bg-gray-50 transition-colors">
+                        <i class="far fa-heart text-gray-400"></i>
+                        <span>Wishlist</span>
+                    </a>
+                    
+                    <a href="{% url 'cart_detail' %}" class="flex items-center gap-3 px-3 py-3 rounded-lg hover:bg-gray-50 transition-colors">
+                        <i class="fas fa-shopping-bag text-gray-400"></i>
+                        <span>Shopping Cart</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Auth Buttons -->
+            {% if not user.is_authenticated %}
+            <div class="border-t border-gray-100 px-3 py-6">
+                <div class="space-y-3">
+                    <a href="{% url 'login' %}" class="block w-full text-center px-4 py-3 text-sm font-medium text-gray-700 rounded-xl border border-gray-300 hover:bg-gray-50 transition-colors">
+                        Sign In
+                    </a>
+                    <a href="{% url 'register' %}" class="block w-full text-center px-4 py-3 text-sm font-medium bg-gradient-to-r from-brand to-blue-600 text-white rounded-xl shadow-sm">
+                        Create Account
+                    </a>
+                </div>
+            </div>
+            {% else %}
+            <div class="border-t border-gray-100 px-3 py-4">
+                <form method="post" action="{% url 'logout' %}">
+                    {% csrf_token %}
+                    <button type="submit" class="flex items-center justify-center gap-3 w-full px-4 py-3 text-sm font-medium text-red-600 rounded-xl border border-red-200 hover:bg-red-50 transition-colors">
+                        <i class="fas fa-sign-out-alt"></i>
+                        Sign Out
+                    </button>
+                </form>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+</header>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Mobile Menu Toggle
+    const menuButton = document.getElementById('mobile-menu-button');
+    const menuClose = document.getElementById('mobile-menu-close');
+    const menuSidebar = document.getElementById('mobile-menu-sidebar');
+    const menuOverlay = document.getElementById('mobile-menu-overlay');
+    
+    // Mobile Search Toggle
+    const searchButton = document.getElementById('mobile-search-button');
+    const searchContainer = document.getElementById('mobile-search-container');
+    
+    // Toggle Mobile Menu
+    menuButton.addEventListener('click', () => {
+        menuSidebar.classList.remove('-translate-x-full');
+        menuOverlay.classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+    });
+    
+    // Close Mobile Menu
+    function closeMobileMenu() {
+        menuSidebar.classList.add('-translate-x-full');
+        menuOverlay.classList.add('hidden');
+        document.body.style.overflow = '';
+    }
+    
+    menuClose.addEventListener('click', closeMobileMenu);
+    menuOverlay.addEventListener('click', closeMobileMenu);
+    
+    // Toggle Mobile Search
+    searchButton.addEventListener('click', () => {
+        searchContainer.classList.toggle('hidden');
+        if (!searchContainer.classList.contains('hidden')) {
+            searchContainer.querySelector('input').focus();
+        }
+    });
+    
+    // Close search when clicking outside (for mobile)
+    document.addEventListener('click', (e) => {
+        if (!searchContainer.contains(e.target) && !searchButton.contains(e.target)) {
+            searchContainer.classList.add('hidden');
+        }
+    });
+});
+</script>

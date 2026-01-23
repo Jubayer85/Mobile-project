@@ -1,0 +1,1353 @@
+{% extends "admin/base_admin.html" %}
+{% load static %}
+
+{% block title %}Add New Product | Admin Dashboard{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 text-slate-800">
+    <!-- Header -->
+    <div class="bg-white shadow-sm border-b border-slate-200">
+        <div class="max-w-7xl mx-auto px-6 py-4">
+            <div class="flex items-center justify-between">
+                <div>
+                    <nav class="flex items-center space-x-2 text-sm text-slate-500 mb-1">
+                        <a href="{% url 'admin_dashboard' %}" class="hover:text-indigo-600 transition-colors">Dashboard</a>
+                        <span class="text-slate-300">›</span>
+                        <a href="{% url 'admin_product_list' %}" class="hover:text-indigo-600 transition-colors">Products</a>
+                        <span class="text-slate-300">›</span>
+                        <span class="text-slate-800 font-medium">Add New</span>
+                    </nav>
+                    <h1 class="text-2xl font-bold text-slate-900">Add New Product</h1>
+                    <p class="text-slate-500 mt-1">Create a new product listing with detailed information</p>
+                </div>
+                <div class="flex items-center space-x-3">
+                    <span class="px-3 py-1 bg-emerald-50 text-emerald-700 text-xs font-medium rounded-full border border-emerald-200">
+                        <i class="fas fa-check-circle mr-1"></i> SEO Ready
+                    </span>
+                    <button onclick="window.history.back()" 
+                            class="px-4 py-2 text-sm text-slate-600 hover:text-slate-800 hover:bg-slate-50 rounded-lg border border-slate-300 transition-colors">
+                        <i class="fas fa-arrow-left mr-2"></i>Back
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="max-w-7xl mx-auto px-6 py-8">
+        {% if messages %}
+            <div class="mb-8 space-y-3">
+                {% for message in messages %}
+                <div class="flex items-center justify-between p-4 rounded-xl {% if message.tags == 'success' %}bg-emerald-50 border border-emerald-200 text-emerald-700{% elif message.tags == 'error' %}bg-rose-50 border border-rose-200 text-rose-700{% else %}bg-indigo-50 border border-indigo-200 text-indigo-700{% endif %}">
+                    <div class="flex items-center">
+                        {% if message.tags == 'success' %}
+                        <i class="fas fa-check-circle text-emerald-500 mr-3 text-lg"></i>
+                        {% elif message.tags == 'error' %}
+                        <i class="fas fa-exclamation-circle text-rose-500 mr-3 text-lg"></i>
+                        {% else %}
+                        <i class="fas fa-info-circle text-indigo-500 mr-3 text-lg"></i>
+                        {% endif %}
+                        <span class="font-medium">{{ message }}</span>
+                    </div>
+                    <button onclick="this.parentElement.remove()" class="text-slate-400 hover:text-slate-600">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
+            <!-- Left Sidebar - Progress Steps -->
+            <div class="lg:col-span-1">
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 sticky top-8">
+                    <h3 class="font-semibold text-slate-900 mb-6 text-lg">Creation Steps</h3>
+                    <div class="space-y-6">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-8 h-8 rounded-full bg-indigo-600 text-white flex items-center justify-center font-semibold">1</div>
+                            <div>
+                                <p class="font-medium text-slate-900">Basic Info</p>
+                                <p class="text-sm text-slate-500">Name, Category, Brand</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-3">
+                            <div class="w-8 h-8 rounded-full bg-slate-200 text-slate-500 flex items-center justify-center font-semibold">2</div>
+                            <div>
+                                <p class="font-medium text-slate-500">Pricing & Stock</p>
+                                <p class="text-sm text-slate-400">Price, quantity, status</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-3">
+                            <div class="w-8 h-8 rounded-full bg-slate-200 text-slate-500 flex items-center justify-center font-semibold">3</div>
+                            <div>
+                                <p class="font-medium text-slate-500">Description</p>
+                                <p class="text-sm text-slate-400">Product details</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-3">
+                            <div class="w-8 h-8 rounded-full bg-slate-200 text-slate-500 flex items-center justify-center font-semibold">4</div>
+                            <div>
+                                <p class="font-medium text-slate-500">Media</p>
+                                <p class="text-sm text-slate-400">Images & gallery</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-8 pt-6 border-t border-slate-200">
+                        <div class="flex items-center justify-between text-sm">
+                            <span class="text-slate-500">Progress</span>
+                            <span class="font-semibold text-indigo-600" id="progressText">25%</span>
+                        </div>
+                        <div class="mt-2 h-2 bg-slate-200 rounded-full overflow-hidden">
+                            <div class="h-full bg-indigo-600 rounded-full" id="progressBar" style="width: 25%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Form -->
+            <div class="lg:col-span-3">
+                <form method="POST" enctype="multipart/form-data" id="productForm" class="space-y-8">
+                    {% csrf_token %}
+                    
+                    <!-- Card 1: Basic Information -->
+                    <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                        <div class="px-8 py-6 border-b border-slate-200 bg-gradient-to-r from-slate-50 to-white">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center space-x-3">
+                                    <div class="w-10 h-10 rounded-lg bg-indigo-100 text-indigo-600 flex items-center justify-center">
+                                        <i class="fas fa-info-circle"></i>
+                                    </div>
+                                    <div>
+                                        <h2 class="text-xl font-bold text-slate-900">Basic Information</h2>
+                                        <p class="text-slate-500 text-sm">Enter product name, category and brand details</p>
+                                    </div>
+                                </div>
+                                <span class="px-3 py-1 bg-indigo-100 text-indigo-700 text-xs font-medium rounded-full">Required</span>
+                            </div>
+                        </div>
+                        
+                        <div class="p-8 space-y-6">
+                            <!-- Product Name & Slug -->
+                            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                                <div>
+                                    <label class="block text-sm font-semibold text-slate-700 mb-2">
+                                        Product Name <span class="text-rose-500">*</span>
+                                    </label>
+                                    <div class="relative">
+                                        <input type="text" 
+                                               name="name" 
+                                               id="id_name"
+                                               required
+                                               placeholder="e.g., iPhone 16 Pro Max 256GB"
+                                               class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 pl-10 text-slate-800 shadow-sm focus:border-indigo-500 focus:ring-3 focus:ring-indigo-500/20 transition-all duration-300 placeholder:text-slate-400 hover:border-slate-400">
+                                        <div class="absolute left-3 top-3.5 text-slate-400">
+                                            <i class="fas fa-tag"></i>
+                                        </div>
+                                    </div>
+                                    <p class="text-xs text-slate-400 mt-2">
+                                        <i class="fas fa-lightbulb mr-1"></i> Use descriptive and SEO-friendly names
+                                    </p>
+                                </div>
+                                
+                                <div>
+                                    <label class="block text-sm font-semibold text-slate-700 mb-2">
+                                        URL Slug
+                                    </label>
+                                    <div class="relative">
+                                        <input type="text" 
+                                               name="slug" 
+                                               id="id_slug"
+                                               placeholder="e.g., iphone-16-pro-max-256gb"
+                                               class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 pl-10 text-slate-800 shadow-sm focus:border-indigo-500 focus:ring-3 focus:ring-indigo-500/20 transition-all duration-300 placeholder:text-slate-400 hover:border-slate-400">
+                                        <div class="absolute left-3 top-3.5 text-slate-400">
+                                            <i class="fas fa-link"></i>
+                                        </div>
+                                    </div>
+                                    <button type="button" id="generateSlug" 
+                                            class="mt-2 text-sm text-indigo-600 hover:text-indigo-800 font-medium inline-flex items-center">
+                                        <i class="fas fa-magic mr-2"></i> Generate from name
+                                    </button>
+                                </div>
+                            </div>
+                            
+                          <!-- Category, SubCategory & Brand -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <!-- Category -->
+    <div>
+        <div class="flex items-center justify-between mb-2">
+            <label class="block text-sm font-semibold text-slate-700">
+                Category <span class="text-rose-500">*</span>
+            </label>
+            <div class="flex space-x-2">
+                <button type="button"
+                        hx-get="{% url 'add_category_modal' %}"
+                        hx-target="#modal-container"
+                        hx-trigger="click"
+                        class="text-xs text-indigo-600 hover:text-indigo-800 font-medium inline-flex items-center">
+                    <i class="fas fa-plus-circle mr-1"></i> Add Category
+                </button>
+            </div>
+        </div>
+        <div class="relative">
+            <select name="category"
+        id="id_category"
+        required
+        hx-get="{% url 'load_subcategories' %}"
+        hx-target="#id_subcategory"
+        hx-trigger="change"
+        hx-include="[name='category']"
+        class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 pl-10 text-slate-800 shadow-sm
+               focus:border-indigo-500 focus:ring-3 focus:ring-indigo-500/20 transition-all duration-300
+               hover:border-slate-400 appearance-none">
+
+    <option value="">Select a category</option>
+    {% for category in form.fields.category.queryset %}
+        <option value="{{ category.id }}">
+            {{ category.name }}
+        </option>
+    {% endfor %}
+</select>
+            <div class="absolute left-3 top-3.5 text-slate-400 pointer-events-none">
+                <i class="fas fa-layer-group"></i>
+            </div>
+            <div class="absolute right-3 top-3.5 text-slate-400 pointer-events-none">
+                <i class="fas fa-chevron-down"></i>
+            </div>
+        </div>
+    </div>
+    
+    <!-- SubCategory -->
+    <div>
+        <div class="flex items-center justify-between mb-2">
+            <label class="block text-sm font-semibold text-slate-700">
+                SubCategory <span class="text-rose-500">*</span>
+            </label>
+            <button type="button"
+                    hx-get="{% url 'subcategory_modal' %}"
+                    hx-target="#modal-container"
+                    hx-trigger="click"
+                    class="text-xs text-amber-600 hover:text-amber-800 font-medium inline-flex items-center">
+                <i class="fas fa-plus-square mr-1"></i> Add SubCategory
+            </button>
+        </div>
+        <div class="relative">
+            <select name="subcategory" 
+                    id="id_subcategory" 
+                    required
+                    class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 pl-10 text-slate-800 shadow-sm focus:border-indigo-500 focus:ring-3 focus:ring-indigo-500/20 transition-all duration-300 hover:border-slate-400 appearance-none">
+                <option value="">Select a subcategory</option>
+                {% if form.instance.subcategory_id %}
+                    <option value="{{ form.instance.subcategory_id }}" selected>
+                        {{ form.instance.subcategory.name }}
+                    </option>
+                {% endif %}
+            </select>
+            <div class="absolute left-3 top-3.5 text-slate-400 pointer-events-none">
+                <i class="fas fa-tags"></i>
+            </div>
+            <div class="absolute right-3 top-3.5 text-slate-400 pointer-events-none">
+                <i class="fas fa-chevron-down"></i>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Brand -->
+    <div>
+        <div class="flex items-center justify-between mb-2">
+            <label class="block text-sm font-semibold text-slate-700">
+                Brand <span class="text-rose-500">*</span>
+            </label>
+            <button type="button"
+                    hx-get="{% url 'add_brand_modal' %}"
+                    hx-target="#modal-container"
+                    hx-trigger="click"
+                    class="text-xs text-indigo-600 hover:text-indigo-800 font-medium inline-flex items-center">
+                <i class="fas fa-plus-circle mr-1"></i> Add Brand
+            </button>
+        </div>
+        <div class="relative">
+            <select name="brand" 
+                    id="id_brand" 
+                    required
+                    class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 pl-10 text-slate-800 shadow-sm focus:border-indigo-500 focus:ring-3 focus:ring-indigo-500/20 transition-all duration-300 hover:border-slate-400 appearance-none">
+                <option value="">Select a brand</option>
+                {% for brand in form.fields.brand.queryset %}
+                    <option value="{{ brand.id }}" 
+                            {% if form.instance.brand_id == brand.id %}selected{% endif %}>
+                        {{ brand.name }}
+                    </option>
+                {% endfor %}
+            </select>
+            <div class="absolute left-3 top-3.5 text-slate-400 pointer-events-none">
+                <i class="fas fa-copyright"></i>
+            </div>
+            <div class="absolute right-3 top-3.5 text-slate-400 pointer-events-none">
+                <i class="fas fa-chevron-down"></i>
+            </div>
+        </div>
+    </div>
+</div>
+                    <!-- Card 2: Pricing & Stock -->
+                    <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                        <div class="px-8 py-6 border-b border-slate-200 bg-gradient-to-r from-slate-50 to-white">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-10 h-10 rounded-lg bg-emerald-100 text-emerald-600 flex items-center justify-center">
+                                    <i class="fas fa-money-bill-wave"></i>
+                                </div>
+                                <div>
+                                    <h2 class="text-xl font-bold text-slate-900">Pricing & Stock</h2>
+                                    <p class="text-slate-500 text-sm">Set pricing, stock quantity and product status</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="p-8">
+                            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                                <!-- Price -->
+                                <div>
+                                    <label class="block text-sm font-semibold text-slate-700 mb-2">
+                                        Price (৳) <span class="text-rose-500">*</span>
+                                    </label>
+                                    <div class="relative">
+                                        <div class="absolute left-3 top-3.5 text-slate-400 font-medium">৳</div>
+                                        <input type="number" 
+                                               name="price" 
+                                               id="id_price"
+                                               required
+                                               min="0"
+                                               step="1"
+                                               placeholder="0"
+                                               class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 pl-10 text-slate-800 shadow-sm focus:border-indigo-500 focus:ring-3 focus:ring-indigo-500/20 transition-all duration-300 placeholder:text-slate-400 hover:border-slate-400">
+                                    </div>
+                                    <p class="text-xs text-slate-400 mt-2">
+                                        <i class="fas fa-percentage mr-1"></i> Competitive pricing recommended
+                                    </p>
+                                </div>
+                                
+                                <!-- Stock Quantity -->
+                                <div>
+                                    <label class="block text-sm font-semibold text-slate-700 mb-2">
+                                        Stock Quantity
+                                    </label>
+                                    <div class="relative">
+                                        <input type="number" 
+                                               name="stock_quantity" 
+                                               id="id_stock_quantity"
+                                               min="0"
+                                               step="1"
+                                               value="0"
+                                               class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 pl-10 text-slate-800 shadow-sm focus:border-indigo-500 focus:ring-3 focus:ring-indigo-500/20 transition-all duration-300 placeholder:text-slate-400 hover:border-slate-400">
+                                        <div class="absolute left-3 top-3.5 text-slate-400">
+                                            <i class="fas fa-boxes"></i>
+                                        </div>
+                                    </div>
+                                    <p class="text-xs text-slate-400 mt-2">
+                                        <i class="fas fa-exclamation-triangle mr-1"></i> Set to 0 for out of stock
+                                    </p>
+                                </div>
+                                
+                                <!-- Status Toggles -->
+                                <div class="lg:col-span-1">
+                                    <label class="block text-sm font-semibold text-slate-700 mb-4">
+                                        Product Status
+                                    </label>
+                                    <div class="space-y-4">
+                                        <!-- Is Active -->
+                                        <label class="custom-checkbox flex items-center justify-between p-3 rounded-lg border border-slate-200 hover:border-indigo-300 hover:bg-indigo-50 transition-colors cursor-pointer">
+                                            <div class="flex items-center">
+                                                <input type="checkbox" 
+                                                       name="is_active" 
+                                                       id="id_is_active"
+                                                       value="true"
+                                                       checked>
+                                                <span class="checkmark"></span>
+                                                <span class="ml-3 font-medium text-slate-700">Active Product</span>
+                                            </div>
+                                            <span class="px-2 py-1 bg-emerald-100 text-emerald-700 text-xs font-medium rounded">Live</span>
+                                        </label>
+                                        
+                                        <!-- Is Featured -->
+                                        <label class="custom-checkbox flex items-center justify-between p-3 rounded-lg border border-slate-200 hover:border-indigo-300 hover:bg-indigo-50 transition-colors cursor-pointer">
+                                            <div class="flex items-center">
+                                                <input type="checkbox" 
+                                                       name="is_featured" 
+                                                       id="id_is_featured"
+                                                       value="true">
+                                                <span class="checkmark"></span>
+                                                <span class="ml-3 font-medium text-slate-700">Featured Product</span>
+                                            </div>
+                                            <span class="px-2 py-1 bg-amber-100 text-amber-700 text-xs font-medium rounded">Featured</span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Card 3: Description -->
+                    <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                        <div class="px-8 py-6 border-b border-slate-200 bg-gradient-to-r from-slate-50 to-white">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-10 h-10 rounded-lg bg-blue-100 text-blue-600 flex items-center justify-center">
+                                    <i class="fas fa-align-left"></i>
+                                </div>
+                                <div>
+                                    <h2 class="text-xl font-bold text-slate-900">Description & Details</h2>
+                                    <p class="text-slate-500 text-sm">Write detailed product description for customers</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="p-8">
+                            <div>
+                                <label class="block text-sm font-semibold text-slate-700 mb-2">
+                                    Product Description <span class="text-rose-500">*</span>
+                                </label>
+                                <textarea name="description" 
+                                          id="id_description"
+                                          required
+                                          rows="6"
+                                          placeholder="Describe the product features, specifications, and benefits..."
+                                          class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 text-slate-800 shadow-sm focus:border-indigo-500 focus:ring-3 focus:ring-indigo-500/20 transition-all duration-300 placeholder:text-slate-400 hover:border-slate-400"></textarea>
+                                <div class="flex items-center justify-between mt-4 text-sm text-slate-500">
+                                    <div class="flex items-center space-x-4">
+                                        <span><i class="fas fa-keyboard mr-1"></i> Min. 100 characters</span>
+                                        <span><i class="fas fa-lightbulb mr-1"></i> Include keywords</span>
+                                    </div>
+                                    <span id="charCount" class="font-medium">0 characters</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Card 4: Media -->
+                    <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                        <div class="px-8 py-6 border-b border-slate-200 bg-gradient-to-r from-slate-50 to-white">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center space-x-3">
+                                    <div class="w-10 h-10 rounded-lg bg-purple-100 text-purple-600 flex items-center justify-center">
+                                        <i class="fas fa-images"></i>
+                                    </div>
+                                    <div>
+                                        <h2 class="text-xl font-bold text-slate-900">Product Images</h2>
+                                        <p class="text-slate-500 text-sm">Upload main product image and gallery</p>
+                                    </div>
+                                </div>
+                                <!-- Gallery Button -->
+                                <button type="button"
+                                        onclick="openGalleryManager()"
+                                        class="px-4 py-2 rounded-lg bg-gradient-to-r from-purple-600 to-purple-700 text-white font-medium hover:from-purple-700 hover:to-purple-800">
+                                    <i class="fas fa-images mr-2"></i> Manage Gallery
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="p-8">
+                            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                                <!-- Upload Area -->
+                                <div>
+                                    <label class="block text-sm font-semibold text-slate-700 mb-2">
+                                        Main Product Image <span class="text-rose-500">*</span>
+                                    </label>
+                                    <div onclick="document.getElementById('id_image').click()" 
+                                         class="file-upload-area border-3 border-dashed border-slate-300 rounded-2xl p-8 text-center cursor-pointer hover:border-indigo-400 hover:bg-indigo-50 bg-slate-50 transition-all duration-300 group">
+                                        <div class="w-20 h-20 mx-auto mb-4 text-slate-300 group-hover:text-indigo-400">
+                                            <i class="fas fa-cloud-upload-alt text-5xl"></i>
+                                        </div>
+                                        <p class="text-lg font-semibold text-slate-700 mb-2 group-hover:text-indigo-600">
+                                            Click to upload image
+                                        </p>
+                                        <p class="text-sm text-slate-500 mb-4">
+                                            JPG, PNG or WebP • Max 5MB • Recommended 800×800
+                                        </p>
+                                        <input type="file" 
+                                               name="image" 
+                                               id="id_image"
+                                               accept="image/*"
+                                               class="hidden">
+                                        <button type="button" 
+                                                onclick="document.getElementById('id_image').click()"
+                                                class="px-4 py-2 bg-slate-200 text-slate-700 rounded-lg hover:bg-slate-300 text-sm font-medium">
+                                            <i class="fas fa-folder-open mr-2"></i>Browse Files
+                                        </button>
+                                    </div>
+                                </div>
+                                
+                                <!-- Preview Area -->
+                                <div>
+                                    <label class="block text-sm font-semibold text-slate-700 mb-2">
+                                        Image Preview
+                                    </label>
+                                    <div class="relative border-2 border-slate-200 rounded-2xl p-6 bg-gradient-to-br from-slate-50 to-white">
+                                        <div id="previewContainer" class="flex items-center justify-center min-h-[200px]">
+                                            <img id="imagePreview" 
+                                                 src="{% static 'images/placeholder.jpg' %}" 
+                                                 alt="Image Preview"
+                                                 class="w-48 h-48 rounded-xl border-4 border-white shadow-lg object-cover">
+                                        </div>
+                                        <div id="previewInfo" class="mt-6 p-4 bg-slate-50 rounded-xl text-center hidden">
+                                            <p class="font-medium text-slate-700" id="fileName"></p>
+                                            <p class="text-sm text-slate-500 mt-1" id="fileSize"></p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Gallery Images Preview -->
+                            <div class="mt-8">
+                                <h3 class="text-lg font-semibold text-slate-800 mb-4">Gallery Images</h3>
+                                <div id="galleryContainer" class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                                    <!-- Gallery images will appear here -->
+                                    <div class="border-2 border-dashed border-slate-300 rounded-xl p-6 text-center hover:border-indigo-400 cursor-pointer"
+                                         onclick="openGalleryManager()">
+                                        <i class="fas fa-plus text-slate-400 text-3xl mb-2"></i>
+                                        <p class="text-sm text-slate-500">Add Gallery Images</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Form Actions -->
+                    <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-8">
+                        <div class="flex flex-col sm:flex-row items-center justify-between space-y-4 sm:space-y-0">
+                            <div class="flex items-center space-x-4">
+                                <button type="button" 
+                                        onclick="window.history.back()" 
+                                        class="px-6 py-3 rounded-xl border border-slate-300 text-slate-700 hover:bg-slate-50 hover:border-slate-400 font-medium transition-colors">
+                                    <i class="fas fa-times mr-2"></i>Cancel
+                                </button>
+                                <button type="button" 
+                                        onclick="document.getElementById('productForm').reset()"
+                                        class="px-6 py-3 rounded-xl border border-slate-300 text-slate-700 hover:bg-slate-50 hover:border-slate-400 font-medium transition-colors">
+                                    <i class="fas fa-redo mr-2"></i>Reset Form
+                                </button>
+                            </div>
+                            <div class="flex items-center space-x-4">
+                                <button type="button"
+                                        class="px-6 py-3 rounded-xl border border-indigo-300 text-indigo-600 hover:bg-indigo-50 font-medium transition-colors">
+                                    <i class="fas fa-save mr-2"></i>Save Draft
+                                </button>
+                                <button type="submit" 
+                                        class="px-8 py-3 rounded-xl bg-gradient-to-r from-indigo-600 to-indigo-700 text-white font-semibold hover:from-indigo-700 hover:to-indigo-800 shadow-md hover:shadow-lg transition-all duration-300">
+                                    <i class="fas fa-rocket mr-2"></i>Publish Product
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-6 pt-6 border-t border-slate-200 text-center">
+                            <p class="text-sm text-slate-500">
+                                <i class="fas fa-shield-alt mr-1"></i> Your data is secured with 256-bit SSL encryption
+                            </p>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Container for HTMX -->
+<div id="modal-container" class="fixed inset-0 z-[100] hidden overflow-y-auto p-4">
+    <div class="flex min-h-full items-center justify-center">
+        <div class="relative w-full max-w-md">
+            <!-- Modal will be inserted here by HTMX -->
+        </div>
+    </div>
+</div>
+
+<!-- Modal Backdrop -->
+<div id="modal-backdrop" 
+     class="fixed inset-0 bg-black bg-opacity-50 z-[99] hidden backdrop-blur-sm transition-opacity"
+     onclick="closeModal()"></div>
+
+<!-- Hidden inputs for gallery -->
+<input type="hidden" id="gallery_images" name="gallery_images">
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://unpkg.com/htmx.org@1.9.10"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize progress tracking
+    updateProgress();
+    
+    // Slug Generation
+    const generateSlugBtn = document.getElementById('generateSlug');
+    const nameField = document.getElementById('id_name');
+    const slugField = document.getElementById('id_slug');
+    
+    if (generateSlugBtn && nameField && slugField) {
+        generateSlugBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            const name = nameField.value.trim();
+            if (!name) {
+                // Show error if name is empty
+                nameField.focus();
+                nameField.classList.add('border-rose-500', 'ring-2', 'ring-rose-200');
+                setTimeout(() => {
+                    nameField.classList.remove('border-rose-500', 'ring-2', 'ring-rose-200');
+                }, 2000);
+                
+                showToast('Please enter a product name first', 'error');
+                return;
+            }
+            
+            // Generate slug
+            const slug = name
+                .toLowerCase()
+                .replace(/[^\w\s-]/g, '')
+                .replace(/\s+/g, '-')
+                .replace(/-+/g, '-')
+                .trim();
+            
+            slugField.value = slug;
+            
+            // Show success animation
+            const originalHTML = generateSlugBtn.innerHTML;
+            generateSlugBtn.innerHTML = '<i class="fas fa-check mr-2"></i>Generated!';
+            generateSlugBtn.classList.remove('text-indigo-600', 'hover:text-indigo-800');
+            generateSlugBtn.classList.add('text-emerald-600', 'bg-emerald-50', 'px-3', 'py-1', 'rounded-lg');
+            
+            // Reset after 2 seconds
+            setTimeout(() => {
+                generateSlugBtn.innerHTML = originalHTML;
+                generateSlugBtn.classList.remove('text-emerald-600', 'bg-emerald-50', 'px-3', 'py-1', 'rounded-lg');
+                generateSlugBtn.classList.add('text-indigo-600', 'hover:text-indigo-800');
+            }, 2000);
+            
+            showToast('Slug generated successfully', 'success');
+        });
+    }
+    
+    // Character Counter
+    const descField = document.getElementById('id_description');
+    const charCount = document.getElementById('charCount');
+    
+    if (descField && charCount) {
+        descField.addEventListener('input', function() {
+            const count = this.value.length;
+            charCount.textContent = `${count} characters`;
+            
+            // Color coding
+            if (count < 100) {
+                charCount.classList.add('text-rose-500');
+                charCount.classList.remove('text-amber-500', 'text-emerald-500');
+            } else if (count < 200) {
+                charCount.classList.remove('text-rose-500', 'text-emerald-500');
+                charCount.classList.add('text-amber-500');
+            } else {
+                charCount.classList.remove('text-rose-500', 'text-amber-500');
+                charCount.classList.add('text-emerald-500');
+            }
+        });
+        
+        // Trigger initial count
+        descField.dispatchEvent(new Event('input'));
+    }
+    
+    // Image Preview
+    const imageInput = document.getElementById('id_image');
+    if (imageInput) {
+        imageInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            const preview = document.getElementById('imagePreview');
+            const previewInfo = document.getElementById('previewInfo');
+            const fileName = document.getElementById('fileName');
+            const fileSize = document.getElementById('fileSize');
+            
+            if (file) {
+                // Validate file size (5MB limit)
+                if (file.size > 5 * 1024 * 1024) {
+                    showToast('File size must be less than 5MB', 'error');
+                    this.value = '';
+                    return;
+                }
+                
+                // Validate file type
+                const validTypes = ['image/jpeg', 'image/png', 'image/webp'];
+                if (!validTypes.includes(file.type)) {
+                    showToast('Only JPG, PNG, and WebP files are allowed', 'error');
+                    this.value = '';
+                    return;
+                }
+                
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    preview.src = e.target.result;
+                    
+                    // Show file info
+                    fileName.textContent = file.name;
+                    fileSize.textContent = `${(file.size / 1024 / 1024).toFixed(2)} MB`;
+                    previewInfo.classList.remove('hidden');
+                    
+                    // Success animation
+                    const container = preview.closest('.relative');
+                    container.classList.add('success-pulse', 'border-emerald-500');
+                    setTimeout(() => {
+                        container.classList.remove('success-pulse', 'border-emerald-500');
+                    }, 2000);
+                    
+                    showToast('Image uploaded successfully', 'success');
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+    }
+    
+    // HTMX Configuration
+    htmx.config.useTemplateFragments = true;
+    htmx.config.defaultFocusScroll = false;
+    
+    // HTMX Event Listeners
+    document.body.addEventListener('htmx:beforeRequest', function(evt) {
+        const target = evt.detail.target;
+        if (target.id === 'modal-container') {
+            // Show loading state
+            target.innerHTML = `
+                <div class="bg-white rounded-2xl p-8 text-center">
+                    <div class="w-16 h-16 mx-auto mb-4 text-indigo-600">
+                        <i class="fas fa-spinner fa-spin text-4xl"></i>
+                    </div>
+                    <p class="text-lg font-semibold text-slate-800">Loading...</p>
+                </div>
+            `;
+            showModal();
+        }
+    });
+    
+    document.body.addEventListener('htmx:afterSwap', function(evt) {
+        if (evt.detail.target.id === 'modal-container') {
+            // Style inputs in modal
+            setTimeout(() => {
+                const modalInputs = evt.detail.target.querySelectorAll('input, select, textarea');
+                modalInputs.forEach(el => {
+                    el.classList.add('w-full', 'rounded-xl', 'border', 'border-slate-300', 
+                                    'px-4', 'py-3', 'text-slate-800', 'focus:border-indigo-500',
+                                    'focus:ring-2', 'focus:ring-indigo-500/20');
+                });
+            }, 100);
+        }
+    });
+    
+    // Progress Tracking
+    function updateProgress() {
+        const form = document.getElementById('productForm');
+        if (!form) return;
+        
+        const requiredFields = form.querySelectorAll('[required]');
+        let filled = 0;
+        
+        requiredFields.forEach(field => {
+            if (field.type === 'checkbox') {
+                if (field.checked) filled++;
+            } else if (field.type === 'file') {
+                if (field.files && field.files.length > 0) filled++;
+            } else {
+                if (field.value.trim() !== '') filled++;
+            }
+        });
+        
+        const progress = Math.min(100, Math.round((filled / requiredFields.length) * 100));
+        const progressBar = document.getElementById('progressBar');
+        const progressText = document.getElementById('progressText');
+        
+        if (progressBar && progressText) {
+            progressBar.style.width = `${progress}%`;
+            progressText.textContent = `${progress}%`;
+            
+            // Update progress color
+            progressBar.classList.remove('bg-indigo-600', 'bg-emerald-600', 'bg-amber-600');
+            if (progress < 30) {
+                progressBar.classList.add('bg-amber-600');
+            } else if (progress < 70) {
+                progressBar.classList.add('bg-indigo-600');
+            } else {
+                progressBar.classList.add('bg-emerald-600');
+            }
+        }
+    }
+    
+    // Attach progress update to all inputs
+    document.querySelectorAll('input, textarea, select').forEach(el => {
+        el.addEventListener('input', updateProgress);
+        el.addEventListener('change', updateProgress);
+    });
+    
+    // Form validation
+    const productForm = document.getElementById('productForm');
+    if (productForm) {
+        productForm.addEventListener('submit', function(e) {
+            // Add loading state
+            const submitBtn = this.querySelector('button[type="submit"]');
+            if (submitBtn) {
+                const originalText = submitBtn.innerHTML;
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Publishing...';
+                submitBtn.disabled = true;
+                
+                // Re-enable after 5 seconds if still processing
+                setTimeout(() => {
+                    submitBtn.innerHTML = originalText;
+                    submitBtn.disabled = false;
+                }, 5000);
+            }
+        });
+    }
+});
+
+// Modal Functions
+function showModal() {
+    const container = document.getElementById('modal-container');
+    const backdrop = document.getElementById('modal-backdrop');
+    
+    if (container && backdrop) {
+        container.classList.remove('hidden');
+        backdrop.classList.remove('hidden');
+        document.body.classList.add('overflow-hidden');
+        
+        // Animate in
+        setTimeout(() => {
+            container.classList.add('opacity-100');
+            backdrop.classList.add('opacity-100');
+        }, 10);
+    }
+}
+
+function closeModal() {
+    const container = document.getElementById('modal-container');
+    const backdrop = document.getElementById('modal-backdrop');
+    
+    if (container && backdrop) {
+        container.classList.add('opacity-0');
+        backdrop.classList.add('opacity-0');
+        
+        setTimeout(() => {
+            container.classList.add('hidden');
+            backdrop.classList.add('hidden');
+            container.classList.remove('opacity-0');
+            backdrop.classList.remove('opacity-0');
+            document.body.classList.remove('overflow-hidden');
+            container.innerHTML = '';
+        }, 300);
+    }
+}
+
+// Gallery Manager
+let galleryImages = [];
+
+function openGalleryManager() {
+    // Create modal HTML
+    const galleryModal = `
+        <div class="fixed inset-0 z-[1100] overflow-y-auto">
+            <div class="flex min-h-full items-center justify-center p-4">
+                <div class="bg-white rounded-2xl shadow-2xl max-w-4xl w-full overflow-hidden">
+                    <!-- Header -->
+                    <div class="px-8 py-6 bg-gradient-to-r from-purple-50 to-indigo-50 border-b">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-12 h-12 rounded-lg bg-purple-100 text-purple-600 flex items-center justify-center">
+                                    <i class="fas fa-images text-xl"></i>
+                                </div>
+                                <div>
+                                    <h2 class="text-2xl font-bold text-slate-900">Image Gallery</h2>
+                                    <p class="text-slate-500">Upload multiple images for product gallery</p>
+                                </div>
+                            </div>
+                            <button onclick="closeGalleryManager()" 
+                                    class="text-slate-400 hover:text-slate-600">
+                                <i class="fas fa-times text-2xl"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Content -->
+                    <div class="p-8">
+                        <!-- Upload Section -->
+                        <div class="mb-8">
+                            <h3 class="text-lg font-semibold text-slate-800 mb-4">Upload Images</h3>
+                            <div class="border-3 border-dashed border-slate-300 rounded-2xl p-8 text-center bg-slate-50 hover:border-purple-400 transition-colors"
+                                 id="galleryDropZone">
+                                <i class="fas fa-cloud-upload-alt text-5xl text-slate-400 mb-4"></i>
+                                <p class="text-lg font-semibold text-slate-700 mb-2">Drag & drop images here</p>
+                                <p class="text-slate-500 mb-6">or click to browse (max 10 images, 5MB each)</p>
+                                <input type="file" 
+                                       id="galleryUploadInput" 
+                                       multiple 
+                                       accept="image/*"
+                                       class="hidden">
+                                <button onclick="document.getElementById('galleryUploadInput').click()"
+                                        class="px-6 py-3 bg-gradient-to-r from-purple-600 to-indigo-600 
+                                               text-white rounded-xl font-semibold hover:from-purple-700 
+                                               hover:to-indigo-700 transition-all duration-300">
+                                    <i class="fas fa-upload mr-2"></i>Select Images
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <!-- Gallery Preview -->
+                        <div>
+                            <h3 class="text-lg font-semibold text-slate-800 mb-4">
+                                Gallery Preview <span class="text-slate-400 text-sm font-normal">(${galleryImages.length} images)</span>
+                            </h3>
+                            <div id="galleryPreview" class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-4">
+                                ${galleryImages.map((img, index) => `
+                                    <div class="relative group">
+                                        <div class="aspect-square rounded-xl overflow-hidden border border-slate-200 bg-white">
+                                            <img src="${img.preview}" 
+                                                 alt="Gallery ${index + 1}"
+                                                 class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300">
+                                        </div>
+                                        <button onclick="removeGalleryImage(${index})"
+                                                class="absolute -top-2 -right-2 w-6 h-6 bg-rose-500 text-white 
+                                                       rounded-full text-xs opacity-0 group-hover:opacity-100 
+                                                       transition-opacity duration-300 flex items-center justify-center">
+                                            <i class="fas fa-times"></i>
+                                        </button>
+                                    </div>
+                                `).join('')}
+                                ${galleryImages.length === 0 ? `
+                                    <div class="col-span-full text-center py-12 text-slate-400">
+                                        <i class="fas fa-images text-4xl mb-4"></i>
+                                        <p>No images added yet</p>
+                                    </div>
+                                ` : ''}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Footer -->
+                    <div class="px-8 py-6 border-t bg-slate-50 flex justify-end space-x-3">
+                        <button onclick="closeGalleryManager()"
+                                class="px-6 py-3 rounded-xl border border-slate-300 text-slate-700 
+                                       hover:bg-slate-100 font-medium transition-colors">
+                            Cancel
+                        </button>
+                        <button onclick="saveGallery()"
+                                class="px-6 py-3 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 
+                                       text-white font-semibold hover:from-emerald-700 hover:to-teal-700 
+                                       transition-all duration-300">
+                            <i class="fas fa-save mr-2"></i>Save Gallery (${galleryImages.length})
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="fixed inset-0 bg-black bg-opacity-50 z-[1099] backdrop-blur-sm"></div>
+    `;
+    
+    // Add modal to body
+    const modalDiv = document.createElement('div');
+    modalDiv.id = 'galleryModal';
+    modalDiv.innerHTML = galleryModal;
+    document.body.appendChild(modalDiv);
+    document.body.classList.add('overflow-hidden');
+    
+    // Initialize upload functionality
+    initGalleryUpload();
+}
+
+function initGalleryUpload() {
+    const uploadInput = document.getElementById('galleryUploadInput');
+    const dropZone = document.getElementById('galleryDropZone');
+    
+    if (uploadInput) {
+        uploadInput.addEventListener('change', handleGalleryUpload);
+    }
+    
+    if (dropZone) {
+        // Drag and drop events
+        ['dragover', 'dragenter'].forEach(event => {
+            dropZone.addEventListener(event, (e) => {
+                e.preventDefault();
+                dropZone.classList.add('border-purple-500', 'bg-purple-50');
+            });
+        });
+        
+        ['dragleave', 'dragend'].forEach(event => {
+            dropZone.addEventListener(event, () => {
+                dropZone.classList.remove('border-purple-500', 'bg-purple-50');
+            });
+        });
+        
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropZone.classList.remove('border-purple-500', 'bg-purple-50');
+            
+            if (e.dataTransfer.files.length) {
+                handleGalleryFiles(Array.from(e.dataTransfer.files));
+            }
+        });
+        
+        // Click to upload
+        dropZone.addEventListener('click', (e) => {
+            if (e.target === dropZone || e.target.closest('button')) {
+                uploadInput.click();
+            }
+        });
+    }
+}
+
+function handleGalleryUpload(e) {
+    const files = Array.from(e.target.files);
+    handleGalleryFiles(files);
+}
+
+function handleGalleryFiles(files) {
+    if (galleryImages.length + files.length > 10) {
+        showToast('Maximum 10 images allowed in gallery', 'warning');
+        files = files.slice(0, 10 - galleryImages.length);
+    }
+    
+    files.forEach((file, index) => {
+        if (file.size > 5 * 1024 * 1024) {
+            showToast(`Image ${file.name} is too large (max 5MB)`, 'error');
+            return;
+        }
+        
+        if (!file.type.startsWith('image/')) {
+            showToast(`${file.name} is not an image`, 'error');
+            return;
+        }
+        
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            galleryImages.push({
+                file: file,
+                preview: e.target.result,
+                name: file.name,
+                size: file.size
+            });
+            
+            updateGalleryPreview();
+            showToast(`Added: ${file.name}`, 'success');
+        };
+        reader.readAsDataURL(file);
+    });
+}
+
+function updateGalleryPreview() {
+    const previewContainer = document.getElementById('galleryPreview');
+    const saveBtn = document.querySelector('#galleryModal button[onclick="saveGallery()"]');
+    
+    if (previewContainer) {
+        previewContainer.innerHTML = galleryImages.map((img, index) => `
+            <div class="relative group">
+                <div class="aspect-square rounded-xl overflow-hidden border border-slate-200 bg-white">
+                    <img src="${img.preview}" 
+                         alt="Gallery ${index + 1}"
+                         class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300">
+                </div>
+                <button onclick="removeGalleryImage(${index})"
+                        class="absolute -top-2 -right-2 w-6 h-6 bg-rose-500 text-white 
+                               rounded-full text-xs opacity-0 group-hover:opacity-100 
+                               transition-opacity duration-300 flex items-center justify-center">
+                    <i class="fas fa-times"></i>
+                </button>
+                <div class="absolute bottom-0 left-0 right-0 bg-black bg-opacity-50 text-white text-xs p-1 text-center truncate">
+                    ${img.name}
+                </div>
+            </div>
+        `).join('');
+    }
+    
+    if (saveBtn) {
+        saveBtn.innerHTML = `<i class="fas fa-save mr-2"></i>Save Gallery (${galleryImages.length})`;
+    }
+}
+
+function removeGalleryImage(index) {
+    galleryImages.splice(index, 1);
+    updateGalleryPreview();
+    showToast('Image removed from gallery', 'info');
+}
+
+function closeGalleryManager() {
+    const modal = document.getElementById('galleryModal');
+    if (modal) {
+        modal.remove();
+        document.body.classList.remove('overflow-hidden');
+    }
+}
+
+function saveGallery() {
+    // Save gallery images to hidden input
+    const galleryInput = document.getElementById('gallery_images');
+    if (galleryInput) {
+        galleryInput.value = JSON.stringify(galleryImages.map(img => ({
+            name: img.name,
+            size: img.size,
+            type: img.file.type,
+            preview: img.preview
+        })));
+    }
+    
+    // Update main gallery preview
+    const galleryContainer = document.getElementById('galleryContainer');
+    if (galleryContainer) {
+        galleryContainer.innerHTML = galleryImages.map((img, index) => `
+            <div class="relative group">
+                <div class="aspect-square rounded-lg overflow-hidden border border-slate-200">
+                    <img src="${img.preview}" 
+                         alt="Gallery ${index + 1}"
+                         class="w-full h-full object-cover">
+                </div>
+                <button onclick="removeMainGalleryImage(${index})"
+                        class="absolute top-1 right-1 w-5 h-5 bg-rose-500 text-white 
+                               rounded-full text-xs opacity-0 group-hover:opacity-100 
+                               transition-opacity duration-300 flex items-center justify-center">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        `).join('');
+        
+        // Add the "Add more" button
+        if (galleryImages.length < 10) {
+            galleryContainer.innerHTML += `
+                <div class="border-2 border-dashed border-slate-300 rounded-lg p-4 text-center 
+                           hover:border-indigo-400 cursor-pointer flex flex-col items-center justify-center"
+                     onclick="openGalleryManager()">
+                    <i class="fas fa-plus text-slate-400 text-xl mb-2"></i>
+                    <p class="text-xs text-slate-500">Add More</p>
+                </div>
+            `;
+        }
+    }
+    
+    closeGalleryManager();
+    showToast(`Gallery saved with ${galleryImages.length} images`, 'success');
+}
+
+function removeMainGalleryImage(index) {
+    galleryImages.splice(index, 1);
+    saveGallery(); // This will update the preview
+}
+
+// Toast Notification System
+function showToast(message, type = 'info') {
+    const colors = {
+        success: 'bg-emerald-50 border-emerald-200 text-emerald-700',
+        error: 'bg-rose-50 border-rose-200 text-rose-700',
+        warning: 'bg-amber-50 border-amber-200 text-amber-700',
+        info: 'bg-indigo-50 border-indigo-200 text-indigo-700'
+    };
+    
+    const icons = {
+        success: 'fa-check-circle',
+        error: 'fa-exclamation-circle',
+        warning: 'fa-exclamation-triangle',
+        info: 'fa-info-circle'
+    };
+    
+    // Remove existing toasts
+    document.querySelectorAll('.custom-toast').forEach(t => t.remove());
+    
+    const toast = document.createElement('div');
+    toast.className = `fixed top-6 right-6 z-[1200] px-6 py-4 rounded-xl border shadow-xl 
+                       ${colors[type]} transform translate-x-full transition-transform 
+                       duration-500 custom-toast max-w-sm`;
+    toast.innerHTML = `
+        <div class="flex items-center">
+            <i class="fas ${icons[type]} text-xl mr-3"></i>
+            <div class="flex-1 min-w-0">
+                <p class="font-semibold text-sm">${message}</p>
+            </div>
+            <button onclick="this.parentElement.parentElement.remove()" 
+                    class="ml-4 text-slate-400 hover:text-slate-600 flex-shrink-0">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+    `;
+    
+    document.body.appendChild(toast);
+    
+    // Animate in
+    setTimeout(() => {
+        toast.classList.remove('translate-x-full');
+        toast.classList.add('translate-x-0');
+    }, 10);
+    
+    // Auto remove
+    setTimeout(() => {
+        toast.classList.remove('translate-x-0');
+        toast.classList.add('translate-x-full');
+        setTimeout(() => toast.remove(), 500);
+    }, 3000);
+}
+
+// Handle ESC key to close modal
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        closeModal();
+        closeGalleryManager();
+    }
+});
+</script>
+
+<style>
+/* Custom Styles */
+select {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+    background-position: right 0.5rem center;
+    background-repeat: no-repeat;
+    background-size: 1.5em 1.5em;
+    padding-right: 2.5rem;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+}
+
+/* Checkbox styling */
+.custom-checkbox {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    position: relative;
+}
+
+.custom-checkbox input[type="checkbox"] {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.custom-checkbox .checkmark {
+    width: 20px;
+    height: 20px;
+    border: 2px solid #cbd5e1;
+    border-radius: 4px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 10px;
+    transition: all 0.2s;
+    flex-shrink: 0;
+}
+
+.custom-checkbox input[type="checkbox"]:checked + .checkmark {
+    background-color: #4f46e5;
+    border-color: #4f46e5;
+}
+
+.custom-checkbox input[type="checkbox"]:checked + .checkmark::after {
+    content: '✓';
+    color: white;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+/* File upload area */
+.file-upload-area {
+    transition: all 0.3s ease;
+}
+
+.file-upload-area:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+}
+
+/* Success pulse animation */
+@keyframes pulse-success {
+    0%, 100% { 
+        background-color: #d1fae5;
+        border-color: #a7f3d0;
+    }
+    50% { 
+        background-color: #a7f3d0;
+        border-color: #6ee7b7;
+    }
+}
+
+.success-pulse {
+    animation: pulse-success 1s ease-in-out;
+}
+
+/* Modal animations */
+@keyframes modalFadeIn {
+    from {
+        opacity: 0;
+        transform: scale(0.95) translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+@keyframes backdropFadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+#modal-container > div,
+#galleryModal > div > div {
+    animation: modalFadeIn 0.3s ease-out;
+}
+
+#modal-backdrop,
+#galleryModal > div:last-child {
+    animation: backdropFadeIn 0.3s ease-out;
+}
+
+/* Smooth transitions */
+* {
+    scroll-behavior: smooth;
+}
+
+/* Hide spinner from number inputs */
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+input[type="number"] {
+    -moz-appearance: textfield;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f5f9;
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .grid-cols-1 {
+        grid-template-columns: 1fr !important;
+    }
+    
+    .lg\\:grid-cols-2,
+    .lg\\:grid-cols-3,
+    .lg\\:grid-cols-4 {
+        grid-template-columns: 1fr !important;
+    }
+    
+    .p-8 {
+        padding: 1.5rem !important;
+    }
+    
+    .px-8 {
+        padding-left: 1.5rem !important;
+        padding-right: 1.5rem !important;
+    }
+}
+</style>
+{% endblock %}

@@ -1,0 +1,189 @@
+<!-- templates/admin/manage_categories.html -->
+{% extends 'admin/base_admin.html' %}
+{% load static %}
+
+{% block title %}Category Management{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gray-50 p-4 md:p-6">
+  <div class="max-w-7xl mx-auto">
+    
+    <!-- Header -->
+    <div class="mb-6 md:mb-8">
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <h1 class="text-2xl md:text-3xl font-bold text-gray-900">Category Management</h1>
+          <p class="text-gray-600 mt-1">Manage categories, subcategories and brands</p>
+        </div>
+        <div class="flex items-center gap-2">
+          <a href="{% url 'admin_dashboard' %}" 
+             class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 text-sm">
+            ← Back
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+      <div class="bg-white p-4 rounded-xl border shadow-sm">
+        <div class="flex items-center">
+          <div class="w-10 h-10 bg-indigo-100 rounded-lg flex items-center justify-center mr-3">
+            <i class="fas fa-folder text-indigo-600"></i>
+          </div>
+          <div>
+            <p class="text-sm text-gray-500">Categories</p>
+            <p class="text-xl font-semibold text-gray-900">{{ categories.count }}</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white p-4 rounded-xl border shadow-sm">
+        <div class="flex items-center">
+          <div class="w-10 h-10 bg-emerald-100 rounded-lg flex items-center justify-center mr-3">
+            <i class="fas fa-tags text-emerald-600"></i>
+          </div>
+          <div>
+            <p class="text-sm text-gray-500">SubCategories</p>
+            <p class="text-xl font-semibold text-gray-900">{{ subcategories.count }}</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white p-4 rounded-xl border shadow-sm">
+        <div class="flex items-center">
+          <div class="w-10 h-10 bg-amber-100 rounded-lg flex items-center justify-center mr-3">
+            <i class="fas fa-copyright text-amber-600"></i>
+          </div>
+          <div>
+            <p class="text-sm text-gray-500">Brands</p>
+            <p class="text-xl font-semibold text-gray-900">{{ brands.count }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="mb-6">
+      <div class="border-b border-gray-200">
+        <nav class="flex space-x-4" aria-label="Tabs">
+          <button onclick="showTab('categories')" 
+                  id="tab-categories"
+                  class="px-3 py-2 font-medium text-sm border-b-2 border-indigo-600 text-indigo-600">
+            <i class="fas fa-folder mr-2"></i>Categories
+          </button>
+          <button onclick="showTab('subcategories')" 
+                  id="tab-subcategories"
+                  class="px-3 py-2 font-medium text-sm border-b-2 border-transparent text-gray-500 hover:text-gray-700">
+            <i class="fas fa-tags mr-2"></i>SubCategories
+          </button>
+          <button onclick="showTab('brands')" 
+                  id="tab-brands"
+                  class="px-3 py-2 font-medium text-sm border-b-2 border-transparent text-gray-500 hover:text-gray-700">
+            <i class="fas fa-copyright mr-2"></i>Brands
+          </button>
+        </nav>
+      </div>
+    </div>
+
+    <!-- Categories Tab -->
+    <div id="categories-content" class="tab-content">
+      {% include 'admin/partials/categories_table.html' %}
+    </div>
+
+    <!-- SubCategories Tab -->
+    <div id="subcategories-content" class="tab-content hidden">
+      {% include 'admin/partials/subcategories_table.html' %}
+    </div>
+
+    <!-- Brands Tab -->
+    <div id="brands-content" class="tab-content hidden">
+      {% include 'admin/partials/brands_table.html' %}
+    </div>
+
+  </div>
+</div>
+
+<!-- Add Category Modal -->
+
+<div id="modal-container"></div>
+
+
+<script>
+function showTab(tabName) {
+  // Hide all tabs
+  document.querySelectorAll('.tab-content').forEach(tab => {
+    tab.classList.add('hidden');
+  });
+  document.querySelectorAll('[id^="tab-"]').forEach(tabBtn => {
+    tabBtn.classList.remove('border-indigo-600', 'text-indigo-600');
+    tabBtn.classList.add('border-transparent', 'text-gray-500');
+  });
+
+  // Show selected tab
+  document.getElementById(tabName + '-content').classList.remove('hidden');
+  document.getElementById('tab-' + tabName).classList.add('border-indigo-600', 'text-indigo-600');
+  document.getElementById('tab-' + tabName).classList.remove('border-transparent', 'text-gray-500');
+}
+
+// Initialize first tab
+document.addEventListener('DOMContentLoaded', function() {
+  showTab('categories');
+});
+
+
+
+
+
+/ Additional functions for action buttons
+function toggleStatus(type, id) {
+    const url = `/admin/${type}/${id}/toggle/`;
+    
+    fetch(url, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': getCookie('csrftoken'),
+            'Content-Type': 'application/json',
+        },
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            location.reload();
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Error updating status');
+    });
+}
+
+function editCategory(id) {
+    alert(`Edit category ${id} - This feature is under development`);
+}
+
+function editSubCategory(id) {
+    alert(`Edit subcategory ${id} - This feature is under development`);
+}
+
+function editBrand(id) {
+    alert(`Edit brand ${id} - This feature is under development`);
+}
+
+// Helper function to get CSRF token
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+</script>
+{% endblock %}

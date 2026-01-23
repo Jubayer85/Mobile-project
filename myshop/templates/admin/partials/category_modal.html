@@ -1,0 +1,106 @@
+<!-- Modal Wrapper -->
+<div x-data="{ open: true, loading: false }"
+     x-show="open"
+     x-transition
+     x-cloak
+     class="fixed inset-0 z-50 flex items-center justify-center
+            bg-slate-900/60 backdrop-blur-sm p-4"
+     @click.self="open = false"
+     @keydown.escape.window="open = false">
+
+    <!-- Modal Content -->
+    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md
+                max-h-[90vh] overflow-hidden animate-scale-in">
+
+        <!-- Header -->
+        <div class="bg-gradient-to-r from-indigo-500 to-indigo-600 px-6 py-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="bg-white/20 p-2 rounded-xl">
+                        <i class="fas fa-plus-circle text-white"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-bold text-white">
+                            Add New Category
+                        </h3>
+                        <p class="text-indigo-100 text-sm">
+                            Create a new main product category
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Close Button -->
+                <button type="button"
+                        @click="open = false"
+                        class="text-white/80 hover:text-white
+                               hover:bg-white/10 p-2 rounded-lg transition">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Body -->
+        <div class="p-6 overflow-y-auto"
+             style="max-height: calc(90vh - 120px);">
+
+            <form
+                hx-post="{% url 'add_category' %}"
+                hx-on="htmx:afterRequest: open = false"
+                class="space-y-5"
+            >
+                {% csrf_token %}
+
+                <!-- Category Name -->
+                <div>
+                    <label class="block text-sm font-semibold text-slate-700 mb-2">
+                        Category Name <span class="text-rose-500">*</span>
+                    </label>
+                    <div class="relative">
+                        <input type="text"
+                               name="name"
+                               required
+                               placeholder="e.g. Electronics, Clothing"
+                               class="w-full rounded-xl border border-slate-300
+                                      px-4 py-3 pl-11 text-slate-800
+                                      focus:border-indigo-500
+                                      focus:ring-2 focus:ring-indigo-500/20">
+                        <span class="absolute left-3 top-3.5 text-slate-400">
+                            <i class="fas fa-tag"></i>
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Description -->
+                <div>
+                    <label class="block text-sm font-semibold text-slate-700 mb-2">
+                        Description <span class="text-xs text-slate-400">(Optional)</span>
+                    </label>
+                    <textarea name="description"
+                              rows="3"
+                              class="w-full rounded-xl border border-slate-300
+                                     px-4 py-3 resize-none
+                                     focus:border-indigo-500
+                                     focus:ring-2 focus:ring-indigo-500/20"></textarea>
+                </div>
+
+                <!-- Footer -->
+                <div class="flex justify-end gap-3 pt-4 border-t">
+                    <button type="button"
+                            @click="open = false"
+                            class="px-5 py-2.5 rounded-xl border
+                                   text-slate-700 hover:bg-slate-50">
+                        Cancel
+                    </button>
+
+                    <button type="submit"
+                            class="px-6 py-2.5 rounded-xl
+                                   bg-indigo-600 text-white
+                                   font-semibold hover:bg-indigo-700">
+                        Create Category
+                    </button>
+                </div>
+
+            </form>
+        </div>
+    </div>
+</div>

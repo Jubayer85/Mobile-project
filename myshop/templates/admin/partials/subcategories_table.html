@@ -1,0 +1,198 @@
+<!-- templates/admin/partials/subcategories_table.html -->
+<div class="bg-white rounded-xl border shadow-sm overflow-hidden">
+    <div class="px-6 py-4 border-b flex justify-between items-center">
+        <div>
+            <h3 class="text-lg font-semibold text-gray-900">SubCategories</h3>
+            <p class="text-sm text-gray-500 mt-1">Manage subcategories under main categories</p>
+        </div>
+        <button onclick="loadSubCategoryModal()"
+                class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 font-medium">
+            <i class="fas fa-plus mr-2"></i>Add SubCategory
+        </button>
+    </div>
+
+    <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+                <tr>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Parent Category</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Products</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Order</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+                {% for sub in subcategories %}
+                <tr class="hover:bg-gray-50">
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="flex items-center">
+                            {% if sub.icon %}
+                            <i class="{{ sub.icon }} mr-3 text-gray-400"></i>
+                            {% endif %}
+                            <div>
+                                <div class="text-sm font-medium text-gray-900">{{ sub.name }}</div>
+                                {% if sub.description %}
+                                <div class="text-xs text-gray-500">{{ sub.description|truncatechars:30 }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="px-2 py-1 text-xs bg-gray-100 text-gray-800 rounded-full">
+                            {{ sub.category.name }}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        {{ sub.products.count }}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="px-2 py-1 text-xs bg-gray-100 text-gray-800 rounded-full">
+                            {{ sub.order }}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="px-2 py-1 text-xs rounded-full {% if sub.is_active %}bg-green-100 text-green-800{% else %}bg-red-100 text-red-800{% endif %}">
+                            {% if sub.is_active %}Active{% else %}Inactive{% endif %}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                        <div class="flex items-center gap-2">
+                            <button onclick="editSubCategory({{ sub.id }})" 
+                                    class="text-indigo-600 hover:text-indigo-900">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button onclick="toggleStatus('subcategory', {{ sub.id }})" 
+                                    class="text-gray-600 hover:text-gray-900">
+                                <i class="fas {% if sub.is_active %}fa-eye-slash{% else %}fa-eye{% endif %}"></i>
+                            </button>
+                            <button onclick="confirmDelete('subcategory', {{ sub.id }}, '{{ sub.name }}')" 
+                                    class="text-red-600 hover:text-red-900">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6" class="px-6 py-8 text-center text-gray-500">
+                        <i class="fas fa-tags text-3xl text-gray-300 mb-2"></i>
+                        <p>No subcategories found</p>
+                        <button onclick="loadSubCategoryModal()"
+                                class="mt-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 text-sm">
+                            Add your first subcategory
+                        </button>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Add SubCategory Modal -->
+<div id="addSubCategoryModal" class="fixed inset-0 bg-black/50 z-50 hidden">
+    <div class="fixed inset-0" onclick="closeModal('addSubCategoryModal')"></div>
+    <div class="fixed inset-0 overflow-y-auto">
+        <div class="flex min-h-full items-center justify-center p-4">
+            <div class="relative bg-white rounded-xl shadow-xl w-full max-w-md">
+                <!-- Modal Header -->
+                <div class="border-b border-gray-200 px-6 py-4">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-10 h-10 bg-emerald-100 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-plus text-emerald-600"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-lg font-semibold text-gray-900">Add SubCategory</h3>
+                                <p class="text-sm text-gray-500">Create subcategory under a category</p>
+                            </div>
+                        </div>
+                        <button type="button" onclick="closeModal('addSubCategoryModal')" 
+                                class="text-gray-400 hover:text-gray-500">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Modal Body -->
+                <form id="subcategory-form" 
+                      hx-post="{% url 'add_subcategory' %}" 
+                      hx-target="#subcategories-body"
+                      hx-swap="beforeend"
+                      class="p-6 space-y-4">
+                    {% csrf_token %}
+                    
+                    <!-- Parent Category -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">
+                            Parent Category <span class="text-red-500">*</span>
+                        </label>
+                        <select name="category" required 
+                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                            <option value="">Select Category</option>
+                            {% for category in categories %}
+                            <option value="{{ category.id }}">{{ category.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <!-- SubCategory Name -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">
+                            SubCategory Name <span class="text-red-500">*</span>
+                        </label>
+                        <input type="text" name="name" required 
+                               placeholder="e.g., iPhone, Samsung, Oppo"
+                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                    </div>
+
+                    <!-- Description -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">
+                            Description <span class="text-gray-400 text-xs">(Optional)</span>
+                        </label>
+                        <textarea name="description" rows="2" 
+                                  placeholder="Brief description..."
+                                  class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"></textarea>
+                    </div>
+
+                    <!-- Order -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">
+                            Display Order
+                        </label>
+                        <input type="number" name="order" value="0" min="0" 
+                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500">
+                    </div>
+
+                    <!-- Status -->
+                    <div class="flex items-center">
+                        <input type="checkbox" name="is_active" id="subcategory-active" checked 
+                               class="h-4 w-4 text-indigo-600 rounded focus:ring-indigo-500">
+                        <label for="subcategory-active" class="ml-2 text-sm text-gray-700">Active</label>
+                    </div>
+
+                    <!-- Modal Footer -->
+                    <div class="flex gap-3 pt-4 border-t border-gray-200">
+                        <button type="button" onclick="closeModal('addSubCategoryModal')" 
+                                class="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50">
+                            Cancel
+                        </button>
+                        <button type="submit" 
+                                class="flex-1 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700">
+                            Save SubCategory
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function loadSubCategoryModal() {
+    openModal('addSubCategoryModal');
+}
+</script>

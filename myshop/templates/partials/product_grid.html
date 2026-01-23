@@ -1,0 +1,50 @@
+<div class="flex justify-between items-center mb-6">
+    <p class="text-sm text-gray-500">
+        Showing <strong>{{ products|length }}</strong> items
+    </p>
+
+    <select class="border rounded px-3 py-2 text-sm">
+        <option>Sort By</option>
+        <option>Price: Low to High</option>
+        <option>Price: High to Low</option>
+    </select>
+</div>
+
+{% if products %}
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+
+    {% for product in products %}
+    <div class="bg-white rounded-xl shadow hover:shadow-lg transition overflow-hidden">
+
+        <div class="h-48 bg-gray-100 flex items-center justify-center">
+            {% if product.image %}
+            <img src="{{ product.image.url }}" class="h-40 object-contain">
+            {% else %}
+            <i class="fas fa-headphones text-4xl text-gray-300"></i>
+            {% endif %}
+        </div>
+
+        <div class="p-4">
+            <p class="text-xs text-brand font-semibold">{{ product.brand.name }}</p>
+            <h3 class="font-bold text-lg line-clamp-1">{{ product.name }}</h3>
+
+            <div class="flex justify-between items-center mt-3">
+                <span class="text-lg font-bold text-brand">
+                    ৳{{ product.price }}
+                </span>
+                <a href="{% url 'product_detail' product.slug %}"
+                   class="text-sm bg-brand text-white px-3 py-1.5 rounded">
+                    View
+                </a>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+
+</div>
+{% else %}
+<div class="bg-white p-10 rounded-xl text-center">
+    <i class="fas fa-box-open text-4xl text-gray-300 mb-4"></i>
+    <p class="font-semibold">No products found</p>
+</div>
+{% endif %}

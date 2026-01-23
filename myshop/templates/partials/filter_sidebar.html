@@ -1,0 +1,50 @@
+<div class="bg-white rounded-xl border shadow-sm p-5 space-y-6">
+
+    <h3 class="text-lg font-bold">Filters</h3>
+
+    <!-- Price -->
+    <div>
+        <p class="font-semibold mb-2">Price Range</p>
+        <div class="flex gap-2">
+            <input type="number" placeholder="0"
+                   class="w-1/2 border rounded px-3 py-2">
+            <input type="number" placeholder="159900"
+                   class="w-1/2 border rounded px-3 py-2">
+        </div>
+        <button class="mt-2 w-full bg-brand text-white py-2 rounded">
+            Apply
+        </button>
+    </div>
+
+    <!-- Type -->
+    <div>
+        <p class="font-semibold mb-2">Type</p>
+        <div class="space-y-2 text-sm">
+            <label class="flex gap-2">
+                <input type="checkbox"> AirPods
+            </label>
+            <label class="flex gap-2">
+                <input type="checkbox"> Speaker
+            </label>
+            <label class="flex gap-2">
+                <input type="checkbox"> Wireless Headphone
+            </label>
+            <label class="flex gap-2">
+                <input type="checkbox"> Wired Headphone
+            </label>
+        </div>
+    </div>
+
+    <!-- Brand -->
+    <div>
+        <p class="font-semibold mb-2">Brand</p>
+        <div class="space-y-2 text-sm">
+            {% for brand in brands %}
+            <label class="flex gap-2">
+                <input type="checkbox"> {{ brand.name }}
+            </label>
+            {% endfor %}
+        </div>
+    </div>
+
+</div>

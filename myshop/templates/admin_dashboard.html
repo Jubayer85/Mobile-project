@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Dashboard | MobileShop</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: '#2563eb',
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+
+<body class="bg-slate-950 text-slate-100">
+
+<div class="flex min-h-screen">
+
+    <!-- ================= SIDEBAR ================= -->
+    <aside class="w-64 bg-slate-900 border-r border-white/10 hidden md:flex flex-col">
+        <div class="px-6 py-5 text-2xl font-extrabold">
+            Mobile<span class="text-brand">Shop</span>
+        </div>
+
+        <nav class="flex-1 px-4 space-y-1 text-sm">
+            <a href="#" class="block px-4 py-3 rounded-lg bg-white/10">
+                Dashboard
+            </a>
+            <!-- PRODUCTS MENU -->
+<div class="group">
+
+    <!-- Parent Button -->
+    <button
+        class="w-full flex justify-between items-center px-4 py-3 rounded-lg
+               hover:bg-white/10 transition">
+        <span>Products</span>
+
+        <svg class="w-4 h-4 transition-transform duration-200 group-hover:rotate-180"
+             fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M19 9l-7 7-7-7"/>
+        </svg>
+    </button>
+
+    <!-- Submenu -->
+    <div class="ml-4 mt-1 space-y-1
+                max-h-0 overflow-hidden
+                group-hover:max-h-60 transition-all duration-300">
+
+        <!-- All Products -->
+        <a href="{% url 'admin_product_list' %}"
+   class="block px-4 py-2 text-sm rounded-lg hover:bg-white/10">
+    📦 All Products
+</a>
+
+        <!-- Add Product -->
+<a href="{% url 'add_product' %}"
+   class="block px-4 py-2 text-sm rounded-lg hover:bg-white/10">
+    ➕ Add Product
+</a>
+        <!-- Edit Product -->
+        <a href="/admin/myshop/product/"
+           class="block px-4 py-2 text-sm rounded-lg hover:bg-white/10">
+            ✏️ Edit Product
+        </a>
+
+        <!-- Delete Product -->
+        <a href="/admin/myshop/product/"
+           class="block px-4 py-2 text-sm rounded-lg hover:bg-white/10 text-red-400">
+            🗑 Delete Product
+        </a>
+
+        
+   
+
+    </div>
+</div>
+            <a href="{% url 'admin_order_list' %}" class="block px-4 py-3 rounded-lg hover:bg-white/10">
+                Orders
+            </a>
+
+            <a href="{% url 'admin_manage_categories' %}" class="block px-4 py-3 rounded-lg hover:bg-white/10">
+                Manage Categories
+            </a>
+            <a href="{% url 'admin_user_list' %}" class="block px-4 py-3 rounded-lg hover:bg-white/10">
+                Users
+            </a>
+            <a href="{#}" class="block px-4 py-3 rounded-lg hover:bg-white/10">
+                Reports
+            </a>
+        </nav>
+
+        <div class="px-4 py-4 border-t border-white/10">
+            <a href="{% url 'home' %}" class="block px-4 py-2 text-sm hover:bg-white/10 rounded-lg">
+                ← Back to Store
+            </a>
+        </div>
+    </aside>
+
+    <!-- ================= MAIN CONTENT ================= -->
+    <main class="flex-1">
+
+        <!-- Topbar -->
+        <header class="flex justify-between items-center px-6 py-4 border-b border-white/10">
+            <h1 class="text-2xl font-bold">Admin Dashboard</h1>
+
+            <div class="flex items-center gap-4">
+                <span class="text-sm text-slate-300">
+                    {{ request.user.username }}
+                </span>
+
+                <form method="post" action="{% url 'logout' %}">
+                    {% csrf_token %}
+                    <button class="px-4 py-2 rounded-lg border border-white/20 text-sm hover:bg-white/10">
+                        Logout
+                    </button>
+                </form>
+            </div>
+        </header>
+
+        <!-- ================= STATS ================= -->
+        <section class="px-6 py-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+
+            <div class="bg-slate-900 border border-white/10 rounded-2xl p-6">
+                <p class="text-sm text-slate-400">Total Products</p>
+                <h2 class="text-3xl font-extrabold mt-2">{{ total_products|default:"0" }}</h2>
+            </div>
+
+            <div class="bg-slate-900 border border-white/10 rounded-2xl p-6">
+                <p class="text-sm text-slate-400">Total Orders</p>
+                <h2 class="text-3xl font-extrabold mt-2">{{ total_orders|default:"0" }}</h2>
+            </div>
+
+            <div class="bg-slate-900 border border-white/10 rounded-2xl p-6">
+                <p class="text-sm text-slate-400">Total Users</p>
+                <h2 class="text-3xl font-extrabold mt-2">{{ total_users|default:"0" }}</h2>
+            </div>
+
+            <div class="bg-slate-900 border border-white/10 rounded-2xl p-6">
+                <p class="text-sm text-slate-400">Revenue</p>
+                <h2 class="text-3xl font-extrabold mt-2">৳ {{ total_revenue|default:"0" }}</h2>
+            </div>
+
+        </section>
+
+        <!-- ================= RECENT PRODUCTS ================= -->
+        <section class="px-6 pb-10">
+            <div class="bg-slate-900 border border-white/10 rounded-2xl overflow-hidden">
+
+                <div class="px-6 py-4 border-b border-white/10 flex justify-between items-center">
+                    <h3 class="text-lg font-semibold">Recent Products</h3>
+                    <a href="/admin/myshop/product/" class="text-sm text-brand hover:underline">
+                        View All
+                    </a>
+                </div>
+
+                <table class="w-full text-sm">
+                    <thead class="text-slate-400">
+                        <tr class="border-b border-white/10">
+                            <th class="px-6 py-3 text-left">Product</th>
+                            <th class="px-6 py-3 text-left">Brand</th>
+                            <th class="px-6 py-3 text-left">Price</th>
+                            <th class="px-6 py-3 text-left">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for product in products %}
+                        <tr class="border-b border-white/5 hover:bg-white/5">
+                            <td class="px-6 py-3">{{ product.name }}</td>
+                            <td class="px-6 py-3">{{ product.brand.name }}</td>
+                            <td class="px-6 py-3">৳ {{ product.price }}</td>
+                            <td class="px-6 py-3">
+                                {% if product.is_featured %}
+                                    <span class="text-green-400">Featured</span>
+                                {% else %}
+                                    <span class="text-slate-400">Normal</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="4" class="px-6 py-6 text-center text-slate-400">
+                                No products found
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+
+            </div>
+        </section>
+
+    </main>
+</div>
+
+</body>
+</html>

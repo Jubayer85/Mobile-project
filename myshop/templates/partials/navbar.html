@@ -1,0 +1,115 @@
+<nav class="bg-white border-b">
+  <div class="max-w-7xl mx-auto px-6 flex items-center justify-between h-16">
+
+    <!-- LOGO -->
+    <a href="/" class="text-xl font-bold text-indigo-600">
+      MobileShop
+    </a>
+
+    <!-- CATEGORY MENU -->
+<div class="relative group">
+  <button class="font-medium text-slate-700 hover:text-indigo-600 flex items-center">
+    Categories
+    <svg class="w-4 h-4 ml-1 transition-transform group-hover:rotate-180" 
+         fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+    </svg>
+  </button>
+
+  <!-- Main Dropdown -->
+  <div class="absolute left-0 mt-2 w-64 bg-white shadow-xl rounded-lg border border-slate-200 
+              hidden group-hover:block z-50">
+    {% for category in nav_categories %}
+      <!-- Single Category Item with Subcategory Dropdown -->
+      <div class="relative category-item group/item border-b last:border-0">
+        <!-- Parent Category (Clickable with arrow) -->
+        <a href="{% url 'category_products' category.slug %}"
+           class="flex items-center justify-between px-4 py-3 text-slate-800 hover:bg-indigo-50 
+                  transition-colors duration-200">
+          <div class="flex items-center">
+            {% if category.image %}
+              <img src="{{ category.image.url }}" alt="{{ category.name }}" 
+                   class="w-6 h-6 rounded-full mr-3">
+            {% endif %}
+            <span class="font-semibold">{{ category.name }}</span>
+          </div>
+          
+          <!-- Show arrow only if has subcategories -->
+          {% if category.subcategories.all %}
+            <svg class="w-4 h-4 text-slate-400 group-hover/item:text-indigo-500" 
+                 fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+            </svg>
+          {% endif %}
+        </a>
+
+        <!-- Subcategories Dropdown (Right side) -->
+        {% if category.subcategories.all %}
+          <div class="absolute left-full top-0 ml-1 w-64 bg-white shadow-xl rounded-lg border 
+                      border-slate-200 hidden group-hover/item:block">
+            <div class="p-2">
+              <h4 class="px-3 py-2 text-sm font-semibold text-slate-700 border-b">
+                {{ category.name }}
+              </h4>
+              
+              {% for sub in category.subcategories.all %}
+                {% if sub.is_active %}
+                  <a href="{% url 'subcategory_products' sub.slug %}"
+                     class="flex items-center px-3 py-2 text-sm text-slate-600 hover:bg-indigo-50 
+                            hover:text-indigo-600 rounded transition-colors duration-150">
+                    {% if sub.image %}
+                      <img src="{{ sub.image.url }}" alt="{{ sub.name }}" 
+                           class="w-5 h-5 rounded-full mr-2">
+                    {% endif %}
+                    <span>{{ sub.name }}</span>
+                    {% if sub.product_count %}
+                      <span class="ml-auto text-xs bg-indigo-100 text-indigo-600 px-2 py-1 rounded-full">
+                        {{ sub.product_count }}
+                      </span>
+                    {% endif %}
+                  </a>
+                {% endif %}
+              {% endfor %}
+              
+              <!-- View All Link -->
+              <a href="{% url 'category_products' category.slug %}"
+                 class="block mt-2 px-3 py-2 text-sm text-center text-indigo-600 
+                        hover:bg-indigo-50 border-t rounded">
+                View All {{ category.name }}
+              </a>
+            </div>
+          </div>
+        {% endif %}
+      </div>
+    {% empty %}
+      <div class="px-4 py-3 text-slate-500 text-center">
+        No categories available
+      </div>
+    {% endfor %}
+    
+    <!-- View All Categories Link -->
+    <a href="{% url 'all_categories' %}"
+       class="block px-4 py-3 text-center text-indigo-600 hover:bg-indigo-50 
+              border-t font-medium">
+      All Categories
+    </a>
+  </div>
+</div>
+    <!-- BRAND MENU -->
+    <div class="relative group">
+      <button class="font-medium text-slate-700 hover:text-indigo-600">
+        Brands
+      </button>
+
+      <div class="absolute left-0 mt-2 w-48 bg-white shadow-lg rounded-lg hidden group-hover:block">
+        {% for brand in nav_brands %}
+          <a href="{% url 'brand_products' brand.slug %}"
+             class="block px-4 py-2 text-sm text-slate-600 hover:bg-indigo-50">
+            {{ brand.name }}
+          </a>
+        {% endfor %}
+      </div>
+    </div>
+
+  </div>
+</nav>

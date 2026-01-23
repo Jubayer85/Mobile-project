@@ -1,0 +1,116 @@
+{% extends "base.html" %}
+
+{% block title %}
+Checkout | Mobile Shop
+{% endblock %}
+
+{% block content %}
+
+<div class="max-w-7xl mx-auto px-6 py-10 grid grid-cols-1 lg:grid-cols-12 gap-8">
+
+    <!-- LEFT: Billing Details -->
+    <div class="lg:col-span-7 bg-white rounded-xl p-6">
+
+        <h2 class="text-xl font-bold mb-6">Billing Details</h2>
+
+        <form method="post" class="space-y-5">
+            {% csrf_token %}
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <input type="text" name="first_name" placeholder="First Name" required
+                       class="border rounded-lg px-4 py-3 w-full focus:ring-2 focus:ring-primary">
+
+                <input type="text" name="last_name" placeholder="Last Name" required
+                       class="border rounded-lg px-4 py-3 w-full focus:ring-2 focus:ring-primary">
+            </div>
+
+            <input type="text" name="phone" placeholder="Phone Number" required
+                   class="border rounded-lg px-4 py-3 w-full focus:ring-2 focus:ring-primary">
+
+            <input type="email" name="email" placeholder="Email Address (optional)"
+                   class="border rounded-lg px-4 py-3 w-full focus:ring-2 focus:ring-primary">
+
+            <textarea name="address" rows="3" placeholder="Full Delivery Address" required
+                      class="border rounded-lg px-4 py-3 w-full focus:ring-2 focus:ring-primary"></textarea>
+
+            <textarea name="notes" rows="2" placeholder="Order Notes (optional)"
+                      class="border rounded-lg px-4 py-3 w-full focus:ring-2 focus:ring-primary"></textarea>
+        </form>
+    </div>
+
+    <!-- RIGHT: Order Summary -->
+    <div class="lg:col-span-5 bg-white rounded-xl p-6 h-fit sticky top-24">
+
+        <h2 class="text-xl font-bold mb-6">Your Order</h2>
+
+        <!-- Cart Items -->
+        <div class="space-y-4 mb-6">
+
+            {% for item in cart_items %}
+            <div class="flex justify-between items-center text-sm">
+                <div>
+                    <p class="font-medium">{{ item.name }}</p>
+                    <p class="text-gray-500">Qty: {{ item.qty }}</p>
+                </div>
+                <p class="font-semibold">
+                    ৳ {{ item.price|floatformat:0 }}
+                </p>
+            </div>
+            {% empty %}
+            <p class="text-gray-500 text-sm">Your cart is empty.</p>
+            {% endfor %}
+
+        </div>
+
+        <!-- Price Summary -->
+        <div class="border-t pt-4 space-y-3 text-sm">
+
+            <div class="flex justify-between">
+                <span>Subtotal</span>
+                <span>৳ {{ total }}</span>
+            </div>
+
+            <div class="flex justify-between">
+                <span>Delivery Charge</span>
+                <span class="text-green-600">Free</span>
+            </div>
+
+            <div class="flex justify-between text-lg font-bold border-t pt-3">
+                <span>Total</span>
+                <span class="text-primary">৳ {{ total }}</span>
+            </div>
+
+        </div>
+
+        <!-- Payment Method -->
+        <div class="mt-6">
+            <p class="font-medium mb-3">Payment Method</p>
+
+            <div class="flex items-center gap-3 border rounded-lg px-4 py-3 bg-gray-50">
+                <input type="radio" checked>
+                <span>Cash on Delivery</span>
+            </div>
+        </div>
+
+        <!-- Place Order -->
+        <form method="POST" id="checkout-form">
+            {% csrf_token %}
+        
+            <!-- form fields -->
+        
+            <button type="submit"
+                    class="block w-full mt-6 text-center
+                           bg-primary text-amber py-3 rounded-lg font-semibold
+                           hover:bg-blue-700 transition">
+                Place Order
+            </button>
+        </form>
+
+        <p class="text-xs text-gray-500 mt-4 text-center">
+            By placing your order, you agree to our terms & conditions.
+        </p>
+
+    </div>
+</div>
+
+{% endblock %}

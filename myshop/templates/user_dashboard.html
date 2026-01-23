@@ -1,0 +1,113 @@
+<{% extends "base.html" %}
+{% load static %}
+
+{% block title %}User Dashboard{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-slate-50 px-4 py-12">
+
+  <div class="max-w-4xl mx-auto">
+
+    <!-- Header -->
+    <div class="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div>
+        <h1 class="text-2xl font-semibold text-slate-800 tracking-tight">
+          User Dashboard
+        </h1>
+        <p class="mt-1 text-sm text-slate-500">
+          Welcome back, <span class="font-medium text-slate-700">{{ request.user.username }}</span>
+        </p>
+      </div>
+
+      <a href="/accounts/logout/"
+         class="inline-flex items-center px-4 py-2 rounded-lg
+                border border-slate-300 text-slate-600 text-sm font-medium
+                hover:bg-slate-100 transition">
+        Logout
+      </a>
+    </div>
+
+    <!-- Stats -->
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-10">
+
+      <div class="bg-white border border-slate-200 rounded-xl p-6 shadow-sm">
+        <p class="text-xs uppercase tracking-wide text-slate-500">
+          Total Orders
+        </p>
+        <p class="mt-2 text-2xl font-semibold text-slate-800">
+          {{ total_orders|default:"0" }}
+        </p>
+      </div>
+
+      <div class="bg-white border border-slate-200 rounded-xl p-6 shadow-sm">
+        <p class="text-xs uppercase tracking-wide text-slate-500">
+          Active Orders
+        </p>
+        <p class="mt-2 text-2xl font-semibold text-slate-800">
+          {{ active_orders|default:"0" }}
+        </p>
+      </div>
+
+      <div class="bg-white border border-slate-200 rounded-xl p-6 shadow-sm">
+        <p class="text-xs uppercase tracking-wide text-slate-500">
+          Account Status
+        </p>
+        <p class="mt-2 inline-flex items-center
+                  px-3 py-1 rounded-full text-sm font-medium
+                  bg-emerald-100 text-emerald-700">
+          Active
+        </p>
+      </div>
+
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="bg-white border border-slate-200 rounded-xl p-6 shadow-sm">
+
+      <h2 class="text-base font-semibold text-slate-800 mb-4">
+        Quick Actions
+      </h2>
+
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+
+        <a href="{% url 'profile' %}"
+           class="group border border-slate-200 rounded-lg p-4
+                  hover:bg-slate-50 transition">
+          <p class="text-sm font-medium text-slate-700 group-hover:text-slate-900">
+            My Profile
+          </p>
+          <p class="text-xs text-slate-500 mt-1">
+            View and update account details
+          </p>
+        </a>
+
+        <a href="{% url 'order_history' %}"
+           class="group border border-slate-200 rounded-lg p-4
+                  hover:bg-slate-50 transition">
+          <p class="text-sm font-medium text-slate-700 group-hover:text-slate-900">
+            My Orders
+          </p>
+          <p class="text-xs text-slate-500 mt-1">
+            Track order status and history
+          </p>
+        </a>
+
+        <a href="{% url 'cart_detail' %}"
+           class="group border border-slate-200 rounded-lg p-4
+                  hover:bg-slate-50 transition">
+          <p class="text-sm font-medium text-slate-700 group-hover:text-slate-900">
+            My Cart
+          </p>
+          <p class="text-xs text-slate-500 mt-1">
+            Review items before checkout
+          </p>
+        </a>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+{% endblock %}

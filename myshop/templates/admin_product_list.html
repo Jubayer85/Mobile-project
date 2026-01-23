@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>All Products | Admin</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: { brand: '#2563eb' }
+                }
+            }
+        }
+    </script>
+</head>
+
+<body class="bg-slate-950 text-slate-100 min-h-screen">
+
+<div class="max-w-7xl mx-auto px-6 py-10">
+
+    <!-- Header -->
+    <div class="flex justify-between items-center mb-8">
+        <div>
+            <h1 class="text-3xl font-extrabold">All Products</h1>
+            <p class="text-slate-400 mt-1">Manage your store products</p>
+        </div>
+
+        <a href="{% url 'add_product' %}"
+           class="px-6 py-3 rounded-xl bg-brand text-white font-semibold hover:bg-blue-500 transition">
+            + Add Product
+        </a>
+    </div>
+
+    <!-- Table -->
+    <div class="bg-slate-900/80 border border-white/10 rounded-2xl overflow-hidden">
+
+        <table class="w-full text-sm">
+            <thead class="bg-slate-800 text-slate-300">
+                <tr>
+                    <th class="px-5 py-3 text-left">Image</th>
+                    <th class="px-5 py-3 text-left">Product</th>
+                    <th class="px-5 py-3 text-left">Brand</th>
+                    <th class="px-5 py-3 text-left">Price</th>
+                    <th class="px-5 py-3 text-left">Featured</th>
+                    <th class="px-5 py-3 text-right">Actions</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                {% for product in products %}
+                <tr class="border-t border-white/10 hover:bg-white/5">
+
+                    <!-- Image -->
+                    <td class="px-5 py-4">
+                        {% if product.image %}
+                            <img src="{{ product.image.url }}"
+                                 class="w-14 h-14 object-cover rounded-lg">
+                        {% else %}
+                            <div class="w-14 h-14 bg-slate-800 rounded-lg flex items-center justify-center text-xs text-slate-400">
+                                No Image
+                            </div>
+                        {% endif %}
+                    </td>
+
+                    <!-- Name -->
+                    <td class="px-5 py-4 font-medium">
+                        {{ product.name }}
+                    </td>
+
+                    <!-- Brand -->
+                    <td class="px-5 py-4 text-slate-300">
+                        {{ product.brand.name }}
+                    </td>
+
+                    <!-- Price -->
+                    <td class="px-5 py-4">
+                        ৳ {{ product.price }}
+                    </td>
+
+                    <!-- Featured -->
+                    <td class="px-5 py-4">
+                        {% if product.is_featured %}
+                            <span class="text-green-400">Yes</span>
+                        {% else %}
+                            <span class="text-slate-400">No</span>
+                        {% endif %}
+                    </td>
+
+                    <!-- Actions -->
+                    <td class="px-5 py-4 text-right space-x-3">
+
+                        <a href="{% url 'edit_product' product.id %}"
+                           class="text-blue-400 hover:underline">
+                            Edit
+                        </a>
+
+                        <form method="post"
+                              action="{% url 'delete_product' product.id %}"
+                              class="inline">
+                            {% csrf_token %}
+                            <button type="submit"
+                                onclick="return confirm('Are you sure?')"
+                                class="text-red-400 hover:underline">
+                                Delete
+                            </button>
+                        </form>
+
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6" class="px-6 py-8 text-center text-slate-400">
+                        No products found
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+    </div>
+
+</div>
+
+</body>
+</html>

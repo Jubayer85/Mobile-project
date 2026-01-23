@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}Admin Dashboard | MobileShop{% endblock %}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Tailwind -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: '#2563eb',
+                    }
+                }
+            }
+        }
+    </script>
+
+    {% block extra_head %}{% endblock %}
+</head>
+
+<body class="bg-slate-950 text-slate-100">
+
+<div class="flex min-h-screen">
+
+    <!-- ================= SIDEBAR ================= -->
+    <aside class="w-64 bg-slate-900 border-r border-white/10 hidden md:flex flex-col">
+        <div class="px-6 py-5 text-2xl font-extrabold">
+            Mobile<span class="text-brand">Shop</span>
+        </div>
+
+        <nav class="flex-1 px-4 space-y-1 text-sm">
+
+            <a href="{% url 'admin_dashboard' %}"
+               class="block px-4 py-3 rounded-lg hover:bg-white/10
+               {% if request.resolver_match.url_name == 'admin_dashboard' %}
+               bg-white/10
+               {% endif %}">
+                Dashboard
+            </a>
+
+            <!-- PRODUCTS MENU -->
+            <div class="group">
+
+                <button
+                    class="w-full flex justify-between items-center px-4 py-3 rounded-lg
+                           hover:bg-white/10 transition">
+                    <span>Products</span>
+
+                    <svg class="w-4 h-4 transition-transform duration-200 group-hover:rotate-180"
+                         fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M19 9l-7 7-7-7"/>
+                    </svg>
+                </button>
+
+                <div class="ml-4 mt-1 space-y-1
+                            max-h-0 overflow-hidden
+                            group-hover:max-h-60 transition-all duration-300">
+
+                    <a href="{% url 'admin_product_list' %}"
+                       class="block px-4 py-2 rounded-lg hover:bg-white/10">
+                        📦 All Products
+                    </a>
+
+                    <a href="{% url 'add_product' %}"
+                       class="block px-4 py-2 rounded-lg hover:bg-white/10">
+                        ➕ Add Product
+                    </a>
+
+                    
+
+                    <a href="/admin/myshop/product/"
+                       class="block px-4 py-2 rounded-lg hover:bg-white/10">
+                        ✏️ Edit Product
+                    </a>
+
+                </div>
+            </div>
+            <a href="{% url 'admin_order_list' %}"
+            class="block px-4 py-3 rounded-lg hover:bg-white/10">
+             Order
+         </a>
+            <a href="/admin/auth/user/"
+               class="block px-4 py-3 rounded-lg hover:bg-white/10">
+                Users
+            </a>
+
+        </nav>
+
+        <div class="px-4 py-4 border-t border-white/10">
+            <a href="{% url 'home' %}"
+               class="block px-4 py-2 text-sm hover:bg-white/10 rounded-lg">
+                ← Back to Store
+            </a>
+        </div>
+    </aside>
+
+    <!-- ================= MAIN CONTENT ================= -->
+    <main class="flex-1">
+
+        <!-- TOPBAR -->
+        <header class="flex justify-between items-center px-6 py-4 border-b border-white/10">
+            <h1 class="text-2xl font-bold">
+                {% block page_title %}Admin Dashboard{% endblock %}
+            </h1>
+
+            <div class="flex items-center gap-4">
+                <span class="text-sm text-slate-300">
+                    {{ request.user.username }}
+                </span>
+
+                <form method="post" action="{% url 'logout' %}">
+                    {% csrf_token %}
+                    <button
+                        class="px-4 py-2 rounded-lg border border-white/20
+                               text-sm hover:bg-white/10">
+                        Logout
+                    </button>
+                </form>
+            </div>
+        </header>
+
+        <!-- PAGE CONTENT -->
+        <div class="px-6 py-8">
+            {% block content %}{% endblock %}
+        </div>
+
+    </main>
+
+</div>
+
+{% block extra_js %}{% endblock %}
+</body>
+</html>

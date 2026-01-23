@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+
+{% block title %}Home - MobileShop{% endblock %}
+
+{% block extra_css %}
+<!-- Page-specific CSS here -->
+{% endblock %}
+
+{% block content %}
+<!-- ================= HERO SECTION ================= -->
+    {% include 'partials/hero.html' %}
+
+<!-- ================= NEW ARRIVALS ================= -->
+ {% include 'partials/new_arrival.html' %}
+ 
+<!-- ================= Featured Products ================= -->
+ {% include 'partials/featured_products.html' %}
+
+
+{% endblock %}
+
+{% block extra_js %}
+<!-- Page-specific JavaScript here -->
+{% endblock %}

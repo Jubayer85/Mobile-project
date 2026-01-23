@@ -1,0 +1,187 @@
+<!-- templates/admin/partials/brands_table.html -->
+<div class="bg-white rounded-xl border shadow-sm overflow-hidden">
+    <div class="px-6 py-4 border-b flex justify-between items-center">
+        <div>
+            <h3 class="text-lg font-semibold text-gray-900">Brands</h3>
+            <p class="text-sm text-gray-500 mt-1">Manage product brands</p>
+        </div>
+        <button onclick="loadBrandModal()"
+                class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 font-medium">
+            <i class="fas fa-plus mr-2"></i>Add Brand
+        </button>
+    </div>
+
+    <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+                <tr>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Logo</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Products</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+                {% for brand in brands %}
+                <tr class="hover:bg-gray-50">
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        {% if brand.logo %}
+                        <img src="{{ brand.logo.url }}" alt="{{ brand.name }}" 
+                             class="w-10 h-10 rounded-full object-cover border">
+                        {% else %}
+                        <div class="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center">
+                            <i class="fas fa-copyright text-gray-400"></i>
+                        </div>
+                        {% endif %}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm font-medium text-gray-900">{{ brand.name }}</div>
+                        <div class="text-xs text-gray-500">{{ brand.slug }}</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="px-2 py-1 text-xs bg-gray-100 text-gray-800 rounded-full">
+                            {{ brand.products.count }} products
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="px-2 py-1 text-xs rounded-full {% if brand.is_active %}bg-green-100 text-green-800{% else %}bg-red-100 text-red-800{% endif %}">
+                            {% if brand.is_active %}Active{% else %}Inactive{% endif %}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                        <div class="flex items-center gap-2">
+                            <button onclick="editBrand({{ brand.id }})" 
+                                    class="text-indigo-600 hover:text-indigo-900">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button onclick="toggleStatus('brand', {{ brand.id }})" 
+                                    class="text-gray-600 hover:text-gray-900">
+                                <i class="fas {% if brand.is_active %}fa-eye-slash{% else %}fa-eye{% endif %}"></i>
+                            </button>
+                            <button onclick="confirmDelete('brand', {{ brand.id }}, '{{ brand.name }}')" 
+                                    class="text-red-600 hover:text-red-900">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="5" class="px-6 py-8 text-center text-gray-500">
+                        <i class="fas fa-copyright text-3xl text-gray-300 mb-2"></i>
+                        <p>No brands found</p>
+                        <button onclick="loadBrandModal()"
+                                class="mt-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 text-sm">
+                            Add your first brand
+                        </button>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Add Brand Modal -->
+<div id="addBrandModal" class="fixed inset-0 bg-black/50 z-50 hidden">
+    <div class="fixed inset-0" onclick="closeModal('addBrandModal')"></div>
+    <div class="fixed inset-0 overflow-y-auto">
+        <div class="flex min-h-full items-center justify-center p-4">
+            <div class="relative bg-white rounded-xl shadow-xl w-full max-w-md">
+                <!-- Modal Header -->
+                <div class="border-b border-gray-200 px-6 py-4">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-10 h-10 bg-amber-100 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-plus text-amber-600"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-lg font-semibold text-gray-900">Add Brand</h3>
+                                <p class="text-sm text-gray-500">Create new product brand</p>
+                            </div>
+                        </div>
+                        <button type="button" onclick="closeModal('addBrandModal')" 
+                                class="text-gray-400 hover:text-gray-500">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Modal Body -->
+                <form id="brand-form" 
+                      hx-post="{% url 'add_brand' %}" 
+                      hx-target="#brands-body"
+                      hx-swap="beforeend"
+                      class="p-6 space-y-4">
+                    {% csrf_token %}
+                    
+                    <!-- Brand Name -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">
+                            Brand Name <span class="text-red-500">*</span>
+                        </label>
+                        <input type="text" name="name" required 
+                               placeholder="e.g., Apple, Samsung, Nike"
+                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                    </div>
+
+                    <!-- Logo URL -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">
+                            Logo URL <span class="text-gray-400 text-xs">(Optional)</span>
+                        </label>
+                        <input type="text" name="logo_url" 
+                               placeholder="https://example.com/logo.png"
+                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                    </div>
+
+                    <!-- Website -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">
+                            Website <span class="text-gray-400 text-xs">(Optional)</span>
+                        </label>
+                        <input type="url" name="website" 
+                               placeholder="https://example.com"
+                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                    </div>
+
+                    <!-- Description -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">
+                            Description <span class="text-gray-400 text-xs">(Optional)</span>
+                        </label>
+                        <textarea name="description" rows="2" 
+                                  placeholder="Brief description about the brand..."
+                                  class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"></textarea>
+                    </div>
+
+                    <!-- Status -->
+                    <div class="flex items-center">
+                        <input type="checkbox" name="is_active" id="brand-active" checked 
+                               class="h-4 w-4 text-indigo-600 rounded focus:ring-indigo-500">
+                        <label for="brand-active" class="ml-2 text-sm text-gray-700">Active</label>
+                    </div>
+
+                    <!-- Modal Footer -->
+                    <div class="flex gap-3 pt-4 border-t border-gray-200">
+                        <button type="button" onclick="closeModal('addBrandModal')" 
+                                class="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50">
+                            Cancel
+                        </button>
+                        <button type="submit" 
+                                class="flex-1 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700">
+                            Save Brand
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function loadBrandModal() {
+    openModal('addBrandModal');
+}
+</script>

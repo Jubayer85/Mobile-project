@@ -1,0 +1,96 @@
+<!-- ================= NEW ARRIVALS ================= -->
+<section class="max-w-7xl mx-auto px-4 py-16">
+
+    <!-- Section Header -->
+    <div class="flex justify-between items-center mb-10">
+        <div>
+            <h2 class="text-3xl font-bold">
+                New <span class="text-primary">Arrivals</span>
+            </h2>
+            <p class="text-slate-500 mt-1">
+                Latest smartphones just arrived in store
+            </p>
+        </div>
+
+        <a href="{#}"
+           class="hidden sm:inline-flex items-center gap-2
+                  text-primary font-semibold hover:underline">
+            View All
+            <i class="fas fa-arrow-right text-sm"></i>
+        </a>
+    </div>
+
+    {% if new_arrivals %}
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+
+        {% for product in new_arrivals %}
+        <div class="bg-white rounded-2xl shadow hover:shadow-xl transition overflow-hidden group">
+
+            <!-- Image -->
+            <div class="relative h-56 bg-slate-100 flex items-center justify-center overflow-hidden">
+                {% if product.image %}
+                <img src="{{ product.image.url }}"
+                     class="h-44 object-contain transition-transform duration-500 group-hover:scale-110">
+                {% else %}
+                <i class="fas fa-mobile-alt text-4xl text-slate-300"></i>
+                {% endif %}
+
+                <!-- NEW badge -->
+                <span class="absolute top-3 left-3 bg-green-500 text-white text-xs font-bold px-3 py-1 rounded-full">
+                    NEW
+                </span>
+            </div>
+
+            <!-- Content -->
+            <div class="p-5">
+
+                <p class="text-xs text-primary font-semibold mb-1">
+                    {{ product.brand.name }}
+                </p>
+
+                <h3 class="font-bold text-lg leading-tight line-clamp-1 mb-2">
+                    {{ product.name }}
+                </h3>
+
+                <p class="text-sm text-slate-500 mb-3">
+                    {{ product.ram|default:"8GB" }} • {{ product.storage|default:"128GB" }}
+                </p>
+
+                <div class="flex justify-between items-center mb-4">
+                    <span class="text-xl font-bold text-primary">
+                        ৳{{ product.price }}
+                    </span>
+                    <div class="text-yellow-400 text-sm">
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star-half-alt"></i>
+                    </div>
+                </div>
+
+                <!-- Actions -->
+                <div class="flex gap-2">
+                    <a href="{% url 'product_detail' product.slug %}"
+                       class="flex-1 bg-primary text-white py-2 rounded-lg text-sm font-semibold text-center hover:bg-blue-700 transition">
+                        View Details
+                    </a>
+
+                    <a href="{% url 'add_to_cart' product.id %}"
+                       class="w-10 h-10 bg-accent text-white rounded-lg flex items-center justify-center hover:bg-emerald-600 transition">
+                        <i class="fas fa-cart-plus"></i>
+                    </a>
+                </div>
+
+            </div>
+        </div>
+        {% endfor %}
+
+    </div>
+    {% else %}
+    <div class="bg-white p-12 rounded-xl text-center shadow">
+        <i class="fas fa-box-open text-5xl text-slate-300 mb-4"></i>
+        <p class="text-lg font-semibold">No new arrivals yet</p>
+    </div>
+    {% endif %}
+</section>

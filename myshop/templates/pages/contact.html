@@ -1,0 +1,471 @@
+{% extends 'base.html' %}
+
+{% block title %}Contact Us - MobileShop{% endblock %}
+
+{% block content %}
+<!-- Contact Us Page -->
+<div class="min-h-screen bg-gradient-to-b from-white to-gray-50">
+    <!-- Hero Section -->
+    <div class="relative bg-gradient-to-r from-brand/10 to-accent/10 py-16 md:py-24 overflow-hidden">
+        <!-- Background Elements -->
+        <div class="absolute top-0 right-0 w-64 h-64 bg-brand/5 rounded-full -translate-y-32 translate-x-32"></div>
+        <div class="absolute bottom-0 left-0 w-96 h-96 bg-accent/5 rounded-full translate-y-48 -translate-x-48"></div>
+        
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            <div class="text-center">
+                <h1 class="text-4xl md:text-5xl font-bold mb-4">
+                    Get in <span class="text-transparent bg-clip-text bg-gradient-to-r from-brand to-accent">Touch</span>
+                </h1>
+                <p class="text-lg text-gray-600 max-w-2xl mx-auto">
+                    Have questions? We're here to help! Reach out to us through any of the channels below.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16">
+        <div class="grid lg:grid-cols-3 gap-12">
+            <!-- Contact Information -->
+            <div class="lg:col-span-1 space-y-8">
+                <!-- Contact Card -->
+                <div class="bg-white rounded-2xl shadow-lg p-8 border border-gray-100">
+                    <h2 class="text-2xl font-bold mb-6 text-gray-800">Contact Information</h2>
+                    
+                    <div class="space-y-6">
+                        <!-- Phone -->
+                        <div class="flex items-start space-x-4 group">
+                            <div class="w-12 h-12 rounded-xl bg-blue-100 flex items-center justify-center flex-shrink-0 group-hover:bg-blue-200 transition-colors">
+                                <i class="fas fa-phone text-blue-600 text-lg"></i>
+                            </div>
+                            <div>
+                                <h3 class="font-semibold text-gray-700">Call Us</h3>
+                                <a href="tel:+8801234567890" class="text-gray-600 hover:text-brand transition-colors block">
+                                    +880 1234 567890
+                                </a>
+                                <p class="text-sm text-gray-500 mt-1">Mon-Fri 9AM-8PM, Sat-Sun 10AM-6PM</p>
+                            </div>
+                        </div>
+                        
+                        <!-- Email -->
+                        <div class="flex items-start space-x-4 group">
+                            <div class="w-12 h-12 rounded-xl bg-green-100 flex items-center justify-center flex-shrink-0 group-hover:bg-green-200 transition-colors">
+                                <i class="fas fa-envelope text-green-600 text-lg"></i>
+                            </div>
+                            <div>
+                                <h3 class="font-semibold text-gray-700">Email Us</h3>
+                                <a href="mailto:info@mobileshop.com" class="text-gray-600 hover:text-brand transition-colors block">
+                                    info@mobileshop.com
+                                </a>
+                                <a href="mailto:support@mobileshop.com" class="text-gray-600 hover:text-brand transition-colors block">
+                                    support@mobileshop.com
+                                </a>
+                            </div>
+                        </div>
+                        
+                        <!-- Address -->
+                        <div class="flex items-start space-x-4 group">
+                            <div class="w-12 h-12 rounded-xl bg-purple-100 flex items-center justify-center flex-shrink-0 group-hover:bg-purple-200 transition-colors">
+                                <i class="fas fa-map-marker-alt text-purple-600 text-lg"></i>
+                            </div>
+                            <div>
+                                <h3 class="font-semibold text-gray-700">Visit Us</h3>
+                                <p class="text-gray-600">
+                                    Gulshan 1, Road 12<br>
+                                    Dhaka 1212, Bangladesh
+                                </p>
+                                <a href="#" class="inline-flex items-center text-sm text-brand hover:text-brand-dark mt-2">
+                                    <i class="fas fa-directions mr-1"></i>
+                                    Get Directions
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Social Media -->
+                    <div class="mt-8 pt-8 border-t border-gray-100">
+                        <h3 class="font-semibold text-gray-700 mb-4">Follow Us</h3>
+                        <div class="flex space-x-3">
+                            <a href="#" class="w-10 h-10 rounded-full bg-gray-100 hover:bg-blue-100 hover:text-blue-600 flex items-center justify-center transition-all">
+                                <i class="fab fa-facebook-f"></i>
+                            </a>
+                            <a href="#" class="w-10 h-10 rounded-full bg-gray-100 hover:bg-pink-100 hover:text-pink-600 flex items-center justify-center transition-all">
+                                <i class="fab fa-instagram"></i>
+                            </a>
+                            <a href="#" class="w-10 h-10 rounded-full bg-gray-100 hover:bg-blue-100 hover:text-blue-400 flex items-center justify-center transition-all">
+                                <i class="fab fa-twitter"></i>
+                            </a>
+                            <a href="#" class="w-10 h-10 rounded-full bg-gray-100 hover:bg-red-100 hover:text-red-600 flex items-center justify-center transition-all">
+                                <i class="fab fa-youtube"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Business Hours -->
+                <div class="bg-white rounded-2xl shadow-lg p-8 border border-gray-100">
+                    <h2 class="text-2xl font-bold mb-6 text-gray-800">Business Hours</h2>
+                    
+                    <div class="space-y-4">
+                        <div class="flex justify-between items-center py-2 border-b border-gray-100">
+                            <span class="text-gray-600">Monday - Friday</span>
+                            <span class="font-semibold text-gray-800">9:00 AM - 10:00 PM</span>
+                        </div>
+                        <div class="flex justify-between items-center py-2 border-b border-gray-100">
+                            <span class="text-gray-600">Saturday</span>
+                            <span class="font-semibold text-gray-800">10:00 AM - 8:00 PM</span>
+                        </div>
+                        <div class="flex justify-between items-center py-2">
+                            <span class="text-gray-600">Sunday</span>
+                            <span class="font-semibold text-gray-800">10:00 AM - 6:00 PM</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Current Status -->
+                    <div id="business-status" class="mt-6 p-4 rounded-lg bg-green-50 border border-green-200">
+                        <div class="flex items-center">
+                            <i class="fas fa-circle text-green-500 text-xs mr-2 animate-pulse"></i>
+                            <span class="font-medium text-green-800">Open Now</span>
+                            <span class="ml-auto text-sm text-green-600">• Closes at 10:00 PM</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Contact Form -->
+            <div class="lg:col-span-2">
+                <div class="bg-white rounded-2xl shadow-lg p-8 md:p-12 border border-gray-100">
+                    <div class="mb-10">
+                        <h2 class="text-3xl font-bold mb-3 text-gray-800">Send Us a Message</h2>
+                        <p class="text-gray-600">
+                            Fill out the form below and we'll get back to you as soon as possible.
+                        </p>
+                    </div>
+                    
+                    <!-- Django Messages -->
+                    {% if messages %}
+                    <div class="mb-6">
+                        {% for message in messages %}
+                        <div class="p-4 rounded-lg mb-2 {% if message.tags == 'success' %}bg-green-50 border border-green-200 text-green-800{% else %}bg-red-50 border border-red-200 text-red-800{% endif %}">
+                            <div class="flex items-center">
+                                <i class="fas fa-{% if message.tags == 'success' %}check-circle{% else %}exclamation-circle{% endif %} mr-3"></i>
+                                <span>{{ message }}</span>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                    
+                    <!-- Form action is empty to submit to same URL -->
+                    <form id="contact-form" method="POST" action="" class="space-y-6">
+                        {% csrf_token %}
+                        
+                        <!-- JavaScript messages will go here -->
+                        <div id="form-messages" class="hidden p-4 rounded-lg"></div>
+                        
+                        <!-- Name -->
+                        <div class="grid md:grid-cols-2 gap-6">
+                            <div>
+                                <label for="first_name" class="block text-sm font-medium text-gray-700 mb-2">
+                                    First Name *
+                                </label>
+                                <input type="text" 
+                                       id="first_name" 
+                                       name="first_name" 
+                                       required
+                                       class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand/50 focus:border-brand transition-all"
+                                       placeholder="John">
+                            </div>
+                            <div>
+                                <label for="last_name" class="block text-sm font-medium text-gray-700 mb-2">
+                                    Last Name *
+                                </label>
+                                <input type="text" 
+                                       id="last_name" 
+                                       name="last_name" 
+                                       required
+                                       class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand/50 focus:border-brand transition-all"
+                                       placeholder="Doe">
+                            </div>
+                        </div>
+                        
+                        <!-- Contact Info -->
+                        <div class="grid md:grid-cols-2 gap-6">
+                            <div>
+                                <label for="email" class="block text-sm font-medium text-gray-700 mb-2">
+                                    Email Address *
+                                </label>
+                                <input type="email" 
+                                       id="email" 
+                                       name="email" 
+                                       required
+                                       class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand/50 focus:border-brand transition-all"
+                                       placeholder="john@example.com">
+                            </div>
+                            <div>
+                                <label for="phone" class="block text-sm font-medium text-gray-700 mb-2">
+                                    Phone Number
+                                </label>
+                                <input type="tel" 
+                                       id="phone" 
+                                       name="phone"
+                                       class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand/50 focus:border-brand transition-all"
+                                       placeholder="+880 1234 567890">
+                            </div>
+                        </div>
+                        
+                        <!-- Subject -->
+                        <div>
+                            <label for="subject" class="block text-sm font-medium text-gray-700 mb-2">
+                                Subject *
+                            </label>
+                            <select id="subject" 
+                                    name="subject" 
+                                    required
+                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand/50 focus:border-brand transition-all appearance-none">
+                                <option value="">Select a subject</option>
+                                <option value="general">General Inquiry</option>
+                                <option value="product">Product Information</option>
+                                <option value="order">Order Status</option>
+                                <option value="return">Return/Exchange</option>
+                                <option value="warranty">Warranty Claim</option>
+                                <option value="technical">Technical Support</option>
+                                <option value="wholesale">Wholesale Inquiry</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+                        
+                        <!-- Message -->
+                        <div>
+                            <label for="message" class="block text-sm font-medium text-gray-700 mb-2">
+                                Message *
+                            </label>
+                            <textarea id="message" 
+                                      name="message" 
+                                      rows="6"
+                                      required
+                                      class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand/50 focus:border-brand transition-all resize-none"
+                                      placeholder="Please describe your inquiry in detail..."></textarea>
+                            <div class="flex justify-between items-center mt-2">
+                                <span class="text-xs text-gray-500">Minimum 20 characters required</span>
+                                <span id="char-count" class="text-xs text-gray-500">0 characters</span>
+                            </div>
+                        </div>
+                        
+                        <!-- File Upload -->
+                        <div>
+                            <label for="attachment" class="block text-sm font-medium text-gray-700 mb-2">
+                                Attachments (Optional)
+                            </label>
+                            <div class="flex items-center justify-center w-full">
+                                <label class="flex flex-col items-center justify-center w-full h-32 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100 transition-colors">
+                                    <div class="flex flex-col items-center justify-center pt-5 pb-6">
+                                        <i class="fas fa-cloud-upload-alt text-2xl text-gray-400 mb-2"></i>
+                                        <p class="mb-2 text-sm text-gray-500">
+                                            <span class="font-semibold">Click to upload</span> or drag and drop
+                                        </p>
+                                        <p class="text-xs text-gray-500">PNG, JPG, PDF up to 5MB</p>
+                                    </div>
+                                    <input id="attachment" type="file" class="hidden" name="attachment" accept=".jpg,.jpeg,.png,.pdf">
+                                </label>
+                            </div>
+                            <div id="file-list" class="mt-2 space-y-2"></div>
+                        </div>
+                        
+                        <!-- Submit Button -->
+                        <div class="pt-4">
+                            <button type="submit"
+                                    id="submit-btn"
+                                    class="w-full py-4 bg-gradient-to-r from-brand to-brand-dark text-white font-bold rounded-lg hover:opacity-90 transition-all duration-300 shadow-lg hover:shadow-xl">
+                                <span id="submit-text">Send Message</span>
+                                <i id="submit-icon" class="fas fa-paper-plane ml-2"></i>
+                            </button>
+                            <p class="text-center text-sm text-gray-500 mt-3">
+                                By submitting this form, you agree to our 
+                                <a href="#" class="text-brand hover:underline">Privacy Policy</a>
+                            </p>
+                        </div>
+                    </form>
+                </div>
+                
+                <!-- FAQ Section -->
+                <div class="mt-12">
+                    <h2 class="text-3xl font-bold mb-8 text-center">Frequently Asked Questions</h2>
+                    
+                    <div class="grid md:grid-cols-2 gap-6">
+                        <!-- FAQ Item -->
+                        <div class="bg-white rounded-xl p-6 border border-gray-200 hover:border-brand/30 transition-all hover:shadow-md">
+                            <div class="flex items-start">
+                                <div class="w-10 h-10 rounded-lg bg-blue-100 flex items-center justify-center mr-4 flex-shrink-0">
+                                    <i class="fas fa-shipping-fast text-blue-600"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-semibold text-gray-800 mb-2">What is your delivery time?</h4>
+                                    <p class="text-gray-600 text-sm">
+                                        Delivery within Dhaka city takes 1-2 business days. Outside Dhaka takes 3-5 business days.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- FAQ Item -->
+                        <div class="bg-white rounded-xl p-6 border border-gray-200 hover:border-brand/30 transition-all hover:shadow-md">
+                            <div class="flex items-start">
+                                <div class="w-10 h-10 rounded-lg bg-green-100 flex items-center justify-center mr-4 flex-shrink-0">
+                                    <i class="fas fa-undo-alt text-green-600"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-semibold text-gray-800 mb-2">What is your return policy?</h4>
+                                    <p class="text-gray-600 text-sm">
+                                        We offer 7-day return policy for all products. The product must be in original condition.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- FAQ Item -->
+                        <div class="bg-white rounded-xl p-6 border border-gray-200 hover:border-brand/30 transition-all hover:shadow-md">
+                            <div class="flex items-start">
+                                <div class="w-10 h-10 rounded-lg bg-purple-100 flex items-center justify-center mr-4 flex-shrink-0">
+                                    <i class="fas fa-shield-alt text-purple-600"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-semibold text-gray-800 mb-2">Are your products genuine?</h4>
+                                    <p class="text-gray-600 text-sm">
+                                        Yes, all products are 100% genuine with official warranty from manufacturers.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- FAQ Item -->
+                        <div class="bg-white rounded-xl p-6 border border-gray-200 hover:border-brand/30 transition-all hover:shadow-md">
+                            <div class="flex items-start">
+                                <div class="w-10 h-10 rounded-lg bg-amber-100 flex items-center justify-center mr-4 flex-shrink-0">
+                                    <i class="fas fa-credit-card text-amber-600"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-semibold text-gray-800 mb-2">What payment methods do you accept?</h4>
+                                    <p class="text-gray-600 text-sm">
+                                        We accept cash on delivery, credit cards, and mobile banking (bKash, Nagad, Rocket).
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="text-center mt-8">
+                        <a href="{% url 'faq' %}" 
+                           class="inline-flex items-center text-brand hover:text-brand-dark font-semibold">
+                            View All FAQs
+                            <i class="fas fa-arrow-right ml-2"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- JavaScript for Contact Form -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Character counter for message
+    const messageTextarea = document.getElementById('message');
+    const charCount = document.getElementById('char-count');
+    
+    if (messageTextarea && charCount) {
+        messageTextarea.addEventListener('input', function() {
+            const count = this.value.length;
+            charCount.textContent = `${count} characters`;
+            
+            if (count < 20) {
+                charCount.classList.add('text-red-500');
+                charCount.classList.remove('text-green-500');
+            } else {
+                charCount.classList.remove('text-red-500');
+                charCount.classList.add('text-green-500');
+            }
+        });
+    }
+    
+    // File upload handling
+    const fileInput = document.getElementById('attachment');
+    const fileList = document.getElementById('file-list');
+    
+    if (fileInput && fileList) {
+        fileInput.addEventListener('change', function() {
+            fileList.innerHTML = '';
+            
+            Array.from(this.files).forEach((file, index) => {
+                const fileItem = document.createElement('div');
+                fileItem.className = 'flex items-center justify-between p-3 bg-gray-50 rounded-lg';
+                fileItem.innerHTML = `
+                    <div class="flex items-center">
+                        <i class="fas fa-file text-gray-400 mr-3"></i>
+                        <div>
+                            <p class="text-sm font-medium text-gray-700 truncate max-w-xs">${file.name}</p>
+                            <p class="text-xs text-gray-500">${(file.size / 1024 / 1024).toFixed(2)} MB</p>
+                        </div>
+                    </div>
+                    <button type="button" class="text-red-500 hover:text-red-700" onclick="this.closest('div').remove()">
+                        <i class="fas fa-times"></i>
+                    </button>
+                `;
+                fileList.appendChild(fileItem);
+            });
+        });
+    }
+    
+    // Update business status
+    function updateBusinessStatus() {
+        const statusDiv = document.getElementById('business-status');
+        if (!statusDiv) return;
+        
+        const now = new Date();
+        const hour = now.getHours();
+        const day = now.getDay();
+        
+        // Business hours: Mon-Fri 9-22, Sat 10-20, Sun 10-18
+        const isWeekend = day === 0 || day === 6;
+        let isOpen = false;
+        let closingTime = '';
+        
+        if (!isWeekend) { // Monday to Friday
+            isOpen = hour >= 9 && hour < 22;
+            closingTime = '10:00 PM';
+        } else if (day === 6) { // Saturday
+            isOpen = hour >= 10 && hour < 20;
+            closingTime = '8:00 PM';
+        } else { // Sunday
+            isOpen = hour >= 10 && hour < 18;
+            closingTime = '6:00 PM';
+        }
+        
+        if (isOpen) {
+            statusDiv.innerHTML = `
+                <div class="flex items-center">
+                    <i class="fas fa-circle text-green-500 text-xs mr-2 animate-pulse"></i>
+                    <span class="font-medium text-green-800">Open Now</span>
+                    <span class="ml-auto text-sm text-green-600">• Closes at ${closingTime}</span>
+                </div>
+            `;
+            statusDiv.className = 'mt-6 p-4 rounded-lg bg-green-50 border border-green-200';
+        } else {
+            statusDiv.innerHTML = `
+                <div class="flex items-center">
+                    <i class="fas fa-circle text-red-500 text-xs mr-2"></i>
+                    <span class="font-medium text-red-800">Closed Now</span>
+                    <span class="ml-auto text-sm text-red-600">• Opens at 9:00 AM</span>
+                </div>
+            `;
+            statusDiv.className = 'mt-6 p-4 rounded-lg bg-red-50 border border-red-200';
+        }
+    }
+    
+    // Update status initially and every minute
+    updateBusinessStatus();
+    setInterval(updateBusinessStatus, 60000);
+});
+</script>
+{% endblock %}

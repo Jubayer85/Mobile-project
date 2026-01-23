@@ -1,0 +1,106 @@
+<{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Order Successful{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-slate-50 flex items-center justify-center px-4 py-12">
+
+  <div class="max-w-2xl w-full bg-white rounded-2xl shadow-lg border border-slate-200 overflow-hidden">
+
+    <!-- Header -->
+    <div class="bg-gradient-to-r from-emerald-500 to-emerald-600 px-8 py-10 text-center">
+      <div class="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-white/20">
+        <svg class="h-10 w-10 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M5 13l4 4L19 7" />
+        </svg>
+      </div>
+
+      <h1 class="text-2xl font-semibold text-white tracking-tight">
+        Order Successful
+      </h1>
+      <p class="mt-2 text-emerald-100 text-sm">
+        Thank you for your purchase. Your order has been placed successfully.
+      </p>
+    </div>
+
+    <!-- Body -->
+    <div class="px-8 py-8">
+
+      <!-- Order Info -->
+      <div class="mb-6 grid grid-cols-1 sm:grid-cols-2 gap-6">
+        <div class="rounded-lg bg-slate-50 p-4 border border-slate-200">
+          <p class="text-xs uppercase tracking-wide text-slate-500">
+            Order Number
+          </p>
+          <p class="mt-1 text-lg font-semibold text-slate-800">
+            {{ order.order_number }}
+          </p>
+        </div>
+
+        <div class="rounded-lg bg-slate-50 p-4 border border-slate-200">
+          <p class="text-xs uppercase tracking-wide text-slate-500">
+            Total Amount
+          </p>
+          <p class="mt-1 text-lg font-semibold text-slate-800">
+            ৳ {{ order.total_amount }}
+          </p>
+        </div>
+      </div>
+
+      <!-- Items -->
+      <div class="mb-8">
+        <h2 class="text-sm font-semibold text-slate-700 mb-4 uppercase tracking-wide">
+          Order Items
+        </h2>
+
+        <ul class="divide-y divide-slate-200 border border-slate-200 rounded-lg overflow-hidden">
+          {% for item in order.items.all %}
+          <li class="flex items-center justify-between px-4 py-3 bg-white">
+            <div>
+              <p class="text-sm font-medium text-slate-800">
+                {{ item.product_name }}
+              </p>
+              <p class="text-xs text-slate-500">
+                Quantity: {{ item.quantity }}
+              </p>
+            </div>
+            <span class="text-sm text-slate-600 font-medium">
+              ৳ {{ item.total_price }}
+            </span>
+          </li>
+          {% endfor %}
+        </ul>
+      </div>
+
+      <!-- Actions -->
+      <div class="flex flex-col sm:flex-row gap-4">
+        <a href="/"
+           class="inline-flex items-center justify-center w-full sm:w-auto
+                  px-6 py-3 rounded-lg bg-indigo-600 text-white text-sm font-medium
+                  hover:bg-indigo-700 transition shadow-sm">
+          Continue Shopping
+        </a>
+
+        <a href="{% url 'profile' %}"
+           class="inline-flex items-center justify-center w-full sm:w-auto
+                  px-6 py-3 rounded-lg border border-slate-300 text-slate-700
+                  text-sm font-medium hover:bg-slate-100 transition">
+          View My Orders
+        </a>
+      </div>
+
+    </div>
+
+    <!-- Footer -->
+    <div class="bg-slate-50 border-t border-slate-200 px-8 py-4 text-center">
+      <p class="text-xs text-slate-500">
+        Need help? Contact our support team anytime.
+      </p>
+    </div>
+
+  </div>
+
+</div>
+{% endblock %}

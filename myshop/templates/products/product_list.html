@@ -1,0 +1,226 @@
+<!-- templates/products/product_list.html -->
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}
+  {% if subcategory %}
+    {{ subcategory.name }} - Products
+  {% else %}
+    {{ category.name }} - Products
+  {% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+  <!-- Breadcrumb -->
+  <nav class="flex mb-6" aria-label="Breadcrumb">
+    <ol class="inline-flex items-center space-x-1 md:space-x-3">
+      <li class="inline-flex items-center">
+        <a href="{% url 'home' %}" class="text-slate-600 hover:text-indigo-600">Home</a>
+      </li>
+      <li>
+        <div class="flex items-center">
+          <svg class="w-3 h-3 text-slate-400 mx-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 6 10">
+            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 9 4-4-4-4"/>
+          </svg>
+          {% if subcategory %}
+            <a href="{% url 'category_products' subcategory.category.slug %}" 
+               class="ml-1 text-slate-600 hover:text-indigo-600">
+              {{ subcategory.category.name }}
+            </a>
+          {% else %}
+            <span class="ml-1 text-slate-600">{{ category.name }}</span>
+          {% endif %}
+        </div>
+      </li>
+      {% if subcategory %}
+      <li aria-current="page">
+        <div class="flex items-center">
+          <svg class="w-3 h-3 text-slate-400 mx-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 6 10">
+            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 9 4-4-4-4"/>
+          </svg>
+          <span class="ml-1 text-slate-900 font-medium">{{ subcategory.name }}</span>
+        </div>
+      </li>
+      {% endif %}
+    </ol>
+  </nav>
+
+  <!-- Page Header -->
+  <div class="mb-8">
+    {% if subcategory %}
+      <h1 class="text-3xl font-bold text-slate-900 mb-2">{{ subcategory.name }}</h1>
+      {% if subcategory.description %}
+        <p class="text-slate-600">{{ subcategory.description }}</p>
+      {% endif %}
+    {% else %}
+      <h1 class="text-3xl font-bold text-slate-900 mb-2">{{ category.name }}</h1>
+      {% if category.description %}
+        <p class="text-slate-600">{{ category.description }}</p>
+      {% endif %}
+    {% endif %}
+    
+    <p class="text-slate-500 mt-2">{{ products.count }} products found</p>
+  </div>
+
+  <div class="flex flex-col lg:flex-row gap-8">
+    <!-- Sidebar - Categories -->
+    <div class="lg:w-1/4">
+      <div class="bg-white rounded-lg border border-slate-200 p-6">
+        <h3 class="font-semibold text-lg mb-4 text-slate-900">Categories</h3>
+        
+        {% if subcategory %}
+          <!-- Show subcategories of the current category -->
+          <div class="space-y-2">
+            {% for sub in category.subcategories.all %}
+              {% if sub.is_active %}
+                <a href="{% url 'subcategory_products' sub.slug %}" 
+                   class="block py-2 px-3 rounded {% if sub.slug == subcategory.slug %}bg-indigo-50 text-indigo-600 font-medium{% else %}text-slate-600 hover:bg-slate-50{% endif %}">
+                  {{ sub.name }}
+                  <span class="float-right text-sm text-slate-400">
+                    ({{ sub.product_set.count }})
+                  </span>
+                </a>
+              {% endif %}
+            {% endfor %}
+          </div>
+        {% else %}
+          <!-- Show all categories -->
+          <div class="space-y-3">
+            {% for cat in nav_categories %}
+              <div>
+                <a href="{% url 'category_products' cat.slug %}" 
+                   class="font-medium text-slate-900 hover:text-indigo-600 block mb-2">
+                  {{ cat.name }}
+                </a>
+                {% if cat.subcategories.all %}
+                  <div class="ml-3 space-y-1">
+                    {% for sub in cat.subcategories.all %}
+                      {% if sub.is_active %}
+                        <a href="{% url 'subcategory_products' sub.slug %}" 
+                           class="block text-sm text-slate-600 hover:text-indigo-600">
+                          {{ sub.name }}
+                        </a>
+                      {% endif %}
+                    {% endfor %}
+                  </div>
+                {% endif %}
+              </div>
+            {% endfor %}
+          </div>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Products Grid -->
+    <div class="lg:w-3/4">
+      {% if products %}
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          {% for product in products %}
+            <div class="bg-white rounded-lg border border-slate-200 overflow-hidden hover:shadow-lg transition-shadow">
+              <!-- Product Image -->
+              <a href="{% url 'product_detail' product.slug %}">
+                <div class="h-48 bg-slate-100 flex items-center justify-center">
+                  {% if product.image %}
+                    <img src="{{ product.image.url }}" alt="{{ product.name }}" 
+                         class="h-full w-full object-cover">
+                  {% else %}
+                    <span class="text-slate-400">No Image</span>
+                  {% endif %}
+                </div>
+              </a>
+              
+              <!-- Product Info -->
+              <div class="p-4">
+                <a href="{% url 'product_detail' product.slug %}">
+                  <h3 class="font-semibold text-slate-900 hover:text-indigo-600 mb-2">
+                    {{ product.name }}
+                  </h3>
+                </a>
+                
+                <p class="text-slate-600 text-sm mb-3 line-clamp-2">
+                  {{ product.description|truncatewords:20 }}
+                </p>
+                
+                <div class="flex items-center justify-between">
+                  <span class="text-xl font-bold text-slate-900">
+                    ৳{{ product.price }}
+                  </span>
+                  
+                  <!-- Add to Cart Button -->
+                  <button class="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 
+                                transition-colors text-sm font-medium">
+                    Add to Cart
+                  </button>
+                </div>
+                
+                <!-- Product Meta -->
+                <div class="mt-3 pt-3 border-t border-slate-100 text-xs text-slate-500">
+                  <div class="flex justify-between">
+                    <span>Brand: {{ product.brand|default:"Unknown" }}</span>
+                    {% if product.in_stock %}
+                      <span class="text-green-600">In Stock</span>
+                    {% else %}
+                      <span class="text-red-600">Out of Stock</span>
+                    {% endif %}
+                  </div>
+                </div>
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+        
+        <!-- Pagination (if needed) -->
+        {% if products.has_other_pages %}
+          <div class="mt-8 flex justify-center">
+            <nav class="flex items-center space-x-2">
+              {% if products.has_previous %}
+                <a href="?page={{ products.previous_page_number }}" 
+                   class="px-3 py-2 border border-slate-300 rounded text-slate-600 hover:bg-slate-50">
+                  Previous
+                </a>
+              {% endif %}
+              
+              {% for num in products.paginator.page_range %}
+                {% if products.number == num %}
+                  <span class="px-3 py-2 border border-indigo-500 bg-indigo-50 text-indigo-600 rounded">
+                    {{ num }}
+                  </span>
+                {% elif num > products.number|add:'-3' and num < products.number|add:'3' %}
+                  <a href="?page={{ num }}" 
+                     class="px-3 py-2 border border-slate-300 rounded text-slate-600 hover:bg-slate-50">
+                    {{ num }}
+                  </a>
+                {% endif %}
+              {% endfor %}
+              
+              {% if products.has_next %}
+                <a href="?page={{ products.next_page_number }}" 
+                   class="px-3 py-2 border border-slate-300 rounded text-slate-600 hover:bg-slate-50">
+                  Next
+                </a>
+              {% endif %}
+            </nav>
+          </div>
+        {% endif %}
+        
+      {% else %}
+        <!-- No Products Found -->
+        <div class="text-center py-12">
+          <div class="text-slate-400 mb-4">
+            <svg class="w-16 h-16 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+          </div>
+          <h3 class="text-xl font-semibold text-slate-700 mb-2">No Products Found</h3>
+          <p class="text-slate-500 mb-6">There are no products in this category yet.</p>
+          <a href="{% url 'home' %}" 
+             class="inline-block bg-indigo-600 text-white px-6 py-3 rounded-lg hover:bg-indigo-700">
+            Back to Home
+          </a>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}
