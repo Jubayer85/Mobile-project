@@ -603,6 +603,17 @@ def edit_brand(request, brand_id):
     }
     return render(request, 'admin/edit_brand.html', context)
 
+def categories(request):
+    """
+    Admin categories management view
+    """
+    # শুধুমাত্র admin/user access দিতে চাইলে
+    if not request.user.is_staff:
+        return redirect('home')
+    
+    categories = Category.objects.all()
+    return render(request, 'admin/categories.html', {'categories': categories})
+
 # Placeholder views for footer links
 def shop_all(request):
     products = Product.objects.filter(is_active=True)

@@ -61,7 +61,8 @@ urlpatterns = [
     path('admin-dashboard/manage-categories/', views.manage_categories, name='admin_manage_categories'),
     path('category/<int:category_id>/edit/', views.edit_category, name='edit_category'),
     path('admin-dashboard/subcategory/<int:subcategory_id>/edit/', views.edit_subcategory, name='edit_subcategory'),
-   path('admin/brand/<int:brand_id>/edit/', views.edit_brand, name='edit_brand'),
+    path('admin/brand/<int:brand_id>/edit/', views.edit_brand, name='edit_brand'),
+    path('admin-dashboard/categories/', views.categories, name='admin_categories'),
 
 
     # NEW: Footer required URLs
