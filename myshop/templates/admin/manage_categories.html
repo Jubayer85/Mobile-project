@@ -17,7 +17,7 @@
         </div>
         <div class="flex items-center gap-2">
           <a href="{% url 'admin_dashboard' %}" 
-             class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 text-sm">
+             class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 text-sm transition-colors">
             ← Back
           </a>
         </div>
@@ -26,7 +26,7 @@
 
     <!-- Stats Cards -->
     <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-      <div class="bg-white p-4 rounded-xl border shadow-sm">
+      <div class="bg-white p-4 rounded-xl border shadow-sm hover:shadow-md transition-shadow">
         <div class="flex items-center">
           <div class="w-10 h-10 bg-indigo-100 rounded-lg flex items-center justify-center mr-3">
             <i class="fas fa-folder text-indigo-600"></i>
@@ -38,7 +38,7 @@
         </div>
       </div>
 
-      <div class="bg-white p-4 rounded-xl border shadow-sm">
+      <div class="bg-white p-4 rounded-xl border shadow-sm hover:shadow-md transition-shadow">
         <div class="flex items-center">
           <div class="w-10 h-10 bg-emerald-100 rounded-lg flex items-center justify-center mr-3">
             <i class="fas fa-tags text-emerald-600"></i>
@@ -50,7 +50,7 @@
         </div>
       </div>
 
-      <div class="bg-white p-4 rounded-xl border shadow-sm">
+      <div class="bg-white p-4 rounded-xl border shadow-sm hover:shadow-md transition-shadow">
         <div class="flex items-center">
           <div class="w-10 h-10 bg-amber-100 rounded-lg flex items-center justify-center mr-3">
             <i class="fas fa-copyright text-amber-600"></i>
@@ -63,111 +63,275 @@
       </div>
     </div>
 
-    <!-- Tabs -->
-    <div class="mb-6">
+    <!-- Tabs with Alpine.js -->
+    <div x-data="{ activeTab: 'categories' }" class="mb-6">
       <div class="border-b border-gray-200">
         <nav class="flex space-x-4" aria-label="Tabs">
-          <button onclick="showTab('categories')" 
-                  id="tab-categories"
-                  class="px-3 py-2 font-medium text-sm border-b-2 border-indigo-600 text-indigo-600">
+          <button @click="activeTab = 'categories'" 
+                  :class="activeTab === 'categories' 
+                    ? 'border-indigo-600 text-indigo-600' 
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'"
+                  class="px-3 py-2 font-medium text-sm border-b-2 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-opacity-50 rounded-t-lg">
             <i class="fas fa-folder mr-2"></i>Categories
           </button>
-          <button onclick="showTab('subcategories')" 
-                  id="tab-subcategories"
-                  class="px-3 py-2 font-medium text-sm border-b-2 border-transparent text-gray-500 hover:text-gray-700">
+          <button @click="activeTab = 'subcategories'" 
+                  :class="activeTab === 'subcategories' 
+                    ? 'border-indigo-600 text-indigo-600' 
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'"
+                  class="px-3 py-2 font-medium text-sm border-b-2 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-opacity-50 rounded-t-lg">
             <i class="fas fa-tags mr-2"></i>SubCategories
           </button>
-          <button onclick="showTab('brands')" 
-                  id="tab-brands"
-                  class="px-3 py-2 font-medium text-sm border-b-2 border-transparent text-gray-500 hover:text-gray-700">
+          <button @click="activeTab = 'brands'" 
+                  :class="activeTab === 'brands' 
+                    ? 'border-indigo-600 text-indigo-600' 
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'"
+                  class="px-3 py-2 font-medium text-sm border-b-2 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-opacity-50 rounded-t-lg">
             <i class="fas fa-copyright mr-2"></i>Brands
           </button>
         </nav>
       </div>
-    </div>
 
-    <!-- Categories Tab -->
-    <div id="categories-content" class="tab-content">
-      {% include 'admin/partials/categories_table.html' %}
-    </div>
+      <!-- Tab Contents -->
+      <div class="mt-6">
+        <!-- Categories Tab -->
+        <div x-show="activeTab === 'categories'" x-transition:enter="transition ease-out duration-300"
+             x-transition:enter-start="opacity-0 transform scale-95"
+             x-transition:enter-end="opacity-100 transform scale-100"
+             x-transition:leave="transition ease-in duration-300"
+             x-transition:leave-start="opacity-100 transform scale-100"
+             x-transition:leave-end="opacity-0 transform scale-95">
+          {% include 'admin/partials/categories_table.html' %}
+        </div>
 
-    <!-- SubCategories Tab -->
-    <div id="subcategories-content" class="tab-content hidden">
-      {% include 'admin/partials/subcategories_table.html' %}
-    </div>
+        <!-- SubCategories Tab -->
+        <div x-show="activeTab === 'subcategories'" x-transition:enter="transition ease-out duration-300"
+             x-transition:enter-start="opacity-0 transform scale-95"
+             x-transition:enter-end="opacity-100 transform scale-100"
+             x-transition:leave="transition ease-in duration-300"
+             x-transition:leave-start="opacity-100 transform scale-100"
+             x-transition:leave-end="opacity-0 transform scale-95">
+          {% include 'admin/partials/subcategories_table.html' %}
+        </div>
 
-    <!-- Brands Tab -->
-    <div id="brands-content" class="tab-content hidden">
-      {% include 'admin/partials/brands_table.html' %}
+        <!-- Brands Tab -->
+        <div x-show="activeTab === 'brands'" x-transition:enter="transition ease-out duration-300"
+             x-transition:enter-start="opacity-0 transform scale-95"
+             x-transition:enter-end="opacity-100 transform scale-100"
+             x-transition:leave="transition ease-in duration-300"
+             x-transition:leave-start="opacity-100 transform scale-100"
+             x-transition:leave-end="opacity-0 transform scale-95">
+          {% include 'admin/partials/brands_table.html' %}
+        </div>
+      </div>
     </div>
 
   </div>
 </div>
 
-<!-- Add Category Modal -->
-
+<!-- Modal Container -->
 <div id="modal-container"></div>
 
+<!-- Floating Action Button -->
+<div class="fixed bottom-6 right-6 z-40">
+  <div x-data="{ showMenu: false }" class="relative">
+    <!-- Main FAB -->
+    <button @click="showMenu = !showMenu"
+            class="w-14 h-14 bg-indigo-600 hover:bg-indigo-700 text-white rounded-full shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 flex items-center justify-center focus:outline-none focus:ring-4 focus:ring-indigo-500 focus:ring-opacity-50">
+      <i class="fas fa-plus text-xl" :class="{ 'rotate-45': showMenu }" style="transition: transform 0.3s ease;"></i>
+    </button>
+    
+    <!-- Dropdown Menu -->
+    <div x-show="showMenu" 
+         @click.away="showMenu = false"
+         x-transition:enter="transition ease-out duration-200"
+         x-transition:enter-start="opacity-0 transform scale-95 translate-y-4"
+         x-transition:enter-end="opacity-100 transform scale-100 translate-y-0"
+         x-transition:leave="transition ease-in duration-150"
+         x-transition:leave-start="opacity-100 transform scale-100 translate-y-0"
+         x-transition:leave-end="opacity-0 transform scale-95 translate-y-4"
+         class="absolute bottom-16 right-0 mb-2 w-48 bg-white rounded-xl shadow-xl border border-gray-200 py-2 z-50">
+      <button hx-get="{% url 'add_category' %}" 
+              hx-target="#modal-container"
+              hx-swap="innerHTML"
+              class="w-full px-4 py-3 text-left hover:bg-gray-50 transition-colors flex items-center">
+        <div class="w-8 h-8 bg-indigo-100 rounded-lg flex items-center justify-center mr-3">
+          <i class="fas fa-folder text-indigo-600 text-sm"></i>
+        </div>
+        <div>
+          <p class="font-medium text-gray-900">Add Category</p>
+          <p class="text-xs text-gray-500">Create new main category</p>
+        </div>
+      </button>
+      <button hx-get="{% url 'add_subcategory' %}" 
+              hx-target="#modal-container"
+              hx-swap="innerHTML"
+              class="w-full px-4 py-3 text-left hover:bg-gray-50 transition-colors flex items-center border-t border-gray-100">
+        <div class="w-8 h-8 bg-emerald-100 rounded-lg flex items-center justify-center mr-3">
+          <i class="fas fa-tags text-emerald-600 text-sm"></i>
+        </div>
+        <div>
+          <p class="font-medium text-gray-900">Add SubCategory</p>
+          <p class="text-xs text-gray-500">Add under existing category</p>
+        </div>
+      </button>
+      <button hx-get="{% url 'add_brand' %}" 
+              hx-target="#modal-container"
+              hx-swap="innerHTML"
+              class="w-full px-4 py-3 text-left hover:bg-gray-50 transition-colors flex items-center border-t border-gray-100">
+        <div class="w-8 h-8 bg-amber-100 rounded-lg flex items-center justify-center mr-3">
+          <i class="fas fa-copyright text-amber-600 text-sm"></i>
+        </div>
+        <div>
+          <p class="font-medium text-gray-900">Add Brand</p>
+          <p class="text-xs text-gray-500">Create new brand</p>
+        </div>
+      </button>
+    </div>
+  </div>
+</div>
 
 <script>
-function showTab(tabName) {
-  // Hide all tabs
-  document.querySelectorAll('.tab-content').forEach(tab => {
-    tab.classList.add('hidden');
-  });
-  document.querySelectorAll('[id^="tab-"]').forEach(tabBtn => {
-    tabBtn.classList.remove('border-indigo-600', 'text-indigo-600');
-    tabBtn.classList.add('border-transparent', 'text-gray-500');
-  });
-
-  // Show selected tab
-  document.getElementById(tabName + '-content').classList.remove('hidden');
-  document.getElementById('tab-' + tabName).classList.add('border-indigo-600', 'text-indigo-600');
-  document.getElementById('tab-' + tabName).classList.remove('border-transparent', 'text-gray-500');
-}
-
-// Initialize first tab
-document.addEventListener('DOMContentLoaded', function() {
-  showTab('categories');
-});
-
-
-
-
-
-/ Additional functions for action buttons
-function toggleStatus(type, id) {
-    const url = `/admin/${type}/${id}/toggle/`;
+// Function to show success/error messages
+function showMessage(type, text) {
+    // Remove existing message
+    const existingMsg = document.getElementById('global-message');
+    if (existingMsg) existingMsg.remove();
     
-    fetch(url, {
-        method: 'POST',
-        headers: {
-            'X-CSRFToken': getCookie('csrftoken'),
-            'Content-Type': 'application/json',
-        },
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            location.reload();
+    // Create message element
+    const message = document.createElement('div');
+    message.id = 'global-message';
+    message.className = `fixed top-4 right-4 z-50 px-6 py-4 rounded-lg shadow-lg transform transition-all duration-300 animate-slide-in ${
+        type === 'success' ? 'bg-emerald-50 border border-emerald-200 text-emerald-800' : 
+        type === 'error' ? 'bg-rose-50 border border-rose-200 text-rose-800' :
+        'bg-blue-50 border border-blue-200 text-blue-800'
+    }`;
+    
+    const icon = type === 'success' ? 'fas fa-check-circle' : 
+                type === 'error' ? 'fas fa-exclamation-circle' : 'fas fa-info-circle';
+    
+    message.innerHTML = `
+        <div class="flex items-center">
+            <i class="${icon} mr-3 text-lg"></i>
+            <span class="font-medium">${text}</span>
+            <button onclick="this.parentElement.parentElement.remove()" 
+                    class="ml-4 text-gray-400 hover:text-gray-600">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+    `;
+    
+    document.body.appendChild(message);
+    
+    // Auto remove after 5 seconds
+    setTimeout(() => {
+        if (message.parentElement) {
+            message.style.transform = 'translateX(100%)';
+            message.style.opacity = '0';
+            setTimeout(() => {
+                if (message.parentElement) message.remove();
+            }, 300);
         }
-    })
-    .catch(error => {
+    }, 5000);
+}
+
+// Function to toggle status
+async function toggleStatus(type, id, url) {
+    try {
+        const csrfToken = getCookie('csrftoken');
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': csrfToken,
+                'Content-Type': 'application/json',
+            },
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            showMessage('success', data.message || 'Status updated successfully');
+            
+            // Update button text and style
+            const button = document.querySelector(`[data-${type}-id="${id}"]`);
+            if (button) {
+                const isActive = data.is_active;
+                button.innerHTML = isActive ? 
+                    '<i class="fas fa-toggle-on text-emerald-600"></i>' :
+                    '<i class="fas fa-toggle-off text-gray-400"></i>';
+                button.title = isActive ? 'Active - Click to deactivate' : 'Inactive - Click to activate';
+            }
+        } else {
+            showMessage('error', data.message || 'Error updating status');
+        }
+    } catch (error) {
         console.error('Error:', error);
-        alert('Error updating status');
-    });
+        showMessage('error', 'Network error occurred');
+    }
 }
 
-function editCategory(id) {
-    alert(`Edit category ${id} - This feature is under development`);
+// Function to open edit modal
+function openEditModal(type, id) {
+    const urls = {
+        'category': '{% url "edit_category" 0 %}'.replace('0', id),
+        'subcategory': '{% url "edit_subcategory" 0 %}'.replace('0', id),
+        'brand': '{% url "edit_brand" 0 %}'.replace('0', id)
+    };
+    
+    htmx.ajax('GET', urls[type], '#modal-container');
 }
 
-function editSubCategory(id) {
-    alert(`Edit subcategory ${id} - This feature is under development`);
-}
-
-function editBrand(id) {
-    alert(`Edit brand ${id} - This feature is under development`);
+// Function to confirm deletion
+function confirmDelete(type, id, name) {
+    const modalContent = `
+        <div class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+             x-data="{ loading: false }"
+             x-on:keydown.escape.window="$dispatch('close-modal')"
+             @click.self="$dispatch('close-modal')">
+            <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md animate-scale-in">
+                <div class="p-6">
+                    <div class="flex items-center space-x-3 mb-4">
+                        <div class="w-10 h-10 bg-rose-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-exclamation-triangle text-rose-600"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-bold text-gray-900">Confirm Delete</h3>
+                            <p class="text-gray-600 text-sm">This action cannot be undone</p>
+                        </div>
+                    </div>
+                    
+                    <p class="text-gray-700 mb-6">
+                        Are you sure you want to delete <span class="font-semibold">"${name}"</span>?
+                        This will remove all associated data.
+                    </p>
+                    
+                    <div class="flex items-center justify-end space-x-3">
+                        <button @click="$dispatch('close-modal')"
+                                class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors">
+                            Cancel
+                        </button>
+                        <button @click="loading = true; 
+                                        htmx.ajax('DELETE', '/admin/${type}/${id}/delete/', { 
+                                            target: '#modal-container', 
+                                            swap: 'innerHTML',
+                                            headers: { 'X-CSRFToken': '{{ csrf_token }}' }
+                                        })"
+                                :disabled="loading"
+                                class="px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white rounded-lg transition-colors disabled:opacity-70 flex items-center">
+                            <i class="fas fa-spinner fa-spin mr-2" x-show="loading"></i>
+                            <span x-show="!loading">Delete</span>
+                            <span x-show="loading">Deleting...</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    const container = document.getElementById('modal-container');
+    container.innerHTML = modalContent;
+    
+    // Initialize Alpine on the new content
+    Alpine.initTree(container);
 }
 
 // Helper function to get CSRF token
@@ -185,5 +349,66 @@ function getCookie(name) {
     }
     return cookieValue;
 }
+
+// Listen for modal close events
+document.addEventListener('close-modal', () => {
+    const container = document.getElementById('modal-container');
+    container.innerHTML = '';
+});
+
+// Listen for success messages from modals
+document.addEventListener('show-success', (event) => {
+    showMessage('success', event.detail.message);
+});
+
+document.addEventListener('show-error', (event) => {
+    showMessage('error', event.detail.message);
+});
+
+// Initialize tooltips
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize any tooltips if needed
+    const tooltips = document.querySelectorAll('[title]');
+    tooltips.forEach(el => {
+        el.addEventListener('mouseenter', function(e) {
+            // You can add a custom tooltip implementation here if needed
+        });
+    });
+});
+
+// Add custom CSS animations
+const style = document.createElement('style');
+style.textContent = `
+    @keyframes slide-in {
+        from {
+            transform: translateX(100%);
+            opacity: 0;
+        }
+        to {
+            transform: translateX(0);
+            opacity: 1;
+        }
+    }
+    @keyframes scale-in {
+        from {
+            transform: scale(0.95);
+            opacity: 0;
+        }
+        to {
+            transform: scale(1);
+            opacity: 1;
+        }
+    }
+    .animate-slide-in {
+        animation: slide-in 0.3s ease-out;
+    }
+    .animate-scale-in {
+        animation: scale-in 0.2s ease-out;
+    }
+    .rotate-45 {
+        transform: rotate(45deg);
+    }
+`;
+document.head.appendChild(style);
 </script>
 {% endblock %}
