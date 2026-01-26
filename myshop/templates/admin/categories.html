@@ -1,383 +1,189 @@
-{% extends "admin/base_admin.html" %}
+<!-- templates/admin/manage_categories.html -->
+{% extends 'admin/base_admin.html' %}
 {% load static %}
 
-{% block title %}Categories Management - Admin Dashboard{% endblock %}
-
-{% block extra_css %}
-<style>
-    .category-tree {
-        margin-left: 20px;
-        border-left: 2px solid #e5e7eb;
-        padding-left: 20px;
-    }
-
-    .drag-handle {
-        cursor: move;
-        color: #9ca3af;
-    }
-
-    .drag-handle:hover {
-        color: #6b7280;
-    }
-
-    .status-badge {
-        padding: 4px 10px;
-        border-radius: 12px;
-        font-size: 12px;
-        font-weight: 500;
-    }
-
-    .status-active {
-        background-color: #d1fae5;
-        color: #065f46;
-    }
-
-    .status-inactive {
-        background-color: #f3f4f6;
-        color: #6b7280;
-    }
-</style>
-{% endblock %}
+{% block title %}Category Management{% endblock %}
 
 {% block content %}
-<div class="min-h-screen bg-slate-50 pb-12">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
-
-        <!-- Header -->
-        <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-8">
-            <div class="flex-1 min-w-0">
-                <nav class="flex mb-2" aria-label="Breadcrumb">
-                    <ol class="flex items-center space-x-2 text-sm text-slate-500">
-                        <li>
-                            <a href="{% url 'admin_dashboard' %}" class="hover:text-indigo-600 transition">Dashboard</a>
-                        </li>
-                        <li class="flex items-center space-x-2">
-                            <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
-                                <path d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"/>
-                            </svg>
-                            <span class="font-medium text-slate-900">Categories</span>
-                        </li>
-                    </ol>
-                </nav>
-                <h1 class="text-2xl font-bold text-slate-900 sm:truncate flex items-center">
-                    <span class="bg-purple-100 p-2 rounded-lg mr-3">
-                        <i class="fas fa-folder text-purple-600"></i>
-                    </span>
-                    Categories Management
-                </h1>
-                <p class="mt-2 text-sm text-slate-500">Manage product categories and subcategories hierarchy</p>
-            </div>
-
-            <div class="mt-4 flex md:mt-0 md:ml-4 space-x-3">
-                <button onclick="openCategoryModal('main')"
-                        class="inline-flex items-center px-4 py-2 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 transition focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                    <i class="fas fa-plus-circle mr-2"></i> Add Main Category
-                </button>
-                <a href="{% url 'admin_product_list' %}" 
-                   class="inline-flex items-center px-4 py-2 border border-slate-300 rounded-lg shadow-sm text-sm font-medium text-slate-700 bg-white hover:bg-slate-50 transition">
-                    <i class="fas fa-arrow-left mr-2"></i> Back to Products
-                </a>
-            </div>
+<div class="min-h-screen bg-gray-50 p-4 md:p-6">
+  <div class="max-w-7xl mx-auto">
+    
+    <!-- Header -->
+    <div class="mb-6 md:mb-8">
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <h1 class="text-2xl md:text-3xl font-bold text-gray-900">Category Management</h1>
+          <p class="text-gray-600 mt-1">Manage categories, subcategories and brands</p>
         </div>
-
-        <!-- Stats Cards -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-            <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
-                <div class="flex items-center">
-                    <div class="flex-shrink-0">
-                        <div class="w-12 h-12 rounded-lg bg-blue-100 flex items-center justify-center">
-                            <i class="fas fa-folder text-blue-600 text-xl"></i>
-                        </div>
-                    </div>
-                    <div class="ml-4">
-                        <p class="text-sm font-medium text-slate-500">Total Categories</p>
-                        <p class="text-2xl font-bold text-slate-900">{{ total_categories }}</p>
-                    </div>
-                </div>
-            </div>
-
-            <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
-                <div class="flex items-center">
-                    <div class="flex-shrink-0">
-                        <div class="w-12 h-12 rounded-lg bg-green-100 flex items-center justify-center">
-                            <i class="fas fa-folder-open text-green-600 text-xl"></i>
-                        </div>
-                    </div>
-                    <div class="ml-4">
-                        <p class="text-sm font-medium text-slate-500">Main Categories</p>
-                        <p class="text-2xl font-bold text-slate-900">{{ main_categories }}</p>
-                    </div>
-                </div>
-            </div>
-
-            <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
-                <div class="flex items-center">
-                    <div class="flex-shrink-0">
-                        <div class="w-12 h-12 rounded-lg bg-purple-100 flex items-center justify-center">
-                            <i class="fas fa-sitemap text-purple-600 text-xl"></i>
-                        </div>
-                    </div>
-                    <div class="ml-4">
-                        <p class="text-sm font-medium text-slate-500">Subcategories</p>
-                        <p class="text-2xl font-bold text-slate-900">{{ subcategories }}</p>
-                    </div>
-                </div>
-            </div>
+        <div class="flex items-center gap-2">
+          <a href="{% url 'admin_dashboard' %}" 
+             class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 text-sm">
+            ← Back
+          </a>
         </div>
-
-        <!-- Main Content -->
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <!-- Left Column - Categories List -->
-            <div class="lg:col-span-2">
-                <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
-
-                    <!-- Header -->
-                    <div class="px-6 py-4 border-b border-slate-100 bg-slate-50/50">
-                        <h3 class="text-lg font-semibold text-slate-800 flex items-center">
-                            <i class="fas fa-list text-indigo-500 mr-2"></i> Categories Hierarchy
-                        </h3>
-                        <p class="text-sm text-slate-500 mt-1">Drag and drop to reorder categories</p>
-                    </div>
-
-                    <div class="p-6">
-
-                        <!-- Messages -->
-                        {% if messages %}
-                        <div class="mb-6 space-y-3">
-                            {% for message in messages %}
-                            <div class="rounded-lg p-4 flex items-center justify-between 
-                                        {% if message.tags == 'success' %}bg-green-50 text-green-800 border border-green-200
-                                        {% elif message.tags == 'error' or message.tags == 'danger' %}bg-red-50 text-red-800 border border-red-200
-                                        {% else %}bg-blue-50 text-blue-800 border border-blue-200{% endif %}">
-                                <div class="flex items-center">
-                                    <i class="fas {% if message.tags == 'success' %}fa-check-circle
-                                                   {% elif message.tags == 'error' or message.tags == 'danger' %}fa-exclamation-circle
-                                                   {% else %}fa-info-circle{% endif %} mr-3 text-lg"></i>
-                                    <p class="text-sm font-medium">{{ message }}</p>
-                                </div>
-                                <button type="button" class="ml-auto focus:outline-none opacity-50 hover:opacity-100" onclick="this.parentElement.remove()">
-                                    <i class="fas fa-times"></i>
-                                </button>
-                            </div>
-                            {% endfor %}
-                        </div>
-                        {% endif %}
-
-                        <!-- Search and Filter -->
-                        <div class="mb-6">
-                            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                                <div class="relative flex-1">
-                                    <input type="text" 
-                                           placeholder="Search categories..." 
-                                           class="w-full pl-10 pr-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                                           onkeyup="filterCategories(this.value)">
-                                    <i class="fas fa-search absolute left-3 top-3 text-slate-400"></i>
-                                </div>
-                                <div class="flex space-x-2">
-                                    <select class="border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                                        <option value="">All Categories</option>
-                                        <option value="main">Main Categories</option>
-                                        <option value="sub">Subcategories</option>
-                                    </select>
-                                    <button class="px-4 py-2 border border-slate-300 rounded-lg text-sm font-medium text-slate-700 bg-white hover:bg-slate-50 transition">
-                                        <i class="fas fa-filter mr-2"></i> Filter
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Categories Tree -->
-                        <div id="categoriesTree" class="space-y-3">
-                            {% if categories %}
-                                {% for category in categories %}
-                                    {% if not category.parent %}
-                                        <!-- Main Category Item -->
-                                        <div class="category-item bg-slate-50 rounded-lg border border-slate-200 p-4" data-id="{{ category.id }}" data-type="main">
-                                            <div class="flex items-center justify-between">
-                                                <div class="flex items-center flex-1">
-                                                    <span class="drag-handle mr-3 cursor-move">
-                                                        <i class="fas fa-grip-vertical text-slate-400"></i>
-                                                    </span>
-                                                    <div class="w-10 h-10 rounded-lg bg-blue-100 flex items-center justify-center mr-3">
-                                                        <i class="fas fa-folder text-blue-600"></i>
-                                                    </div>
-                                                    <div class="flex-1">
-                                                        <h4 class="font-medium text-slate-900">{{ category.name }}</h4>
-                                                        <div class="flex items-center space-x-4 mt-1">
-                                                            <span class="text-xs text-slate-500">
-                                                                <i class="fas fa-box mr-1"></i>
-                                                                {{ category.product_count|default:"0" }} products
-                                                            </span>
-                                                            <span class="text-xs text-slate-500">
-                                                                <i class="fas fa-sitemap mr-1"></i>
-                                                                {{ category.children.count }} subcategories
-                                                            </span>
-                                                            <span class="status-badge status-active">Active</span>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div class="flex items-center space-x-2">
-                                                    <button onclick="openCategoryModal('sub', '{{ category.id }}')" class="p-2 text-xs text-indigo-600 hover:text-indigo-800" title="Add Subcategory">
-                                                        <i class="fas fa-plus"></i>
-                                                    </button>
-                                                    <button onclick="editCategory('{{ category.id }}')" class="p-2 text-blue-600 hover:text-blue-800" title="Edit">
-                                                        <i class="fas fa-edit"></i>
-                                                    </button>
-                                                    <button onclick="deleteCategory('{{ category.id }}', '{{ category.name }}')" class="p-2 text-red-600 hover:text-red-800" title="Delete">
-                                                        <i class="fas fa-trash"></i>
-                                                    </button>
-                                                    <button onclick="toggleSubcategories('{{ category.id }}')" class="p-2 text-slate-600 hover:text-slate-800">
-                                                        <i class="fas fa-chevron-down"></i>
-                                                    </button>
-                                                </div>
-                                            </div>
-
-                                            <!-- Subcategories -->
-                                            <div id="subcategories-{{ category.id }}" class="category-tree mt-4 hidden">
-                                                {% for subcat in category.children.all %}
-                                                <div class="category-item bg-white rounded-lg border border-slate-200 p-4 mb-3" data-id="{{ subcat.id }}" data-type="sub" data-parent="{{ category.id }}">
-                                                    <div class="flex items-center justify-between">
-                                                        <div class="flex items-center flex-1">
-                                                            <span class="drag-handle mr-3 cursor-move">
-                                                                <i class="fas fa-grip-vertical text-slate-400"></i>
-                                                            </span>
-                                                            <div class="w-8 h-8 rounded-lg bg-green-100 flex items-center justify-center mr-3">
-                                                                <i class="fas fa-folder-open text-green-600 text-sm"></i>
-                                                            </div>
-                                                            <div class="flex-1">
-                                                                <h5 class="font-medium text-slate-900">{{ subcat.name }}</h5>
-                                                                <div class="flex items-center space-x-4 mt-1">
-                                                                    <span class="text-xs text-slate-500">
-                                                                        <i class="fas fa-box mr-1"></i>
-                                                                        {{ subcat.product_count|default:"0" }} products
-                                                                    </span>
-                                                                    <span class="status-badge status-active">Active</span>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                        <div class="flex items-center space-x-2">
-                                                            <button onclick="editCategory('{{ subcat.id }}')" class="p-2 text-blue-600 hover:text-blue-800" title="Edit">
-                                                                <i class="fas fa-edit"></i>
-                                                            </button>
-                                                            <button onclick="deleteCategory('{{ subcat.id }}', '{{ subcat.name }}')" class="p-2 text-red-600 hover:text-red-800" title="Delete">
-                                                                <i class="fas fa-trash"></i>
-                                                            </button>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                {% empty %}
-                                                <div class="text-center py-4 text-slate-500">
-                                                    <i class="fas fa-folder-open text-2xl mb-2"></i>
-                                                    <p class="text-sm">No subcategories yet</p>
-                                                    <button onclick="openCategoryModal('sub', '{{ category.id }}')" class="mt-2 text-xs text-indigo-600 hover:text-indigo-800">
-                                                        <i class="fas fa-plus mr-1"></i> Add first subcategory
-                                                    </button>
-                                                </div>
-                                                {% endfor %}
-                                            </div>
-                                        </div>
-                                    {% endif %}
-                                {% empty %}
-                                <div class="text-center py-12">
-                                    <div class="w-20 h-20 mx-auto rounded-full bg-slate-100 flex items-center justify-center mb-4">
-                                        <i class="fas fa-folder text-slate-400 text-2xl"></i>
-                                    </div>
-                                    <h3 class="text-lg font-medium text-slate-900 mb-2">No Categories Yet</h3>
-                                    <p class="text-slate-500 mb-6">Start by adding your first product category</p>
-                                    <button onclick="openCategoryModal('main')" class="inline-flex items-center px-4 py-2 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 transition">
-                                        <i class="fas fa-plus-circle mr-2"></i> Add First Category
-                                    </button>
-                                </div>
-                                {% endfor %}
-                            {% endif %}
-                        </div>
-
-                        <!-- Bulk Actions -->
-                        <div class="mt-8 pt-6 border-t border-slate-200">
-                            <div class="flex items-center justify-between">
-                                <div class="flex items-center space-x-4">
-                                    <select class="border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none">
-                                        <option value="">Bulk Actions</option>
-                                        <option value="activate">Activate</option>
-                                        <option value="deactivate">Deactivate</option>
-                                        <option value="delete">Delete</option>
-                                    </select>
-                                    <button class="px-4 py-2 border border-slate-300 rounded-lg text-sm font-medium text-slate-700 bg-white hover:bg-slate-50 transition">
-                                        Apply
-                                    </button>
-                                </div>
-                                <div class="text-sm text-slate-500">
-                                    Showing {{ categories|length }} categories
-                                </div>
-                            </div>
-                        </div>
-
-                    </div>
-                </div>
-            </div>
-
-            <!-- Right Column - Quick Actions & Stats -->
-            <div class="space-y-6">
-                <!-- Quick Actions -->
-                <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
-                    <div class="px-6 py-4 border-b border-slate-100 bg-slate-50/50">
-                        <h3 class="text-md font-semibold text-slate-800 flex items-center">
-                            <i class="fas fa-bolt text-indigo-500 mr-2 text-sm"></i> Quick Actions
-                        </h3>
-                    </div>
-                    <div class="p-6 space-y-3">
-                        <button onclick="openCategoryModal('main')" class="w-full flex items-center justify-between p-3 border border-slate-200 rounded-lg hover:bg-slate-50 transition">
-                            <div class="flex items-center">
-                                <div class="w-8 h-8 rounded-lg bg-blue-100 flex items-center justify-center mr-3">
-                                    <i class="fas fa-plus text-blue-600 text-sm"></i>
-                                </div>
-                                <span class="text-sm font-medium text-slate-700">Add Main Category</span>
-                            </div>
-                            <i class="fas fa-chevron-right text-slate-400"></i>
-                        </button>
-                        
-                        <button onclick="openCategoryModal('sub')" class="w-full flex items-center justify-between p-3 border border-slate-200 rounded-lg hover:bg-slate-50 transition">
-                            <div class="flex items-center">
-                                <div class="w-8 h-8 rounded-lg bg-green-100 flex items-center justify-center mr-3">
-                                    <i class="fas fa-plus text-green-600 text-sm"></i>
-                                </div>
-                                <span class="text-sm font-medium text-slate-700">Add Subcategory</span>
-                            </div>
-                            <i class="fas fa-chevron-right text-slate-400"></i>
-                        </button>
-                        
-                        <button onclick="exportCategories()" class="w-full flex items-center justify-between p-3 border border-slate-200 rounded-lg hover:bg-slate-50 transition">
-                            <div class="flex items-center">
-                                <div class="w-8 h-8 rounded-lg bg-purple-100 flex items-center justify-center mr-3">
-                                    <i class="fas fa-download text-purple-600 text-sm"></i>
-                                </div>
-                                <span class="text-sm font-medium text-slate-700">Export Categories</span>
-                            </div>
-                            <i class="fas fa-chevron-right text-slate-400"></i>
-                        </button>
-                        
-                        <button onclick="importCategories()" class="w-full flex items-center justify-between p-3 border border-slate-200 rounded-lg hover:bg-slate-50 transition">
-                            <div class="flex items-center">
-                                <div class="w-8 h-8 rounded-lg bg-yellow-100 flex items-center justify-center mr-3">
-                                    <i class="fas fa-upload text-yellow-600 text-sm"></i>
-                                </div>
-                                <span class="text-sm font-medium text-slate-700">Import Categories</span>
-                            </div>
-                            <i class="fas fa-chevron-right text-slate-400"></i>
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Category Stats & Help Card -->
-                <!-- ... you can continue similar refactoring ... -->
-            </div>
-        </div>
+      </div>
     </div>
+
+    <!-- Stats Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+      <div class="bg-white p-4 rounded-xl border shadow-sm">
+        <div class="flex items-center">
+          <div class="w-10 h-10 bg-indigo-100 rounded-lg flex items-center justify-center mr-3">
+            <i class="fas fa-folder text-indigo-600"></i>
+          </div>
+          <div>
+            <p class="text-sm text-gray-500">Categories</p>
+            <p class="text-xl font-semibold text-gray-900">{{ categories.count }}</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white p-4 rounded-xl border shadow-sm">
+        <div class="flex items-center">
+          <div class="w-10 h-10 bg-emerald-100 rounded-lg flex items-center justify-center mr-3">
+            <i class="fas fa-tags text-emerald-600"></i>
+          </div>
+          <div>
+            <p class="text-sm text-gray-500">SubCategories</p>
+            <p class="text-xl font-semibold text-gray-900">{{ subcategories.count }}</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white p-4 rounded-xl border shadow-sm">
+        <div class="flex items-center">
+          <div class="w-10 h-10 bg-amber-100 rounded-lg flex items-center justify-center mr-3">
+            <i class="fas fa-copyright text-amber-600"></i>
+          </div>
+          <div>
+            <p class="text-sm text-gray-500">Brands</p>
+            <p class="text-xl font-semibold text-gray-900">{{ brands.count }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="mb-6">
+      <div class="border-b border-gray-200">
+        <nav class="flex space-x-4" aria-label="Tabs">
+          <button onclick="showTab('categories')" 
+                  id="tab-categories"
+                  class="px-3 py-2 font-medium text-sm border-b-2 border-indigo-600 text-indigo-600">
+            <i class="fas fa-folder mr-2"></i>Categories
+          </button>
+          <button onclick="showTab('subcategories')" 
+                  id="tab-subcategories"
+                  class="px-3 py-2 font-medium text-sm border-b-2 border-transparent text-gray-500 hover:text-gray-700">
+            <i class="fas fa-tags mr-2"></i>SubCategories
+          </button>
+          <button onclick="showTab('brands')" 
+                  id="tab-brands"
+                  class="px-3 py-2 font-medium text-sm border-b-2 border-transparent text-gray-500 hover:text-gray-700">
+            <i class="fas fa-copyright mr-2"></i>Brands
+          </button>
+        </nav>
+      </div>
+    </div>
+
+    <!-- Categories Tab -->
+    <div id="categories-content" class="tab-content">
+      {% include 'admin/partials/categories_table.html' %}
+    </div>
+
+    <!-- SubCategories Tab -->
+    <div id="subcategories-content" class="tab-content hidden">
+      {% include 'admin/partials/subcategories_table.html' %}
+    </div>
+
+    <!-- Brands Tab -->
+    <div id="brands-content" class="tab-content hidden">
+      {% include 'admin/partials/brands_table.html' %}
+    </div>
+
+  </div>
 </div>
 
-<!-- Modals and Scripts remain unchanged -->
-<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+<!-- Add Category Modal -->
+
+<div id="modal-container"></div>
+
+
 <script>
-    // JS functions remain unchanged, properly indented
+function showTab(tabName) {
+  // Hide all tabs
+  document.querySelectorAll('.tab-content').forEach(tab => {
+    tab.classList.add('hidden');
+  });
+  document.querySelectorAll('[id^="tab-"]').forEach(tabBtn => {
+    tabBtn.classList.remove('border-indigo-600', 'text-indigo-600');
+    tabBtn.classList.add('border-transparent', 'text-gray-500');
+  });
+
+  // Show selected tab
+  document.getElementById(tabName + '-content').classList.remove('hidden');
+  document.getElementById('tab-' + tabName).classList.add('border-indigo-600', 'text-indigo-600');
+  document.getElementById('tab-' + tabName).classList.remove('border-transparent', 'text-gray-500');
+}
+
+// Initialize first tab
+document.addEventListener('DOMContentLoaded', function() {
+  showTab('categories');
+});
+
+
+
+
+
+/ Additional functions for action buttons
+function toggleStatus(type, id) {
+    const url = `/admin/${type}/${id}/toggle/`;
+    
+    fetch(url, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': getCookie('csrftoken'),
+            'Content-Type': 'application/json',
+        },
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            location.reload();
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Error updating status');
+    });
+}
+
+function editCategory(id) {
+    alert(`Edit category ${id} - This feature is under development`);
+}
+
+function editSubCategory(id) {
+    alert(`Edit subcategory ${id} - This feature is under development`);
+}
+
+function editBrand(id) {
+    alert(`Edit brand ${id} - This feature is under development`);
+}
+
+// Helper function to get CSRF token
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
 </script>
 {% endblock %}
