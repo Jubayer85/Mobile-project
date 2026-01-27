@@ -1,195 +1,73 @@
-<!-- Modal Container will inject this -->
-<div class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4"
-     x-data="{
-         loading: false,
-         errors: {},
-         formData: {
-             name: '',
-             description: '',
-             icon: 'fas fa-folder',
-             order: 0
-         },
-         iconOptions: [
-             'fas fa-folder',
-             'fas fa-layer-group',
-             'fas fa-tags',
-             'fas fa-boxes',
-             'fas fa-store',
-             'fas fa-shopping-bag',
-             'fas fa-shopping-cart',
-             'fas fa-gift',
-             'fas fa-star',
-             'fas fa-fire',
-             'fas fa-bolt',
-             'fas fa-flag',
-             'fas fa-hashtag',
-             'fas fa-certificate',
-             'fas fa-award',
-             'fas fa-crown',
-             'fas fa-gem',
-             'fas fa-rocket',
-             'fas fa-bullseye',
-             'fas fa-chart-pie'
-         ],
-         closeModal() {
-             // Dispatch close event
-             this.$dispatch('close-modal');
-         }
-     }"
-     x-on:keydown.escape.window="closeModal()"
-     @click.self="closeModal()">
-    
-    <!-- Modal Content -->
-    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md max-h-[90vh] overflow-hidden animate-scale-in">
-        <!-- Modal Header -->
-        <div class="bg-gradient-to-r from-indigo-500 to-indigo-600 px-6 py-4">
-            <div class="flex items-center justify-between">
-                <div class="flex items-center space-x-3">
-                    <div class="bg-white/20 p-2 rounded-xl">
-                        <i class="fas fa-plus-circle text-white text-lg"></i>
-                    </div>
-                    <div>
-                        <h3 class="text-xl font-bold text-white">Add New Category</h3>
-                        <p class="text-indigo-100 text-sm mt-1">Create a new main product category</p>
-                    </div>
-                </div>
-                <button @click="closeModal()"
-                        class="text-white/80 hover:text-white hover:bg-white/10 p-2 rounded-lg transition-colors"
-                        type="button">
-                    <i class="fas fa-times text-lg"></i>
-                </button>
-            </div>
-        </div>
-        
-        <!-- Modal Body -->
-        <div class="p-6 overflow-y-auto" style="max-height: calc(90vh - 120px);">
-            <form id="category-form"
-                  @submit.prevent="
-                      loading = true;
-                      $el.requestSubmit();
-                  "
-                  hx-post="{% url 'add_category' %}"
-                  hx-target="#modal-container"
-                  hx-swap="innerHTML"
-                  hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
-                
-                <!-- Name Field -->
-                <div class="mb-5">
-                    <label class="block text-sm font-semibold text-slate-700 mb-2">
-                        Category Name <span class="text-rose-500">*</span>
-                    </label>
-                    <div class="relative">
-                        <input type="text"
-                               name="name"
-                               x-model="formData.name"
-                               required
-                               maxlength="100"
-                               placeholder="e.g., Electronics, Clothing, Books"
-                               class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 pl-11 text-slate-800 shadow-sm focus:border-indigo-500 focus:ring-3 focus:ring-indigo-500/20 transition-all duration-300 hover:border-slate-400"
-                               :class="{'border-rose-500': errors.name}">
-                        <div class="absolute left-3 top-3.5 text-slate-400">
-                            <i class="fas fa-tag"></i>
-                        </div>
-                    </div>
-                    <template x-if="errors.name">
-                        <p class="mt-2 text-sm text-rose-600" x-text="errors.name"></p>
-                    </template>
-                    <p class="mt-2 text-xs text-slate-500">
-                        This will create a URL-friendly slug: <span class="font-mono text-indigo-600" 
-                        x-text="formData.name ? formData.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') : 'category-name'"></span>
-                    </p>
-                </div>
-                
-                <!-- Description -->
-                <div class="mb-5">
-                    <label class="block text-sm font-semibold text-slate-700 mb-2">
-                        Description <span class="text-slate-400 text-xs">(Optional)</span>
-                    </label>
-                    <textarea name="description"
-                              x-model="formData.description"
-                              rows="3"
-                              placeholder="Brief description of this category..."
-                              class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-800 shadow-sm focus:border-indigo-500 focus:ring-3 focus:ring-indigo-500/20 transition-all duration-300 hover:border-slate-400 resize-none"></textarea>
-                </div>
-                
-                <!-- Icon & Order Row -->
-                <div class="grid grid-cols-2 gap-4 mb-5">
-                    <!-- Icon -->
-                    <div>
-                        <label class="block text-sm font-semibold text-slate-700 mb-2">
-                            Icon <span class="text-slate-400 text-xs">(Optional)</span>
-                        </label>
-                        <div class="relative">
-                            <select name="icon"
-                                    x-model="formData.icon"
-                                    class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 pl-11 text-slate-800 shadow-sm focus:border-indigo-500 focus:ring-3 focus:ring-indigo-500/20 transition-all duration-300 hover:border-slate-400 appearance-none">
-                                <template x-for="icon in iconOptions" :key="icon">
-                                    <option :value="icon" x-text="icon"></option>
-                                </template>
-                            </select>
-                            <div class="absolute left-3 top-3.5 text-slate-400 pointer-events-none">
-                                <i class="fas fa-icons"></i>
-                            </div>
-                            <div class="absolute right-3 top-3.5 text-slate-400 pointer-events-none">
-                                <i class="fas fa-chevron-down"></i>
-                            </div>
-                        </div>
-                        <div class="mt-2 text-xs text-slate-500">
-                            <i :class="formData.icon" class="mr-2"></i>
-                            <span x-text="formData.icon"></span>
-                        </div>
-                    </div>
-                    
-                    <!-- Order -->
-                    <div>
-                        <label class="block text-sm font-semibold text-slate-700 mb-2">
-                            Display Order
-                        </label>
-                        <input type="number"
-                               name="order"
-                               x-model="formData.order"
-                               min="0"
-                               class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 text-slate-800 shadow-sm focus:border-indigo-500 focus:ring-3 focus:ring-indigo-500/20 transition-all duration-300 hover:border-slate-400 text-center">
-                        <p class="mt-1 text-xs text-slate-500">Lower numbers appear first</p>
-                    </div>
-                </div>
-                
-                <!-- General Error -->
-                <template x-if="errors.__all__">
-                    <div class="mb-5 p-4 bg-rose-50 border border-rose-200 rounded-xl">
-                        <div class="flex items-center">
-                            <i class="fas fa-exclamation-circle text-rose-500 mr-3"></i>
-                            <p class="text-rose-600 text-sm" x-text="errors.__all__"></p>
-                        </div>
-                    </div>
-                </template>
-                
-                <!-- Modal Footer -->
-                <div class="flex items-center justify-between pt-5 border-t border-slate-200">
-                    <button type="button"
-                            @click="closeModal()"
-                            class="px-5 py-2.5 rounded-xl border border-slate-300 text-slate-700 hover:bg-slate-50 hover:border-slate-400 transition-colors font-medium">
-                        Cancel
-                    </button>
-                    <button type="submit"
-                            :disabled="loading"
-                            class="px-6 py-2.5 bg-gradient-to-r from-indigo-800 to-indigo-600 hover:from-indigo-600 hover:to-indigo-700 text-white rounded-xl
-                            font-semibold shadow-2g shadow-indigo-500/25 hover:shadow-xl hover:shadow-indigo-500/30 transition-all duration-300 disabled:opacity-70 disabled:cursor-not-allowed">
-                        <template x-if="loading">
-                            <span class="flex items-center">
-                                <i class="fas fa-spinner fa-spin mr-2"></i>
-                                Creating...
-                            </span>
-                        </template>
-                        <template x-if="!loading">
-                            <span class="flex items-center">
-                                <i class="fas fa-plus-circle mr-2"></i>
-                                Create Category
-                            </span>
-                        </template>
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
+<div class="bg-white rounded-xl shadow-xl w-full max-w-md mx-auto">
+
+  <!-- Header -->
+  <div class="px-6 py-4 border-b flex items-center justify-between">
+    <h3 class="text-lg font-semibold text-slate-800">
+      Add Sub Category
+    </h3>
+    <button onclick="closeModal()" class="text-slate-400 hover:text-slate-600">
+      ✕
+    </button>
+  </div>
+
+  <!-- Body -->
+  <div class="p-6">
+    <form
+      hx-post="{% url 'add_subcategory' %}"
+      hx-target="#subcategory-select"
+      hx-swap="beforeend"
+      class="space-y-4"
+    >
+      {% csrf_token %}
+
+      <!-- Parent Category -->
+      <div>
+        <label class="block text-sm font-medium text-slate-700 mb-1">
+          Parent Category
+        </label>
+        <select
+          name="category"
+          required
+          class="w-full rounded-lg border border-slate-300 px-3 py-2 focus:ring-2 focus:ring-indigo-500"
+        >
+          <option value="">Select category</option>
+          {% for category in categories %}
+            <option value="{{ category.id }}">{{ category.name }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <!-- Subcategory Name -->
+      <div>
+        <label class="block text-sm font-medium text-slate-700 mb-1">
+          Sub Category Name
+        </label>
+        <input
+          type="text"
+          name="name"
+          required
+          placeholder="e.g. Smartphones"
+          class="w-full rounded-lg border border-slate-300 px-3 py-2 focus:ring-2 focus:ring-indigo-500"
+        />
+      </div>
+
+      <!-- Actions -->
+      <div class="flex justify-end gap-3 pt-4 border-t">
+        <button
+          type="button"
+          onclick="closeModal()"
+          class="px-4 py-2 rounded-lg border text-slate-600 hover:bg-slate-50"
+        >
+          Cancel
+        </button>
+        <button
+          type="submit"
+          class="px-4 py-2 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700"
+        >
+          Save
+        </button>
+      </div>
+
+    </form>
+  </div>
 </div>
