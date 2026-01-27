@@ -1,207 +1,383 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Admin Dashboard | MobileShop</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+{% extends "admin/base_admin.html" %}
 
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        brand: '#2563eb',
-                    }
-                }
-            }
-        }
-    </script>
-</head>
+{% block title %}Dashboard - Admin Panel{% endblock %}
 
-<body class="bg-slate-950 text-slate-100">
+{% block page_title %}Dashboard{% endblock %}
 
-<div class="flex min-h-screen">
+{% block extra_css %}
+<style>
+    .stats-card {
+        background: linear-gradient(135deg, rgba(30, 41, 59, 0.8) 0%, rgba(15, 23, 42, 0.9) 100%);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        transition: all 0.3s ease;
+    }
+    
+    .stats-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.3);
+    }
+    
+    .chart-container {
+        background: linear-gradient(135deg, rgba(30, 41, 59, 0.8) 0%, rgba(15, 23, 42, 0.9) 100%);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(10px);
+    }
+    
+    .trend-up {
+        color: #10b981;
+        background: rgba(16, 185, 129, 0.1);
+    }
+    
+    .trend-down {
+        color: #ef4444;
+        background: rgba(239, 68, 68, 0.1);
+    }
+    
+    .progress-bar {
+        height: 6px;
+        border-radius: 3px;
+        background: rgba(255, 255, 255, 0.1);
+        overflow: hidden;
+    }
+    
+    .progress-fill {
+        height: 100%;
+        border-radius: 3px;
+        background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+    }
+</style>
+{% endblock %}
 
-    <!-- ================= SIDEBAR ================= -->
-    <aside class="w-64 bg-slate-900 border-r border-white/10 hidden md:flex flex-col">
-        <div class="px-6 py-5 text-2xl font-extrabold">
-            Mobile<span class="text-brand">Shop</span>
+{% block content %}
+<!-- Quick Stats -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+    <!-- Total Products Card -->
+    <div class="stats-card rounded-2xl p-6 card-hover">
+        <div class="flex justify-between items-start mb-4">
+            <div>
+                <p class="text-sm text-dark-400 mb-1">Total Products</p>
+                <h3 class="text-3xl font-bold text-white">{{ total_products|default:"0" }}</h3>
+            </div>
+            <div class="w-12 h-12 rounded-xl bg-brand-500/20 flex items-center justify-center">
+                <i class="fas fa-box text-brand-400 text-xl"></i>
+            </div>
         </div>
+        <div class="flex items-center text-sm">
+            <span class="trend-up px-2 py-1 rounded-full text-xs font-medium">
+                <i class="fas fa-arrow-up mr-1"></i> 12.5%
+            </span>
+            <span class="text-dark-400 ml-2">from last month</span>
+        </div>
+    </div>
 
-        <nav class="flex-1 px-4 space-y-1 text-sm">
-            <a href="#" class="block px-4 py-3 rounded-lg bg-white/10">
-                Dashboard
-            </a>
-            <!-- PRODUCTS MENU -->
-<div class="group">
+    <!-- Total Orders Card -->
+    <div class="stats-card rounded-2xl p-6 card-hover">
+        <div class="flex justify-between items-start mb-4">
+            <div>
+                <p class="text-sm text-dark-400 mb-1">Total Orders</p>
+                <h3 class="text-3xl font-bold text-white">{{ total_orders|default:"0" }}</h3>
+            </div>
+            <div class="w-12 h-12 rounded-xl bg-green-500/20 flex items-center justify-center">
+                <i class="fas fa-shopping-cart text-green-400 text-xl"></i>
+            </div>
+        </div>
+        <div class="flex items-center text-sm">
+            <span class="trend-up px-2 py-1 rounded-full text-xs font-medium">
+                <i class="fas fa-arrow-up mr-1"></i> 18.3%
+            </span>
+            <span class="text-dark-400 ml-2">from last month</span>
+        </div>
+    </div>
 
-    <!-- Parent Button -->
-    <button
-        class="w-full flex justify-between items-center px-4 py-3 rounded-lg
-               hover:bg-white/10 transition">
-        <span>Products</span>
+    <!-- Total Users Card -->
+    <div class="stats-card rounded-2xl p-6 card-hover">
+        <div class="flex justify-between items-start mb-4">
+            <div>
+                <p class="text-sm text-dark-400 mb-1">Total Users</p>
+                <h3 class="text-3xl font-bold text-white">{{ total_users|default:"0" }}</h3>
+            </div>
+            <div class="w-12 h-12 rounded-xl bg-purple-500/20 flex items-center justify-center">
+                <i class="fas fa-users text-purple-400 text-xl"></i>
+            </div>
+        </div>
+        <div class="flex items-center text-sm">
+            <span class="trend-up px-2 py-1 rounded-full text-xs font-medium">
+                <i class="fas fa-arrow-up mr-1"></i> 8.7%
+            </span>
+            <span class="text-dark-400 ml-2">from last month</span>
+        </div>
+    </div>
 
-        <svg class="w-4 h-4 transition-transform duration-200 group-hover:rotate-180"
-             fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                  d="M19 9l-7 7-7-7"/>
-        </svg>
-    </button>
-
-    <!-- Submenu -->
-    <div class="ml-4 mt-1 space-y-1
-                max-h-0 overflow-hidden
-                group-hover:max-h-60 transition-all duration-300">
-
-        <!-- All Products -->
-        <a href="{% url 'admin_product_list' %}"
-   class="block px-4 py-2 text-sm rounded-lg hover:bg-white/10">
-    📦 All Products
-</a>
-
-        <!-- Add Product -->
-<a href="{% url 'add_product' %}"
-   class="block px-4 py-2 text-sm rounded-lg hover:bg-white/10">
-    ➕ Add Product
-</a>
-        <!-- Edit Product -->
-        <a href="/admin/myshop/product/"
-           class="block px-4 py-2 text-sm rounded-lg hover:bg-white/10">
-            ✏️ Edit Product
-        </a>
-
-        <!-- Delete Product -->
-        <a href="/admin/myshop/product/"
-           class="block px-4 py-2 text-sm rounded-lg hover:bg-white/10 text-red-400">
-            🗑 Delete Product
-        </a>
-
-        
-   
-
+    <!-- Revenue Card -->
+    <div class="stats-card rounded-2xl p-6 card-hover">
+        <div class="flex justify-between items-start mb-4">
+            <div>
+                <p class="text-sm text-dark-400 mb-1">Revenue</p>
+                <h3 class="text-3xl font-bold text-white">৳ {{ total_revenue|default:"0" }}</h3>
+            </div>
+            <div class="w-12 h-12 rounded-xl bg-yellow-500/20 flex items-center justify-center">
+                <i class="fas fa-wallet text-yellow-400 text-xl"></i>
+            </div>
+        </div>
+        <div class="flex items-center text-sm">
+            <span class="trend-up px-2 py-1 rounded-full text-xs font-medium">
+                <i class="fas fa-arrow-up mr-1"></i> 22.4%
+            </span>
+            <span class="text-dark-400 ml-2">from last month</span>
+        </div>
     </div>
 </div>
-            <a href="{% url 'admin_order_list' %}" class="block px-4 py-3 rounded-lg hover:bg-white/10">
-                Orders
-            </a>
 
-            <a href="{% url 'admin_manage_categories' %}" class="block px-4 py-3 rounded-lg hover:bg-white/10">
-                Manage Categories
-            </a>
-            <a href="{#}" class="block px-4 py-3 rounded-lg hover:bg-white/10">
-                 Categories
-            </a>
-            <a href="{% url 'admin_user_list' %}" class="block px-4 py-3 rounded-lg hover:bg-white/10">
-                Users
-            </a>
-            <a href="{#}" class="block px-4 py-3 rounded-lg hover:bg-white/10">
-                Reports
-            </a>
-        </nav>
-
-        <div class="px-4 py-4 border-t border-white/10">
-            <a href="{% url 'home' %}" class="block px-4 py-2 text-sm hover:bg-white/10 rounded-lg">
-                ← Back to Store
-            </a>
+<!-- Charts and Analytics Section -->
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+    <!-- Sales Chart -->
+    <div class="chart-container rounded-2xl p-6">
+        <div class="flex justify-between items-center mb-6">
+            <h3 class="text-lg font-semibold text-white">Sales Overview</h3>
+            <select class="bg-dark-800/50 border border-dark-700 rounded-lg px-3 py-1 text-sm focus:outline-none focus:border-brand-500">
+                <option>Last 7 days</option>
+                <option selected>Last 30 days</option>
+                <option>Last 90 days</option>
+            </select>
         </div>
-    </aside>
-
-    <!-- ================= MAIN CONTENT ================= -->
-    <main class="flex-1">
-
-        <!-- Topbar -->
-        <header class="flex justify-between items-center px-6 py-4 border-b border-white/10">
-            <h1 class="text-2xl font-bold">Admin Dashboard</h1>
-
-            <div class="flex items-center gap-4">
-                <span class="text-sm text-slate-300">
-                    {{ request.user.username }}
-                </span>
-
-                <form method="post" action="{% url 'logout' %}">
-                    {% csrf_token %}
-                    <button class="px-4 py-2 rounded-lg border border-white/20 text-sm hover:bg-white/10">
-                        Logout
-                    </button>
-                </form>
-            </div>
-        </header>
-
-        <!-- ================= STATS ================= -->
-        <section class="px-6 py-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-
-            <div class="bg-slate-900 border border-white/10 rounded-2xl p-6">
-                <p class="text-sm text-slate-400">Total Products</p>
-                <h2 class="text-3xl font-extrabold mt-2">{{ total_products|default:"0" }}</h2>
-            </div>
-
-            <div class="bg-slate-900 border border-white/10 rounded-2xl p-6">
-                <p class="text-sm text-slate-400">Total Orders</p>
-                <h2 class="text-3xl font-extrabold mt-2">{{ total_orders|default:"0" }}</h2>
-            </div>
-
-            <div class="bg-slate-900 border border-white/10 rounded-2xl p-6">
-                <p class="text-sm text-slate-400">Total Users</p>
-                <h2 class="text-3xl font-extrabold mt-2">{{ total_users|default:"0" }}</h2>
-            </div>
-
-            <div class="bg-slate-900 border border-white/10 rounded-2xl p-6">
-                <p class="text-sm text-slate-400">Revenue</p>
-                <h2 class="text-3xl font-extrabold mt-2">৳ {{ total_revenue|default:"0" }}</h2>
-            </div>
-
-        </section>
-
-        <!-- ================= RECENT PRODUCTS ================= -->
-        <section class="px-6 pb-10">
-            <div class="bg-slate-900 border border-white/10 rounded-2xl overflow-hidden">
-
-                <div class="px-6 py-4 border-b border-white/10 flex justify-between items-center">
-                    <h3 class="text-lg font-semibold">Recent Products</h3>
-                    <a href="/admin/myshop/product/" class="text-sm text-brand hover:underline">
-                        View All
-                    </a>
+        <div class="h-64 flex items-center justify-center">
+            <div class="text-center">
+                <div class="w-16 h-16 rounded-full bg-brand-500/20 flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-chart-line text-brand-400 text-2xl"></i>
                 </div>
-
-                <table class="w-full text-sm">
-                    <thead class="text-slate-400">
-                        <tr class="border-b border-white/10">
-                            <th class="px-6 py-3 text-left">Product</th>
-                            <th class="px-6 py-3 text-left">Brand</th>
-                            <th class="px-6 py-3 text-left">Price</th>
-                            <th class="px-6 py-3 text-left">Status</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for product in products %}
-                        <tr class="border-b border-white/5 hover:bg-white/5">
-                            <td class="px-6 py-3">{{ product.name }}</td>
-                            <td class="px-6 py-3">{{ product.brand.name }}</td>
-                            <td class="px-6 py-3">৳ {{ product.price }}</td>
-                            <td class="px-6 py-3">
-                                {% if product.is_featured %}
-                                    <span class="text-green-400">Featured</span>
-                                {% else %}
-                                    <span class="text-slate-400">Normal</span>
-                                {% endif %}
-                            </td>
-                        </tr>
-                        {% empty %}
-                        <tr>
-                            <td colspan="4" class="px-6 py-6 text-center text-slate-400">
-                                No products found
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-
+                <p class="text-dark-400">Sales chart visualization will appear here</p>
+                <p class="text-sm text-dark-400 mt-2">Integrate with chart.js or similar library</p>
             </div>
-        </section>
+        </div>
+    </div>
 
-    </main>
+    <!-- Category Distribution -->
+    <div class="chart-container rounded-2xl p-6">
+        <h3 class="text-lg font-semibold text-white mb-6">Category Distribution</h3>
+        <div class="space-y-4">
+            {% for category in top_categories|default:"Smartphones,Tablets,Laptops,Accessories"|make_list|slice:":4" %}
+            <div class="space-y-2">
+                <div class="flex justify-between text-sm">
+                    <span class="text-dark-300">{{ category }} Category</span>
+                    <span class="text-white font-medium">{{ forloop.counter|add:"2" }}0%</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: {{ forloop.counter|add:'2' }}0%"></div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
 </div>
 
-</body>
-</html>
+<!-- Recent Activity Section -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <!-- Recent Products -->
+    <div class="col-span-2 chart-container rounded-2xl p-6">
+        <div class="flex justify-between items-center mb-6">
+            <h3 class="text-lg font-semibold text-white">Recent Products</h3>
+            <a href="{% url 'admin_product_list' %}" class="text-sm text-brand-400 hover:text-brand-300 flex items-center">
+                View All
+                <i class="fas fa-arrow-right ml-1 text-xs"></i>
+            </a>
+        </div>
+        
+        <div class="overflow-x-auto">
+            <table class="w-full">
+                <thead>
+                    <tr class="text-left text-sm text-dark-400 border-b border-dark-800">
+                        <th class="pb-3 font-medium">Product</th>
+                        <th class="pb-3 font-medium">Category</th>
+                        <th class="pb-3 font-medium">Price</th>
+                        <th class="pb-3 font-medium">Stock</th>
+                        <th class="pb-3 font-medium">Status</th>
+                    </tr>
+                </thead>
+                <tbody class="text-sm">
+                    {% for product in products|slice:":5" %}
+                    <tr class="border-b border-dark-800/50 hover:bg-dark-800/30 transition">
+                        <td class="py-3">
+                            <div class="flex items-center">
+                                <div class="w-8 h-8 rounded bg-dark-700 flex items-center justify-center mr-3">
+                                    <i class="fas fa-box text-xs text-dark-400"></i>
+                                </div>
+                                <span class="font-medium">{{ product.name|truncatechars:20 }}</span>
+                            </div>
+                        </td>
+                        <td class="py-3 text-dark-300">{{ product.category.name|default:"Uncategorized" }}</td>
+                        <td class="py-3 font-medium">৳ {{ product.price }}</td>
+                        <td class="py-3">
+                            <span class="px-2 py-1 rounded-full text-xs {% if product.stock > 10 %}bg-green-500/10 text-green-400{% elif product.stock > 0 %}bg-yellow-500/10 text-yellow-400{% else %}bg-red-500/10 text-red-400{% endif %}">
+                                {{ product.stock|default:"0" }} units
+                            </span>
+                        </td>
+                        <td class="py-3">
+                            <span class="status-badge {% if product.status == 'active' %}bg-green-500/10 text-green-400{% elif product.status == 'draft' %}bg-yellow-500/10 text-yellow-400{% else %}bg-dark-700 text-dark-300{% endif %}">
+                                {{ product.status|default:"Active"|title }}
+                            </span>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="py-8 text-center text-dark-400">
+                            <div class="flex flex-col items-center">
+                                <div class="w-16 h-16 rounded-full bg-dark-800 flex items-center justify-center mb-4">
+                                    <i class="fas fa-box-open text-2xl text-dark-600"></i>
+                                </div>
+                                <p>No products found</p>
+                                <a href="{% url 'add_product' %}" class="text-brand-400 hover:text-brand-300 text-sm mt-2">
+                                    Add your first product
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="chart-container rounded-2xl p-6">
+        <h3 class="text-lg font-semibold text-white mb-6">Quick Actions</h3>
+        <div class="space-y-3">
+            <a href="{% url 'add_product' %}" 
+               class="flex items-center p-4 rounded-lg bg-dark-800/50 hover:bg-dark-700/50 transition group border border-dark-700 hover:border-brand-500/30">
+                <div class="w-10 h-10 rounded-lg bg-brand-500/20 flex items-center justify-center mr-3 group-hover:bg-brand-500/30 transition">
+                    <i class="fas fa-plus text-brand-400"></i>
+                </div>
+                <div class="flex-1">
+                    <p class="font-medium">Add New Product</p>
+                    <p class="text-xs text-dark-400">Create a new product listing</p>
+                </div>
+                <i class="fas fa-chevron-right text-dark-400 group-hover:text-brand-400 transition"></i>
+            </a>
+            
+            <a href="{% url 'admin_order_list' %}" 
+               class="flex items-center p-4 rounded-lg bg-dark-800/50 hover:bg-dark-700/50 transition group border border-dark-700 hover:border-green-500/30">
+                <div class="w-10 h-10 rounded-lg bg-green-500/20 flex items-center justify-center mr-3 group-hover:bg-green-500/30 transition">
+                    <i class="fas fa-shopping-cart text-green-400"></i>
+                </div>
+                <div class="flex-1">
+                    <p class="font-medium">Process Orders</p>
+                    <p class="text-xs text-dark-400">{{ pending_orders|default:"0" }} pending orders</p>
+                </div>
+                <i class="fas fa-chevron-right text-dark-400 group-hover:text-green-400 transition"></i>
+            </a>
+            
+            <a href="{% url 'admin_manage_categories' %}" 
+               class="flex items-center p-4 rounded-lg bg-dark-800/50 hover:bg-dark-700/50 transition group border border-dark-700 hover:border-purple-500/30">
+                <div class="w-10 h-10 rounded-lg bg-purple-500/20 flex items-center justify-center mr-3 group-hover:bg-purple-500/30 transition">
+                    <i class="fas fa-tags text-purple-400"></i>
+                </div>
+                <div class="flex-1">
+                    <p class="font-medium">Manage Categories</p>
+                    <p class="text-xs text-dark-400">Organize product categories</p>
+                </div>
+                <i class="fas fa-chevron-right text-dark-400 group-hover:text-purple-400 transition"></i>
+            </a>
+            
+            <a href="{% url 'admin_user_list' %}" 
+               class="flex items-center p-4 rounded-lg bg-dark-800/50 hover:bg-dark-700/50 transition group border border-dark-700 hover:border-blue-500/30">
+                <div class="w-10 h-10 rounded-lg bg-blue-500/20 flex items-center justify-center mr-3 group-hover:bg-blue-500/30 transition">
+                    <i class="fas fa-users text-blue-400"></i>
+                </div>
+                <div class="flex-1">
+                    <p class="font-medium">View Users</p>
+                    <p class="text-xs text-dark-400">Manage user accounts</p>
+                </div>
+                <i class="fas fa-chevron-right text-dark-400 group-hover:text-blue-400 transition"></i>
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Performance Metrics -->
+<div class="mt-8 chart-container rounded-2xl p-6">
+    <h3 class="text-lg font-semibold text-white mb-6">Performance Metrics</h3>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div class="bg-dark-800/30 rounded-xl p-4">
+            <div class="flex items-center justify-between mb-2">
+                <span class="text-sm text-dark-400">Conversion Rate</span>
+                <span class="text-green-400 text-sm font-medium">+2.5%</span>
+            </div>
+            <h4 class="text-2xl font-bold text-white">4.7%</h4>
+            <div class="progress-bar mt-2">
+                <div class="progress-fill" style="width: 47%"></div>
+            </div>
+        </div>
+        
+        <div class="bg-dark-800/30 rounded-xl p-4">
+            <div class="flex items-center justify-between mb-2">
+                <span class="text-sm text-dark-400">Avg. Order Value</span>
+                <span class="text-green-400 text-sm font-medium">+5.2%</span>
+            </div>
+            <h4 class="text-2xl font-bold text-white">৳ 1,240</h4>
+            <div class="progress-bar mt-2">
+                <div class="progress-fill" style="width: 62%"></div>
+            </div>
+        </div>
+        
+        <div class="bg-dark-800/30 rounded-xl p-4">
+            <div class="flex items-center justify-between mb-2">
+                <span class="text-sm text-dark-400">Customer Satisfaction</span>
+                <span class="text-green-400 text-sm font-medium">+3.8%</span>
+            </div>
+            <h4 class="text-2xl font-bold text-white">94%</h4>
+            <div class="progress-bar mt-2">
+                <div class="progress-fill" style="width: 94%"></div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Initialize tooltips
+    document.addEventListener('DOMContentLoaded', function() {
+        // Add tooltips to action buttons
+        const actionButtons = document.querySelectorAll('.quick-action');
+        actionButtons.forEach(button => {
+            button.addEventListener('mouseenter', function() {
+                const tooltip = this.getAttribute('data-tooltip');
+                if (tooltip) {
+                    // Create and show tooltip
+                    const tooltipEl = document.createElement('div');
+                    tooltipEl.className = 'absolute z-50 px-3 py-2 text-sm bg-dark-800 text-white rounded-lg shadow-lg';
+                    tooltipEl.textContent = tooltip;
+                    tooltipEl.style.top = (this.getBoundingClientRect().top - 40) + 'px';
+                    tooltipEl.style.left = this.getBoundingClientRect().left + 'px';
+                    tooltipEl.id = 'temp-tooltip';
+                    document.body.appendChild(tooltipEl);
+                }
+            });
+            
+            button.addEventListener('mouseleave', function() {
+                const tooltip = document.getElementById('temp-tooltip');
+                if (tooltip) {
+                    tooltip.remove();
+                }
+            });
+        });
+        
+        // Animate stats cards on scroll
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+        
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('animate-fade-in');
+                }
+            });
+        }, observerOptions);
+        
+        document.querySelectorAll('.stats-card').forEach(card => {
+            observer.observe(card);
+        });
+    });
+</script>
+{% endblock %}
