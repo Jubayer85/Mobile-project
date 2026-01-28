@@ -179,7 +179,8 @@
             <label class="block text-sm font-semibold text-slate-700">
                 Category <span class="text-rose-500">*</span>
             </label>
-            <div class="flex space-x-2">
+            <<!-- In your template -->
+<div class="flex space-x-2">
                 <button type="button"
                         hx-get="{% url 'add_category_modal' %}"
                         hx-target="#modal-container"
@@ -187,7 +188,7 @@
                         class="text-xs text-indigo-600 hover:text-indigo-800 font-medium inline-flex items-center">
                     <i class="fas fa-plus-circle mr-1"></i> Add Category
                 </button>
-            </div>
+            </div> 
         </div>
         <div class="relative">
             <select name="category"
