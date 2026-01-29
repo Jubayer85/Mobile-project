@@ -21,4 +21,6 @@ urlpatterns = [
     path('admin/', admin.site.urls),            # Django default admin
     path('', include('myshop.urls')),            # Your shop (home, products, cart, checkout)
     path('accounts/', include('django.contrib.auth.urls')),  # login / logout
+    path('admin-dashboard/',include(('myshop.urls_admin', 'admin_dashboard'), namespace='admin_dashboard')
+    ),
 ]

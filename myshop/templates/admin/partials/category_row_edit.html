@@ -1,0 +1,23 @@
+<tr id="category-{{ category.id }}">
+  <td colspan="3">
+    <form
+      hx-post="{% url 'admin_dashboard:category_update' category.id %}"
+      hx-target="#category-{{ category.id }}"
+      hx-swap="outerHTML"
+      class="flex gap-2"
+    >
+      {% csrf_token %}
+      <input name="name" value="{{ category.name }}">
+      <button>Save</button>
+
+      <button
+        type="button"
+        hx-get="{% url 'admin_dashboard:category_row' category.id %}"
+        hx-target="#category-{{ category.id }}"
+        hx-swap="outerHTML"
+      >
+        Cancel
+      </button>
+    </form>
+  </td>
+</tr>

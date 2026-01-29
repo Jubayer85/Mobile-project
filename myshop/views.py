@@ -614,6 +614,42 @@ def categories(request):
     categories = Category.objects.all()
     return render(request, 'admin/categories.html', {'categories': categories})
 
+def category_toggle(request, id):
+    category = Category.objects.get(id=id)
+    category.is_active = not category.is_active
+    category.save()
+
+    return render(request, 'admin/partials/category_row.html', {
+        'category': category
+    })
+
+def category_row(request, pk):
+    category = get_object_or_404(Category, pk=pk)
+    return render(request, "admin/partials/category_row.html", {"category": category})
+
+
+def category_edit_inline(request, pk):
+    category = get_object_or_404(Category, pk=pk)
+    return render(request, "admin/partials/category_row_edit.html", {"category": category})
+
+
+def category_update_inline(request, pk):
+    category = get_object_or_404(Category, pk=pk)
+    category.name = request.POST.get("name")
+    category.slug = request.POST.get("slug")
+    category.is_active = bool(request.POST.get("is_active"))
+    category.save()
+
+    return render(request, "admin/partials/category_row.html", {"category": category})
+
+
+@require_http_methods(["DELETE"])
+def category_delete(request, pk):
+    category = get_object_or_404(Category, pk=pk)
+    category.delete()
+    return HttpResponse("")
+
+
 # Placeholder views for footer links
 def shop_all(request):
     products = Product.objects.filter(is_active=True)

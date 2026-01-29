@@ -4,6 +4,9 @@ from django.conf.urls.static import static
 from . import views
 from django.urls import path, include
 
+
+
+
 urlpatterns = [
     # Public pages
     path('', views.home, name='home'),
@@ -62,8 +65,8 @@ urlpatterns = [
     path('category/<int:category_id>/edit/', views.edit_category, name='edit_category'),
     path('admin-dashboard/subcategory/<int:subcategory_id>/edit/', views.edit_subcategory, name='edit_subcategory'),
     path('admin/brand/<int:brand_id>/edit/', views.edit_brand, name='edit_brand'),
-    path('admin-dashboard/categories/', views.categories, name='admin_categories'),
-
+    path('admin-dashboard/categories/<int:id>/toggle/', views.category_toggle, name='category_toggle'),
+   
 
     # NEW: Footer required URLs
     path('shop/', views.shop_all, name='shop_all'),
