@@ -18,6 +18,7 @@ from django.http import HttpResponse, HttpResponseBadRequest
 from django.conf import settings 
 from django.core.paginator import Paginator
 from django.db.models import Q
+from django.contrib.auth.models import User
 from .forms import CategoryForm, SubCategoryForm, BrandForm
 from django.contrib.auth.decorators import login_required, user_passes_test
 from .models import ( Product, Brand, Category,SubCategory,ProductImage,Cart, CartItem,Order, OrderItem, Customer)
@@ -74,16 +75,27 @@ def profile(request):
 def admin_dashboard(request):
     return render(request, 'admin_dashboard.html')
 
+from django.contrib.auth.decorators import login_required
+from django.conf import settings
+
 @login_required
 def user_dashboard(request):
-    customer = get_object_or_404(Customer, user=request.user)
-    orders = Order.objects.filter(customer=customer)
-    
-    return render(request, 'user_dashboard.html', {
+    user = request.user
+
+    # User's orders (Order.customer = AUTH_USER_MODEL হলে)
+    orders = Order.objects.filter(customer=user)
+
+    context = {
+        'user': user,
         'total_orders': orders.count(),
-        'active_orders': orders.filter(status__in=['pending', 'processing', 'shipped']).count(),
-        'recent_orders': orders.order_by('-created_at')[:5]
-    })
+        'active_orders': orders.filter(
+            status__in=['pending', 'processing', 'shipped']
+        ).count(),
+        'completed_orders': orders.filter(status='delivered').count(),
+        'recent_orders': orders.order_by('-created_at')[:5],
+    }
+
+    return render(request, 'user_dashboard.html', context)
 
 # ====================== PRODUCT ADMIN ======================
 @staff_member_required
@@ -199,36 +211,41 @@ def clear_cart(request):
     messages.success(request, "Cart cleared.")
     return redirect('cart_detail')
 
-# ====================== CHECKOUT ======================
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import get_object_or_404, redirect, render
+from django.contrib import messages
+
 @login_required
 def checkout(request):
     cart = get_object_or_404(Cart, user=request.user)
     items = cart.items.select_related('product')
-    
+
     if not items.exists():
         messages.warning(request, "Your cart is empty.")
         return redirect('cart_detail')
-    
-    # Check stock
+
+    # Stock check
     for item in items:
         if item.quantity > item.product.stock_quantity:
-            messages.error(request, f"Not enough stock for {item.product.name}.")
+            messages.error(
+                request,
+                f"Not enough stock for {item.product.name}."
+            )
             return redirect('cart_detail')
-    
+
     if request.method == 'POST':
-        try:
-            customer = Customer.objects.get(user=request.user)
-        except Customer.DoesNotExist:
-            customer = Customer.objects.create(user=request.user)
-        
+        user = request.user
+
+        shipping_address = request.POST.get('shipping_address', '').strip()
+
         order = Order.objects.create(
-            customer=customer,
+            customer=user,                      # ✅ FIXED
             payment_method='cod',
-            shipping_address=request.POST.get('shipping_address', ''),
+            shipping_address=shipping_address,
             subtotal=sum(item.product.price * item.quantity for item in items),
-            total_amount=sum(item.product.price * item.quantity for item in items)
+            total_amount=sum(item.product.price * item.quantity for item in items),
         )
-        
+
         for item in items:
             OrderItem.objects.create(
                 order=order,
@@ -237,42 +254,57 @@ def checkout(request):
                 unit_price=item.product.price,
                 quantity=item.quantity
             )
-            
+
             # Reduce stock
             item.product.stock_quantity -= item.quantity
-            item.product.save()
-        
+            item.product.save(update_fields=['stock_quantity'])
+
         # Clear cart
         items.delete()
-        
+
         messages.success(request, "Order placed successfully!")
         return redirect('order_success', order_id=order.id)
-    
+
     return render(request, 'checkout.html', {
         'cart': cart,
         'items': items,
         'total': sum(item.product.price * item.quantity for item in items)
     })
 
+
 @login_required
 def order_success(request, order_id):
-    order = get_object_or_404(Order, id=order_id, customer__user=request.user)
+    order = get_object_or_404(
+        Order,
+        id=order_id,
+        customer=request.user      # ✅ FIX
+    )
     return render(request, 'order_success.html', {'order': order})
 
 
 
 @login_required
 def order_history(request):
-    """User order history page"""
-    customer = get_object_or_404(Customer, user=request.user)
-    orders = Order.objects.filter(customer=customer).order_by('-created_at')
-    
-    context = {
+    orders = (
+        Order.objects
+        .filter(customer=request.user)
+        .order_by('-created_at')
+    )
+
+    return render(request, 'order_history.html', {
         'orders': orders,
         'total_orders': orders.count(),
-    }
-    
-    return render(request, 'order_history.html', context)
+    })
+
+
+@login_required
+def order_detail(request, order_id):
+    order = get_object_or_404(
+        Order,
+        id=order_id,
+        customer=request.user
+    )
+    return render(request, 'order_detail.html', {'order': order})
 
 # ====================== ADMIN ORDERS ======================
 @staff_member_required

@@ -9,6 +9,7 @@ from django.db.models import Sum, F  # ✅ FIXED
 import os
 from django.core.cache import cache
 
+
 class Category(models.Model):
     """
     Main product categories (e.g., Phone, Laptop, Tablet)
@@ -166,6 +167,9 @@ class Customer(models.Model):
         return self.user.username
 
 
+from django.conf import settings
+from django.db import models
+
 class Order(models.Model):
     ORDER_STATUS = [
         ('pending', 'Pending'),
@@ -181,7 +185,13 @@ class Order(models.Model):
     ]
 
     order_number = models.CharField(max_length=20, unique=True, editable=False)
-    customer = models.ForeignKey(Customer, on_delete=models.CASCADE, related_name='orders')
+
+    # ✅ FIX HERE
+    customer = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='orders'
+    )
 
     status = models.CharField(max_length=20, choices=ORDER_STATUS, default='pending')
     payment_method = models.CharField(max_length=20, choices=PAYMENT_METHODS)
@@ -211,6 +221,7 @@ class Order(models.Model):
         self.subtotal = sum(item.total_price for item in items)
         self.total_amount = self.subtotal
         self.save(update_fields=['subtotal', 'total_amount'])
+
 
 
 class OrderItem(models.Model):
@@ -291,4 +302,3 @@ def update_cart_on_item_delete(sender, instance, **kwargs):
     if instance.cart:
         instance.cart.updated_at = timezone.now()
         instance.cart.save(update_fields=['updated_at'])
-

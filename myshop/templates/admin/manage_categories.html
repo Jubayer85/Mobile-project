@@ -1,6 +1,142 @@
 {% extends 'admin/base_admin.html' %}
 {% load static %}
 
+<<<<<<< HEAD
+=======
+{% block title %}Category Management{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Custom styles for dropdowns */
+    .dropdown-container {
+        position: relative;
+    }
+    
+    .dropdown-content {
+        display: none;
+        position: absolute;
+        z-index: 50;
+        min-width: 280px;
+        max-height: 400px;
+        overflow-y: auto;
+        background: white;
+        border: 1px solid #e5e7eb;
+        border-radius: 0.75rem;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        opacity: 0;
+        transform: translateY(-10px);
+        transition: all 0.2s ease;
+    }
+    
+    .dropdown-container:hover .dropdown-content {
+        display: block;
+        opacity: 1;
+        transform: translateY(0);
+    }
+    
+    .dropdown-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0.75rem 1rem;
+        border-bottom: 1px solid #f3f4f6;
+        transition: background-color 0.2s;
+    }
+    
+    .dropdown-item:hover {
+        background-color: #f9fafb;
+    }
+    
+    .dropdown-item:last-child {
+        border-bottom: none;
+    }
+    
+    /* Animation for modals */
+    @keyframes modalFadeIn {
+        from {
+            opacity: 0;
+            transform: scale(0.95);
+        }
+        to {
+            opacity: 1;
+            transform: scale(1);
+        }
+    }
+    
+    .modal-animation {
+        animation: modalFadeIn 0.2s ease-out;
+    }
+    
+    /* Status badge styles */
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 0.25rem 0.75rem;
+        border-radius: 9999px;
+        font-size: 0.75rem;
+        font-weight: 500;
+        transition: all 0.2s;
+        cursor: pointer;
+    }
+    
+    .status-badge:hover {
+        transform: scale(1.05);
+    }
+    
+    /* Image preview */
+    .image-preview {
+        width: 100%;
+        height: 120px;
+        border-radius: 0.5rem;
+        background-color: #f9fafb;
+        border: 2px dashed #d1d5db;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+        margin-bottom: 1rem;
+    }
+    
+    .image-preview img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+    
+    /* Action buttons */
+    .action-btn {
+        width: 2rem;
+        height: 2rem;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 0.5rem;
+        transition: all 0.2s;
+        cursor: pointer;
+    }
+    
+    .action-btn:hover {
+        transform: translateY(-1px);
+    }
+    
+    /* Loading overlay */
+    .loading-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(255, 255, 255, 0.8);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 100;
+        border-radius: inherit;
+    }
+</style>
+{% endblock %}
+
+>>>>>>> c1e91ee02321eeff0fb91a2f54b26d61b61395df
 {% block content %}
 <script src="https://unpkg.com/htmx.org@1.9.10"></script>
 
@@ -8,6 +144,7 @@
 <div class="flex flex-col md:flex-row justify-between items-center mb-6 space-y-3 md:space-y-0">
     <h2 class="text-xl font-bold">Manage Entities</h2>
     
+<<<<<<< HEAD
     <div class="flex space-x-2">
         <!-- Add Category -->
         <button
@@ -35,6 +172,571 @@
           class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition">
           + Add Brand
         </button>
+=======
+    <!-- Header -->
+    <div class="mb-6 md:mb-8">
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <h1 class="text-2xl md:text-3xl font-bold text-gray-900">Category Management</h1>
+          <p class="text-gray-600 mt-1">Manage categories, subcategories and brands</p>
+        </div>
+        <div class="flex items-center gap-2">
+          <a href="{% url 'admin_dashboard' %}" 
+             class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 text-sm flex items-center">
+            <i class="fas fa-arrow-left mr-2"></i> Back to Dashboard
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+      <div class="bg-white p-4 rounded-xl border shadow-sm">
+        <div class="flex items-center">
+          <div class="w-12 h-12 bg-indigo-100 rounded-lg flex items-center justify-center mr-3">
+            <i class="fas fa-folder text-indigo-600 text-lg"></i>
+          </div>
+          <div>
+            <p class="text-sm text-gray-500">Categories</p>
+            <p class="text-2xl font-bold text-gray-900">{{ categories.count }}</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white p-4 rounded-xl border shadow-sm">
+        <div class="flex items-center">
+          <div class="w-12 h-12 bg-emerald-100 rounded-lg flex items-center justify-center mr-3">
+            <i class="fas fa-tags text-emerald-600 text-lg"></i>
+          </div>
+          <div>
+            <p class="text-sm text-gray-500">SubCategories</p>
+            <p class="text-2xl font-bold text-gray-900">{{ subcategories.count }}</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white p-4 rounded-xl border shadow-sm">
+        <div class="flex items-center">
+          <div class="w-12 h-12 bg-amber-100 rounded-lg flex items-center justify-center mr-3">
+            <i class="fas fa-copyright text-amber-600 text-lg"></i>
+          </div>
+          <div>
+            <p class="text-sm text-gray-500">Brands</p>
+            <p class="text-2xl font-bold text-gray-900">{{ brands.count }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="mb-6">
+      <div class="border-b border-gray-200">
+        <nav class="flex space-x-4" aria-label="Tabs">
+          <button onclick="showTab('categories')" 
+                  id="tab-categories"
+                  class="px-4 py-3 font-medium text-sm border-b-2 border-indigo-600 text-indigo-600 flex items-center">
+            <i class="fas fa-folder mr-2"></i>Categories
+          </button>
+          <button onclick="showTab('subcategories')" 
+                  id="tab-subcategories"
+                  class="px-4 py-3 font-medium text-sm border-b-2 border-transparent text-gray-500 hover:text-gray-700 flex items-center">
+            <i class="fas fa-tags mr-2"></i>SubCategories
+          </button>
+          <button onclick="showTab('brands')" 
+                  id="tab-brands"
+                  class="px-4 py-3 font-medium text-sm border-b-2 border-transparent text-gray-500 hover:text-gray-700 flex items-center">
+            <i class="fas fa-copyright mr-2"></i>Brands
+          </button>
+        </nav>
+      </div>
+    </div>
+
+    <!-- Categories Tab Content -->
+    <div id="categories-content" class="tab-content">
+      <div class="bg-white rounded-xl border shadow-sm overflow-hidden">
+        <div class="px-6 py-5 border-b border-gray-200">
+          <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div>
+              <h3 class="text-lg font-semibold text-gray-900">All Categories</h3>
+              <p class="text-sm text-gray-500 mt-1">Manage product categories and their subcategories</p>
+            </div>
+            <button onclick="openAddCategoryModal()" 
+                    class="px-4 py-2.5 bg-indigo-600 text-white text-sm font-medium rounded-lg hover:bg-indigo-700 flex items-center transition-colors">
+              <i class="fas fa-plus mr-2"></i> Add Category
+            </button>
+          </div>
+        </div>
+
+        {% if categories %}
+        <div class="overflow-x-auto">
+          <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+              <tr>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Category</th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Subcategories</th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Products</th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+              </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+              {% for category in categories %}
+              <tr class="hover:bg-gray-50 transition-colors">
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="flex items-center">
+                    {% if category.image %}
+                    <div class="w-12 h-12 rounded-lg overflow-hidden mr-3 flex-shrink-0">
+                      <img src="{{ category.image.url }}" alt="{{ category.name }}" 
+                           class="w-full h-full object-cover" onerror="this.src='{% static 'img/default-category.png' %}'">
+                    </div>
+                    {% else %}
+                    <div class="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center mr-3 flex-shrink-0">
+                      <i class="fas fa-folder text-gray-400"></i>
+                    </div>
+                    {% endif %}
+                    <div>
+                      <div class="font-semibold text-gray-900">{{ category.name }}</div>
+                      <div class="text-sm text-gray-500">{{ category.slug }}</div>
+                      {% if category.description %}
+                      <div class="text-xs text-gray-400 mt-1 truncate max-w-xs">{{ category.description }}</div>
+                      {% endif %}
+                    </div>
+                  </div>
+                </td>
+                <td class="px-6 py-4">
+                  <div class="dropdown-container">
+                    {% if category.subcategory_set.all %}
+                    <button class="inline-flex items-center px-3 py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-sm font-medium rounded-lg transition-colors">
+                      <i class="fas fa-list mr-2"></i>
+                      {{ category.subcategory_set.count }} subcategories
+                      <i class="fas fa-chevron-down ml-2 text-xs"></i>
+                    </button>
+                    
+                    <div class="dropdown-content">
+                      <div class="px-4 py-3 border-b border-gray-200 bg-gray-50">
+                        <h4 class="font-semibold text-gray-900 text-sm">Subcategories</h4>
+                        <p class="text-xs text-gray-500 mt-1">in {{ category.name }}</p>
+                      </div>
+                      <div class="max-h-60 overflow-y-auto">
+                        {% for subcategory in category.subcategory_set.all %}
+                        <div class="dropdown-item group">
+                          <div class="flex items-center min-w-0">
+                            {% if subcategory.image %}
+                            <div class="w-8 h-8 rounded overflow-hidden mr-2 flex-shrink-0">
+                              <img src="{{ subcategory.image.url }}" alt="{{ subcategory.name }}" 
+                                   class="w-full h-full object-cover" onerror="this.src='{% static 'img/default-subcategory.png' %}'">
+                            </div>
+                            {% endif %}
+                            <div class="min-w-0">
+                              <p class="text-sm font-medium text-gray-900 truncate">{{ subcategory.name }}</p>
+                              <p class="text-xs text-gray-500 truncate">{{ subcategory.product_set.count }} products</p>
+                            </div>
+                          </div>
+                          <div class="flex items-center space-x-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <button onclick="editSubCategory({{ subcategory.id }})" 
+                                    class="action-btn bg-blue-50 text-blue-600 hover:bg-blue-100">
+                              <i class="fas fa-edit text-xs"></i>
+                            </button>
+                            <button onclick="deleteSubCategory({{ subcategory.id }})" 
+                                    class="action-btn bg-red-50 text-red-600 hover:bg-red-100">
+                              <i class="fas fa-trash text-xs"></i>
+                            </button>
+                          </div>
+                        </div>
+                        {% endfor %}
+                      </div>
+                      <div class="px-4 py-3 border-t border-gray-200 bg-gray-50">
+                        <button onclick="openAddSubCategoryModal({{ category.id }})" 
+                                class="w-full px-3 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium rounded-lg flex items-center justify-center transition-colors">
+                          <i class="fas fa-plus mr-1 text-xs"></i> Add Subcategory
+                        </button>
+                      </div>
+                    </div>
+                    {% else %}
+                    <div class="flex flex-col items-start space-y-2">
+                      <span class="text-sm text-gray-500">No subcategories</span>
+                      <button onclick="openAddSubCategoryModal({{ category.id }})" 
+                              class="inline-flex items-center px-3 py-1.5 border border-dashed border-gray-300 text-gray-400 hover:text-gray-600 hover:border-gray-400 text-sm rounded-lg transition-colors">
+                        <i class="fas fa-plus mr-1"></i> Add Subcategory
+                      </button>
+                    </div>
+                    {% endif %}
+                  </div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="flex items-center">
+                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-blue-100 text-blue-800">
+                      <i class="fas fa-cube mr-1"></i>
+                      {{ category.product_set.count|default:0 }} products
+                    </span>
+                  </div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <button onclick="toggleCategoryStatus({{ category.id }})" 
+                          class="status-badge {% if category.is_active %}bg-green-100 text-green-800 hover:bg-green-200{% else %}bg-red-100 text-red-800 hover:bg-red-200{% endif %}">
+                    <span class="w-2 h-2 rounded-full mr-2 {% if category.is_active %}bg-green-500{% else %}bg-red-500{% endif %}"></span>
+                    {{ category.is_active|yesno:"Active,Inactive" }}
+                  </button>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="flex items-center space-x-2">
+                    <button onclick="editCategory({{ category.id }})" 
+                            class="action-btn bg-blue-50 text-blue-600 hover:bg-blue-100"
+                            title="Edit">
+                      <i class="fas fa-edit"></i>
+                    </button>
+                    <button onclick="deleteCategory({{ category.id }})" 
+                            class="action-btn bg-red-50 text-red-600 hover:bg-red-100"
+                            title="Delete">
+                      <i class="fas fa-trash"></i>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Pagination -->
+        {% if categories.has_other_pages %}
+        <div class="px-6 py-4 border-t border-gray-200">
+          <div class="flex items-center justify-between">
+            <div class="text-sm text-gray-700">
+              Showing {{ categories.start_index }} to {{ categories.end_index }} of {{ categories.paginator.count }} categories
+            </div>
+            <div class="flex items-center space-x-2">
+              {% if categories.has_previous %}
+              <a href="?category_page={{ categories.previous_page_number }}" 
+                 class="px-3 py-2 border border-gray-300 rounded-lg text-sm hover:bg-gray-50 transition-colors">
+                Previous
+              </a>
+              {% endif %}
+              
+              {% for num in categories.paginator.page_range %}
+                {% if categories.number == num %}
+                <span class="px-3 py-2 bg-indigo-600 text-white rounded-lg text-sm font-medium">{{ num }}</span>
+                {% elif num > categories.number|add:'-3' and num < categories.number|add:'3' %}
+                <a href="?category_page={{ num }}" 
+                   class="px-3 py-2 border border-gray-300 rounded-lg text-sm hover:bg-gray-50 transition-colors">
+                  {{ num }}
+                </a>
+                {% endif %}
+              {% endfor %}
+              
+              {% if categories.has_next %}
+              <a href="?category_page={{ categories.next_page_number }}" 
+                 class="px-3 py-2 border border-gray-300 rounded-lg text-sm hover:bg-gray-50 transition-colors">
+                Next
+              </a>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+        {% endif %}
+        {% else %}
+        <div class="px-6 py-12 text-center">
+          <div class="text-gray-400">
+            <i class="fas fa-folder text-5xl mb-4"></i>
+            <p class="text-lg font-semibold text-gray-900">No categories found</p>
+            <p class="text-gray-500 mt-1">Get started by creating your first category</p>
+            <button onclick="openAddCategoryModal()" 
+                    class="mt-6 px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors font-medium">
+              <i class="fas fa-plus mr-2"></i> Add Category
+            </button>
+          </div>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- SubCategories Tab Content -->
+    <div id="subcategories-content" class="tab-content hidden">
+      <div class="bg-white rounded-xl border shadow-sm overflow-hidden">
+        <div class="px-6 py-5 border-b border-gray-200">
+          <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div>
+              <h3 class="text-lg font-semibold text-gray-900">All SubCategories</h3>
+              <p class="text-sm text-gray-500 mt-1">Manage product subcategories</p>
+            </div>
+            <button onclick="openAddSubCategoryModal()" 
+                    class="px-4 py-2.5 bg-emerald-600 text-white text-sm font-medium rounded-lg hover:bg-emerald-700 flex items-center transition-colors">
+              <i class="fas fa-plus mr-2"></i> Add SubCategory
+            </button>
+          </div>
+        </div>
+
+        {% if subcategories %}
+        <div class="overflow-x-auto">
+          <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+              <tr>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">SubCategory</th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Parent Category</th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Products</th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+              </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+              {% for subcategory in subcategories %}
+              <tr class="hover:bg-gray-50 transition-colors">
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="flex items-center">
+                    {% if subcategory.image %}
+                    <div class="w-12 h-12 rounded-lg overflow-hidden mr-3 flex-shrink-0">
+                      <img src="{{ subcategory.image.url }}" alt="{{ subcategory.name }}" 
+                           class="w-full h-full object-cover" onerror="this.src='{% static 'img/default-subcategory.png' %}'">
+                    </div>
+                    {% else %}
+                    <div class="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center mr-3 flex-shrink-0">
+                      <i class="fas fa-tag text-gray-400"></i>
+                    </div>
+                    {% endif %}
+                    <div>
+                      <div class="font-semibold text-gray-900">{{ subcategory.name }}</div>
+                      <div class="text-sm text-gray-500">{{ subcategory.slug }}</div>
+                      {% if subcategory.description %}
+                      <div class="text-xs text-gray-400 mt-1 truncate max-w-xs">{{ subcategory.description }}</div>
+                      {% endif %}
+                    </div>
+                  </div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="flex items-center">
+                    <div class="w-10 h-10 bg-indigo-100 rounded-lg flex items-center justify-center mr-2">
+                      <i class="fas fa-folder text-indigo-600"></i>
+                    </div>
+                    <div>
+                      <span class="font-medium text-gray-900">{{ subcategory.category.name }}</span>
+                      <div class="text-xs text-gray-500">Parent category</div>
+                    </div>
+                  </div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="flex items-center">
+                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-blue-100 text-blue-800">
+                      <i class="fas fa-cube mr-1"></i>
+                      {{ subcategory.product_set.count|default:0 }} products
+                    </span>
+                  </div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <button onclick="toggleSubCategoryStatus({{ subcategory.id }})" 
+                          class="status-badge {% if subcategory.is_active %}bg-green-100 text-green-800 hover:bg-green-200{% else %}bg-red-100 text-red-800 hover:bg-red-200{% endif %}">
+                    <span class="w-2 h-2 rounded-full mr-2 {% if subcategory.is_active %}bg-green-500{% else %}bg-red-500{% endif %}"></span>
+                    {{ subcategory.is_active|yesno:"Active,Inactive" }}
+                  </button>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="flex items-center space-x-2">
+                    <button onclick="editSubCategory({{ subcategory.id }})" 
+                            class="action-btn bg-blue-50 text-blue-600 hover:bg-blue-100"
+                            title="Edit">
+                      <i class="fas fa-edit"></i>
+                    </button>
+                    <button onclick="deleteSubCategory({{ subcategory.id }})" 
+                            class="action-btn bg-red-50 text-red-600 hover:bg-red-100"
+                            title="Delete">
+                      <i class="fas fa-trash"></i>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Pagination -->
+        {% if subcategories.has_other_pages %}
+        <div class="px-6 py-4 border-t border-gray-200">
+          <div class="flex items-center justify-between">
+            <div class="text-sm text-gray-700">
+              Showing {{ subcategories.start_index }} to {{ subcategories.end_index }} of {{ subcategories.paginator.count }} subcategories
+            </div>
+            <div class="flex items-center space-x-2">
+              {% if subcategories.has_previous %}
+              <a href="?subcategory_page={{ subcategories.previous_page_number }}" 
+                 class="px-3 py-2 border border-gray-300 rounded-lg text-sm hover:bg-gray-50 transition-colors">
+                Previous
+              </a>
+              {% endif %}
+              
+              {% for num in subcategories.paginator.page_range %}
+                {% if subcategories.number == num %}
+                <span class="px-3 py-2 bg-emerald-600 text-white rounded-lg text-sm font-medium">{{ num }}</span>
+                {% elif num > subcategories.number|add:'-3' and num < subcategories.number|add:'3' %}
+                <a href="?subcategory_page={{ num }}" 
+                   class="px-3 py-2 border border-gray-300 rounded-lg text-sm hover:bg-gray-50 transition-colors">
+                  {{ num }}
+                </a>
+                {% endif %}
+              {% endfor %}
+              
+              {% if subcategories.has_next %}
+              <a href="?subcategory_page={{ subcategories.next_page_number }}" 
+                 class="px-3 py-2 border border-gray-300 rounded-lg text-sm hover:bg-gray-50 transition-colors">
+                Next
+              </a>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+        {% endif %}
+        {% else %}
+        <div class="px-6 py-12 text-center">
+          <div class="text-gray-400">
+            <i class="fas fa-tags text-5xl mb-4"></i>
+            <p class="text-lg font-semibold text-gray-900">No subcategories found</p>
+            <p class="text-gray-500 mt-1">Get started by creating your first subcategory</p>
+            <button onclick="openAddSubCategoryModal()" 
+                    class="mt-6 px-6 py-3 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors font-medium">
+              <i class="fas fa-plus mr-2"></i> Add SubCategory
+            </button>
+          </div>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Brands Tab Content -->
+    <div id="brands-content" class="tab-content hidden">
+      <div class="bg-white rounded-xl border shadow-sm overflow-hidden">
+        <div class="px-6 py-5 border-b border-gray-200">
+          <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div>
+              <h3 class="text-lg font-semibold text-gray-900">All Brands</h3>
+              <p class="text-sm text-gray-500 mt-1">Manage product brands</p>
+            </div>
+            <button onclick="openAddBrandModal()" 
+                    class="px-4 py-2.5 bg-amber-600 text-white text-sm font-medium rounded-lg hover:bg-amber-700 flex items-center transition-colors">
+              <i class="fas fa-plus mr-2"></i> Add Brand
+            </button>
+          </div>
+        </div>
+
+        {% if brands %}
+        <div class="overflow-x-auto">
+          <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+              <tr>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Brand</th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Products</th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+              </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+              {% for brand in brands %}
+              <tr class="hover:bg-gray-50 transition-colors">
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="flex items-center">
+                    {% if brand.logo %}
+                    <div class="w-12 h-12 rounded-lg overflow-hidden mr-3 flex-shrink-0">
+                      <img src="{{ brand.logo.url }}" alt="{{ brand.name }}" 
+                           class="w-full h-full object-cover" onerror="this.src='{% static 'img/default-brand.png' %}'">
+                    </div>
+                    {% else %}
+                    <div class="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center mr-3 flex-shrink-0">
+                      <i class="fas fa-copyright text-gray-400"></i>
+                    </div>
+                    {% endif %}
+                    <div>
+                      <div class="font-semibold text-gray-900">{{ brand.name }}</div>
+                      <div class="text-sm text-gray-500">{{ brand.slug }}</div>
+                      {% if brand.description %}
+                      <div class="text-xs text-gray-400 mt-1 truncate max-w-xs">{{ brand.description }}</div>
+                      {% endif %}
+                    </div>
+                  </div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="flex items-center">
+                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-blue-100 text-blue-800">
+                      <i class="fas fa-cube mr-1"></i>
+                      {{ brand.product_set.count|default:0 }} products
+                    </span>
+                  </div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <button onclick="toggleBrandStatus({{ brand.id }})" 
+                          class="status-badge {% if brand.is_active %}bg-green-100 text-green-800 hover:bg-green-200{% else %}bg-red-100 text-red-800 hover:bg-red-200{% endif %}">
+                    <span class="w-2 h-2 rounded-full mr-2 {% if brand.is_active %}bg-green-500{% else %}bg-red-500{% endif %}"></span>
+                    {{ brand.is_active|yesno:"Active,Inactive" }}
+                  </button>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="flex items-center space-x-2">
+                    <button onclick="editBrand({{ brand.id }})" 
+                            class="action-btn bg-blue-50 text-blue-600 hover:bg-blue-100"
+                            title="Edit">
+                      <i class="fas fa-edit"></i>
+                    </button>
+                    <button onclick="deleteBrand({{ brand.id }})" 
+                            class="action-btn bg-red-50 text-red-600 hover:bg-red-100"
+                            title="Delete">
+                      <i class="fas fa-trash"></i>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Pagination -->
+        {% if brands.has_other_pages %}
+        <div class="px-6 py-4 border-t border-gray-200">
+          <div class="flex items-center justify-between">
+            <div class="text-sm text-gray-700">
+              Showing {{ brands.start_index }} to {{ brands.end_index }} of {{ brands.paginator.count }} brands
+            </div>
+            <div class="flex items-center space-x-2">
+              {% if brands.has_previous %}
+              <a href="?brand_page={{ brands.previous_page_number }}" 
+                 class="px-3 py-2 border border-gray-300 rounded-lg text-sm hover:bg-gray-50 transition-colors">
+                Previous
+              </a>
+              {% endif %}
+              
+              {% for num in brands.paginator.page_range %}
+                {% if brands.number == num %}
+                <span class="px-3 py-2 bg-amber-600 text-white rounded-lg text-sm font-medium">{{ num }}</span>
+                {% elif num > brands.number|add:'-3' and num < brands.number|add:'3' %}
+                <a href="?brand_page={{ num }}" 
+                   class="px-3 py-2 border border-gray-300 rounded-lg text-sm hover:bg-gray-50 transition-colors">
+                  {{ num }}
+                </a>
+                {% endif %}
+              {% endfor %}
+              
+              {% if brands.has_next %}
+              <a href="?brand_page={{ brands.next_page_number }}" 
+                 class="px-3 py-2 border border-gray-300 rounded-lg text-sm hover:bg-gray-50 transition-colors">
+                Next
+              </a>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+        {% endif %}
+        {% else %}
+        <div class="px-6 py-12 text-center">
+          <div class="text-gray-400">
+            <i class="fas fa-copyright text-5xl mb-4"></i>
+            <p class="text-lg font-semibold text-gray-900">No brands found</p>
+            <p class="text-gray-500 mt-1">Get started by creating your first brand</p>
+            <button onclick="openAddBrandModal()" 
+                    class="mt-6 px-6 py-3 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition-colors font-medium">
+              <i class="fas fa-plus mr-2"></i> Add Brand
+            </button>
+          </div>
+        </div>
+        {% endif %}
+      </div>
+>>>>>>> c1e91ee02321eeff0fb91a2f54b26d61b61395df
     </div>
 </div>
 
@@ -46,6 +748,7 @@
   </div>
 </div>
 
+<<<<<<< HEAD
 <!-- ================= Subcategories Table ================= -->
 <div class="mb-8">
   <h3 class="text-lg font-semibold mb-3">Subcategories</h3>
@@ -66,3 +769,943 @@
 <div id="modal"></div>
 
 {% endblock %}
+=======
+<!-- Modals -->
+<!-- Add Category Modal -->
+<div id="addCategoryModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden">
+  <div class="flex items-center justify-center min-h-screen p-4">
+    <div class="bg-white rounded-xl w-full max-w-md modal-animation">
+      <div class="p-6 border-b border-gray-200">
+        <div class="flex items-center justify-between">
+          <h3 class="text-xl font-bold text-gray-900">Add New Category</h3>
+          <button onclick="closeAddCategoryModal()" 
+                  class="text-gray-400 hover:text-gray-600 transition-colors">
+            <i class="fas fa-times text-lg"></i>
+          </button>
+        </div>
+      </div>
+      <form id="addCategoryForm" method="POST" enctype="multipart/form-data" class="p-6 space-y-4">
+        {% csrf_token %}
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">Category Name *</label>
+          <input type="text" name="name" required 
+                 class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-200 focus:border-indigo-500 transition-colors">
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">Description</label>
+          <textarea name="description" rows="3" 
+                    class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-200 focus:border-indigo-500 transition-colors"></textarea>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">Image</label>
+          <div class="image-preview" id="categoryImagePreview">
+            <div class="text-center">
+              <i class="fas fa-image text-3xl text-gray-300 mb-2"></i>
+              <p class="text-sm text-gray-500">Click to upload image</p>
+            </div>
+          </div>
+          <input type="file" name="image" accept="image/*" id="categoryImageInput" 
+                 class="hidden" onchange="previewImage(this, 'categoryImagePreview')">
+          <button type="button" onclick="document.getElementById('categoryImageInput').click()" 
+                  class="w-full px-4 py-2 border-2 border-dashed border-gray-300 rounded-lg hover:border-gray-400 text-gray-600 hover:text-gray-700 transition-colors">
+            Choose Image
+          </button>
+        </div>
+        <div class="flex justify-end space-x-3 pt-4">
+          <button type="button" onclick="closeAddCategoryModal()" 
+                  class="px-5 py-2.5 border border-gray-300 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors">
+            Cancel
+          </button>
+          <button type="submit" 
+                  class="px-5 py-2.5 bg-indigo-600 text-white rounded-lg text-sm font-medium hover:bg-indigo-700 transition-colors flex items-center">
+            <i class="fas fa-plus mr-2"></i> Add Category
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Add SubCategory Modal -->
+<div id="addSubCategoryModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden">
+  <div class="flex items-center justify-center min-h-screen p-4">
+    <div class="bg-white rounded-xl w-full max-w-md modal-animation">
+      <div class="p-6 border-b border-gray-200">
+        <div class="flex items-center justify-between">
+          <h3 class="text-xl font-bold text-gray-900">Add New SubCategory</h3>
+          <button onclick="closeAddSubCategoryModal()" 
+                  class="text-gray-400 hover:text-gray-600 transition-colors">
+            <i class="fas fa-times text-lg"></i>
+          </button>
+        </div>
+      </div>
+      <form id="addSubCategoryForm" method="POST" enctype="multipart/form-data" class="p-6 space-y-4">
+        {% csrf_token %}
+        <input type="hidden" name="category_id" id="parentCategoryId">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">Parent Category *</label>
+          <select name="category" id="categorySelect" required 
+                  class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-200 focus:border-emerald-500 transition-colors">
+            <option value="">Select Category</option>
+            {% for category in categories %}
+            <option value="{{ category.id }}">{{ category.name }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">SubCategory Name *</label>
+          <input type="text" name="name" required 
+                 class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-200 focus:border-emerald-500 transition-colors">
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">Description</label>
+          <textarea name="description" rows="2" 
+                    class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-200 focus:border-emerald-500 transition-colors"></textarea>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">Image</label>
+          <div class="image-preview" id="subCategoryImagePreview">
+            <div class="text-center">
+              <i class="fas fa-image text-3xl text-gray-300 mb-2"></i>
+              <p class="text-sm text-gray-500">Click to upload image</p>
+            </div>
+          </div>
+          <input type="file" name="image" accept="image/*" id="subCategoryImageInput" 
+                 class="hidden" onchange="previewImage(this, 'subCategoryImagePreview')">
+          <button type="button" onclick="document.getElementById('subCategoryImageInput').click()" 
+                  class="w-full px-4 py-2 border-2 border-dashed border-gray-300 rounded-lg hover:border-gray-400 text-gray-600 hover:text-gray-700 transition-colors">
+            Choose Image
+          </button>
+        </div>
+        <div class="flex justify-end space-x-3 pt-4">
+          <button type="button" onclick="closeAddSubCategoryModal()" 
+                  class="px-5 py-2.5 border border-gray-300 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors">
+            Cancel
+          </button>
+          <button type="submit" 
+                  class="px-5 py-2.5 bg-emerald-600 text-white rounded-lg text-sm font-medium hover:bg-emerald-700 transition-colors flex items-center">
+            <i class="fas fa-plus mr-2"></i> Add SubCategory
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Add Brand Modal -->
+<div id="addBrandModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden">
+  <div class="flex items-center justify-center min-h-screen p-4">
+    <div class="bg-white rounded-xl w-full max-w-md modal-animation">
+      <div class="p-6 border-b border-gray-200">
+        <div class="flex items-center justify-between">
+          <h3 class="text-xl font-bold text-gray-900">Add New Brand</h3>
+          <button onclick="closeAddBrandModal()" 
+                  class="text-gray-400 hover:text-gray-600 transition-colors">
+            <i class="fas fa-times text-lg"></i>
+          </button>
+        </div>
+      </div>
+      <form id="addBrandForm" method="POST" enctype="multipart/form-data" class="p-6 space-y-4">
+        {% csrf_token %}
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">Brand Name *</label>
+          <input type="text" name="name" required 
+                 class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-200 focus:border-amber-500 transition-colors">
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">Description</label>
+          <textarea name="description" rows="2" 
+                    class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-200 focus:border-amber-500 transition-colors"></textarea>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">Logo</label>
+          <div class="image-preview" id="brandImagePreview">
+            <div class="text-center">
+              <i class="fas fa-image text-3xl text-gray-300 mb-2"></i>
+              <p class="text-sm text-gray-500">Click to upload logo</p>
+            </div>
+          </div>
+          <input type="file" name="logo" accept="image/*" id="brandImageInput" 
+                 class="hidden" onchange="previewImage(this, 'brandImagePreview')">
+          <button type="button" onclick="document.getElementById('brandImageInput').click()" 
+                  class="w-full px-4 py-2 border-2 border-dashed border-gray-300 rounded-lg hover:border-gray-400 text-gray-600 hover:text-gray-700 transition-colors">
+            Choose Logo
+          </button>
+        </div>
+        <div class="flex justify-end space-x-3 pt-4">
+          <button type="button" onclick="closeAddBrandModal()" 
+                  class="px-5 py-2.5 border border-gray-300 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors">
+            Cancel
+          </button>
+          <button type="submit" 
+                  class="px-5 py-2.5 bg-amber-600 text-white rounded-lg text-sm font-medium hover:bg-amber-700 transition-colors flex items-center">
+            <i class="fas fa-plus mr-2"></i> Add Brand
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Edit Category Modal (Will be populated dynamically) -->
+<div id="editCategoryModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden"></div>
+
+<!-- Edit SubCategory Modal (Will be populated dynamically) -->
+<div id="editSubCategoryModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden"></div>
+
+<!-- Edit Brand Modal (Will be populated dynamically) -->
+<div id="editBrandModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden"></div>
+
+<!-- Loading Modal -->
+<div id="loadingModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden">
+  <div class="flex items-center justify-center min-h-screen">
+    <div class="bg-white p-8 rounded-xl flex flex-col items-center">
+      <div class="w-12 h-12 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin mb-4"></div>
+      <p class="text-gray-700 font-medium">Processing...</p>
+    </div>
+  </div>
+</div>
+
+<script>
+// Global variables
+let currentEditId = null;
+let currentEditType = null;
+
+// Tab Functions
+function showTab(tabName) {
+  // Hide all tabs
+  document.querySelectorAll('.tab-content').forEach(tab => {
+    tab.classList.add('hidden');
+  });
+  document.querySelectorAll('[id^="tab-"]').forEach(tabBtn => {
+    tabBtn.classList.remove('border-indigo-600', 'text-indigo-600', 'border-emerald-600', 'border-amber-600');
+    tabBtn.classList.add('border-transparent', 'text-gray-500');
+  });
+
+  // Show selected tab and update button style
+  const tabBtn = document.getElementById('tab-' + tabName);
+  const tabContent = document.getElementById(tabName + '-content');
+  
+  tabContent.classList.remove('hidden');
+  
+  if (tabName === 'categories') {
+    tabBtn.classList.add('border-indigo-600', 'text-indigo-600');
+  } else if (tabName === 'subcategories') {
+    tabBtn.classList.add('border-emerald-600', 'text-emerald-600');
+  } else if (tabName === 'brands') {
+    tabBtn.classList.add('border-amber-600', 'text-amber-600');
+  }
+  
+  tabBtn.classList.remove('border-transparent', 'text-gray-500');
+}
+
+// Modal Functions
+function openAddCategoryModal() {
+  document.getElementById('addCategoryModal').classList.remove('hidden');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeAddCategoryModal() {
+  document.getElementById('addCategoryModal').classList.add('hidden');
+  document.body.style.overflow = 'auto';
+  resetForm('addCategoryForm');
+  resetImagePreview('categoryImagePreview');
+}
+
+function openAddSubCategoryModal(categoryId = null) {
+  if (categoryId) {
+    document.getElementById('parentCategoryId').value = categoryId;
+    const categorySelect = document.getElementById('categorySelect');
+    categorySelect.value = categoryId;
+    categorySelect.disabled = true;
+  } else {
+    document.getElementById('categorySelect').disabled = false;
+  }
+  document.getElementById('addSubCategoryModal').classList.remove('hidden');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeAddSubCategoryModal() {
+  document.getElementById('addSubCategoryModal').classList.add('hidden');
+  document.body.style.overflow = 'auto';
+  resetForm('addSubCategoryForm');
+  resetImagePreview('subCategoryImagePreview');
+  document.getElementById('categorySelect').disabled = false;
+}
+
+function openAddBrandModal() {
+  document.getElementById('addBrandModal').classList.remove('hidden');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeAddBrandModal() {
+  document.getElementById('addBrandModal').classList.add('hidden');
+  document.body.style.overflow = 'auto';
+  resetForm('addBrandForm');
+  resetImagePreview('brandImagePreview');
+}
+
+// Image Preview Function
+function previewImage(input, previewId) {
+  const preview = document.getElementById(previewId);
+  const file = input.files[0];
+  
+  if (file) {
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      preview.innerHTML = `<img src="${e.target.result}" alt="Preview" class="w-full h-full object-cover">`;
+    };
+    reader.readAsDataURL(file);
+  }
+}
+
+function resetImagePreview(previewId) {
+  const preview = document.getElementById(previewId);
+  preview.innerHTML = `
+    <div class="text-center">
+      <i class="fas fa-image text-3xl text-gray-300 mb-2"></i>
+      <p class="text-sm text-gray-500">Click to upload image</p>
+    </div>
+  `;
+}
+
+function resetForm(formId) {
+  const form = document.getElementById(formId);
+  if (form) form.reset();
+}
+
+// Loading Functions
+function showLoading() {
+  document.getElementById('loadingModal').classList.remove('hidden');
+  document.body.style.overflow = 'hidden';
+}
+
+function hideLoading() {
+  document.getElementById('loadingModal').classList.add('hidden');
+  document.body.style.overflow = 'auto';
+}
+
+// Status Toggle Functions
+async function toggleCategoryStatus(id) {
+  if (!confirm('Are you sure you want to change the category status?')) return;
+  
+  showLoading();
+  try {
+    const response = await fetch(`/admin/category/${id}/toggle-status/`, {
+      method: 'POST',
+      headers: {
+        'X-CSRFToken': getCookie('csrftoken'),
+        'Content-Type': 'application/json'
+      }
+    });
+    
+    if (response.ok) {
+      location.reload();
+    } else {
+      alert('Error updating status');
+    }
+  } catch (error) {
+    console.error('Error:', error);
+    alert('Error updating status');
+  } finally {
+    hideLoading();
+  }
+}
+
+async function toggleSubCategoryStatus(id) {
+  if (!confirm('Are you sure you want to change the subcategory status?')) return;
+  
+  showLoading();
+  try {
+    const response = await fetch(`/admin/subcategory/${id}/toggle-status/`, {
+      method: 'POST',
+      headers: {
+        'X-CSRFToken': getCookie('csrftoken'),
+        'Content-Type': 'application/json'
+      }
+    });
+    
+    if (response.ok) {
+      location.reload();
+    } else {
+      alert('Error updating status');
+    }
+  } catch (error) {
+    console.error('Error:', error);
+    alert('Error updating status');
+  } finally {
+    hideLoading();
+  }
+}
+
+async function toggleBrandStatus(id) {
+  if (!confirm('Are you sure you want to change the brand status?')) return;
+  
+  showLoading();
+  try {
+    const response = await fetch(`/admin/brand/${id}/toggle-status/`, {
+      method: 'POST',
+      headers: {
+        'X-CSRFToken': getCookie('csrftoken'),
+        'Content-Type': 'application/json'
+      }
+    });
+    
+    if (response.ok) {
+      location.reload();
+    } else {
+      alert('Error updating status');
+    }
+  } catch (error) {
+    console.error('Error:', error);
+    alert('Error updating status');
+  } finally {
+    hideLoading();
+  }
+}
+
+// Edit Functions
+async function editCategory(id) {
+  showLoading();
+  try {
+    const response = await fetch(`/admin/category/${id}/edit/`);
+    const data = await response.json();
+    
+    if (data.success) {
+      const modal = document.getElementById('editCategoryModal');
+      modal.innerHTML = `
+        <div class="flex items-center justify-center min-h-screen p-4">
+          <div class="bg-white rounded-xl w-full max-w-md modal-animation">
+            <div class="p-6 border-b border-gray-200">
+              <div class="flex items-center justify-between">
+                <h3 class="text-xl font-bold text-gray-900">Edit Category</h3>
+                <button onclick="closeEditModal()" class="text-gray-400 hover:text-gray-600">
+                  <i class="fas fa-times text-lg"></i>
+                </button>
+              </div>
+            </div>
+            <form id="editCategoryForm" method="POST" enctype="multipart/form-data" class="p-6 space-y-4">
+              <input type="hidden" name="id" value="${data.category.id}">
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Category Name *</label>
+                <input type="text" name="name" value="${data.category.name}" required 
+                       class="w-full px-4 py-2.5 border border-gray-300 rounded-lg">
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Description</label>
+                <textarea name="description" rows="3" 
+                          class="w-full px-4 py-2.5 border border-gray-300 rounded-lg">${data.category.description || ''}</textarea>
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Current Image</label>
+                <div class="image-preview" id="editCategoryImagePreview">
+                  ${data.category.image ? 
+                    `<img src="${data.category.image}" alt="${data.category.name}" class="w-full h-full object-cover">` :
+                    `<div class="text-center">
+                      <i class="fas fa-image text-3xl text-gray-300 mb-2"></i>
+                      <p class="text-sm text-gray-500">No image</p>
+                    </div>`
+                  }
+                </div>
+                <input type="file" name="image" accept="image/*" id="editCategoryImageInput" 
+                       class="hidden" onchange="previewImage(this, 'editCategoryImagePreview')">
+                <button type="button" onclick="document.getElementById('editCategoryImageInput').click()" 
+                        class="w-full px-4 py-2 border-2 border-dashed border-gray-300 rounded-lg hover:border-gray-400 text-gray-600 hover:text-gray-700">
+                  Change Image
+                </button>
+              </div>
+              <div class="flex justify-end space-x-3 pt-4">
+                <button type="button" onclick="closeEditModal()" 
+                        class="px-5 py-2.5 border border-gray-300 rounded-lg text-sm font-medium hover:bg-gray-50">
+                  Cancel
+                </button>
+                <button type="submit" 
+                        class="px-5 py-2.5 bg-indigo-600 text-white rounded-lg text-sm font-medium hover:bg-indigo-700">
+                  Update Category
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      `;
+      
+      modal.classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
+      
+      // Add form submit handler
+      document.getElementById('editCategoryForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        await updateCategory(id);
+      });
+    }
+  } catch (error) {
+    console.error('Error:', error);
+    alert('Error loading category data');
+  } finally {
+    hideLoading();
+  }
+}
+
+async function editSubCategory(id) {
+  showLoading();
+  try {
+    const response = await fetch(`/admin/subcategory/${id}/edit/`);
+    const data = await response.json();
+    
+    if (data.success) {
+      const modal = document.getElementById('editSubCategoryModal');
+      modal.innerHTML = `
+        <div class="flex items-center justify-center min-h-screen p-4">
+          <div class="bg-white rounded-xl w-full max-w-md modal-animation">
+            <div class="p-6 border-b border-gray-200">
+              <div class="flex items-center justify-between">
+                <h3 class="text-xl font-bold text-gray-900">Edit SubCategory</h3>
+                <button onclick="closeEditModal()" class="text-gray-400 hover:text-gray-600">
+                  <i class="fas fa-times text-lg"></i>
+                </button>
+              </div>
+            </div>
+            <form id="editSubCategoryForm" method="POST" enctype="multipart/form-data" class="p-6 space-y-4">
+              <input type="hidden" name="id" value="${data.subcategory.id}">
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Parent Category *</label>
+                <select name="category" required class="w-full px-4 py-2.5 border border-gray-300 rounded-lg">
+                  <option value="">Select Category</option>
+                  {% for category in categories %}
+                  <option value="{{ category.id }}" ${data.subcategory.category_id == {{ category.id }} ? 'selected' : ''}>
+                    {{ category.name }}
+                  </option>
+                  {% endfor %}
+                </select>
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">SubCategory Name *</label>
+                <input type="text" name="name" value="${data.subcategory.name}" required 
+                       class="w-full px-4 py-2.5 border border-gray-300 rounded-lg">
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Description</label>
+                <textarea name="description" rows="2" 
+                          class="w-full px-4 py-2.5 border border-gray-300 rounded-lg">${data.subcategory.description || ''}</textarea>
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Current Image</label>
+                <div class="image-preview" id="editSubCategoryImagePreview">
+                  ${data.subcategory.image ? 
+                    `<img src="${data.subcategory.image}" alt="${data.subcategory.name}" class="w-full h-full object-cover">` :
+                    `<div class="text-center">
+                      <i class="fas fa-image text-3xl text-gray-300 mb-2"></i>
+                      <p class="text-sm text-gray-500">No image</p>
+                    </div>`
+                  }
+                </div>
+                <input type="file" name="image" accept="image/*" id="editSubCategoryImageInput" 
+                       class="hidden" onchange="previewImage(this, 'editSubCategoryImagePreview')">
+                <button type="button" onclick="document.getElementById('editSubCategoryImageInput').click()" 
+                        class="w-full px-4 py-2 border-2 border-dashed border-gray-300 rounded-lg hover:border-gray-400 text-gray-600 hover:text-gray-700">
+                  Change Image
+                </button>
+              </div>
+              <div class="flex justify-end space-x-3 pt-4">
+                <button type="button" onclick="closeEditModal()" 
+                        class="px-5 py-2.5 border border-gray-300 rounded-lg text-sm font-medium hover:bg-gray-50">
+                  Cancel
+                </button>
+                <button type="submit" 
+                        class="px-5 py-2.5 bg-emerald-600 text-white rounded-lg text-sm font-medium hover:bg-emerald-700">
+                  Update SubCategory
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      `;
+      
+      modal.classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
+      
+      document.getElementById('editSubCategoryForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        await updateSubCategory(id);
+      });
+    }
+  } catch (error) {
+    console.error('Error:', error);
+    alert('Error loading subcategory data');
+  } finally {
+    hideLoading();
+  }
+}
+
+async function editBrand(id) {
+  showLoading();
+  try {
+    const response = await fetch(`/admin/brand/${id}/edit/`);
+    const data = await response.json();
+    
+    if (data.success) {
+      const modal = document.getElementById('editBrandModal');
+      modal.innerHTML = `
+        <div class="flex items-center justify-center min-h-screen p-4">
+          <div class="bg-white rounded-xl w-full max-w-md modal-animation">
+            <div class="p-6 border-b border-gray-200">
+              <div class="flex items-center justify-between">
+                <h3 class="text-xl font-bold text-gray-900">Edit Brand</h3>
+                <button onclick="closeEditModal()" class="text-gray-400 hover:text-gray-600">
+                  <i class="fas fa-times text-lg"></i>
+                </button>
+              </div>
+            </div>
+            <form id="editBrandForm" method="POST" enctype="multipart/form-data" class="p-6 space-y-4">
+              <input type="hidden" name="id" value="${data.brand.id}">
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Brand Name *</label>
+                <input type="text" name="name" value="${data.brand.name}" required 
+                       class="w-full px-4 py-2.5 border border-gray-300 rounded-lg">
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Description</label>
+                <textarea name="description" rows="2" 
+                          class="w-full px-4 py-2.5 border border-gray-300 rounded-lg">${data.brand.description || ''}</textarea>
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Current Logo</label>
+                <div class="image-preview" id="editBrandImagePreview">
+                  ${data.brand.logo ? 
+                    `<img src="${data.brand.logo}" alt="${data.brand.name}" class="w-full h-full object-cover">` :
+                    `<div class="text-center">
+                      <i class="fas fa-image text-3xl text-gray-300 mb-2"></i>
+                      <p class="text-sm text-gray-500">No logo</p>
+                    </div>`
+                  }
+                </div>
+                <input type="file" name="logo" accept="image/*" id="editBrandImageInput" 
+                       class="hidden" onchange="previewImage(this, 'editBrandImagePreview')">
+                <button type="button" onclick="document.getElementById('editBrandImageInput').click()" 
+                        class="w-full px-4 py-2 border-2 border-dashed border-gray-300 rounded-lg hover:border-gray-400 text-gray-600 hover:text-gray-700">
+                  Change Logo
+                </button>
+              </div>
+              <div class="flex justify-end space-x-3 pt-4">
+                <button type="button" onclick="closeEditModal()" 
+                        class="px-5 py-2.5 border border-gray-300 rounded-lg text-sm font-medium hover:bg-gray-50">
+                  Cancel
+                </button>
+                <button type="submit" 
+                        class="px-5 py-2.5 bg-amber-600 text-white rounded-lg text-sm font-medium hover:bg-amber-700">
+                  Update Brand
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      `;
+      
+      modal.classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
+      
+      document.getElementById('editBrandForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        await updateBrand(id);
+      });
+    }
+  } catch (error) {
+    console.error('Error:', error);
+    alert('Error loading brand data');
+  } finally {
+    hideLoading();
+  }
+}
+
+function closeEditModal() {
+  document.getElementById('editCategoryModal').classList.add('hidden');
+  document.getElementById('editSubCategoryModal').classList.add('hidden');
+  document.getElementById('editBrandModal').classList.add('hidden');
+  document.body.style.overflow = 'auto';
+}
+
+// Update Functions
+async function updateCategory(id) {
+  const form = document.getElementById('editCategoryForm');
+  const formData = new FormData(form);
+  
+  showLoading();
+  try {
+    const response = await fetch(`/admin/category/${id}/update/`, {
+      method: 'POST',
+      body: formData,
+      headers: {
+        'X-CSRFToken': getCookie('csrftoken')
+      }
+    });
+    
+    if (response.ok) {
+      location.reload();
+    } else {
+      alert('Error updating category');
+    }
+  } catch (error) {
+    console.error('Error:', error);
+    alert('Error updating category');
+  } finally {
+    hideLoading();
+  }
+}
+
+async function updateSubCategory(id) {
+  const form = document.getElementById('editSubCategoryForm');
+  const formData = new FormData(form);
+  
+  showLoading();
+  try {
+    const response = await fetch(`/admin/subcategory/${id}/update/`, {
+      method: 'POST',
+      body: formData,
+      headers: {
+        'X-CSRFToken': getCookie('csrftoken')
+      }
+    });
+    
+    if (response.ok) {
+      location.reload();
+    } else {
+      alert('Error updating subcategory');
+    }
+  } catch (error) {
+    console.error('Error:', error);
+    alert('Error updating subcategory');
+  } finally {
+    hideLoading();
+  }
+}
+
+async function updateBrand(id) {
+  const form = document.getElementById('editBrandForm');
+  const formData = new FormData(form);
+  
+  showLoading();
+  try {
+    const response = await fetch(`/admin/brand/${id}/update/`, {
+      method: 'POST',
+      body: formData,
+      headers: {
+        'X-CSRFToken': getCookie('csrftoken')
+      }
+    });
+    
+    if (response.ok) {
+      location.reload();
+    } else {
+      alert('Error updating brand');
+    }
+  } catch (error) {
+    console.error('Error:', error);
+    alert('Error updating brand');
+  } finally {
+    hideLoading();
+  }
+}
+
+// Delete Functions
+async function deleteCategory(id) {
+  if (!confirm('Are you sure you want to delete this category? All subcategories and their products will also be deleted.')) return;
+  
+  showLoading();
+  try {
+    const response = await fetch(`/admin/category/${id}/delete/`, {
+      method: 'DELETE',
+      headers: {
+        'X-CSRFToken': getCookie('csrftoken'),
+        'Content-Type': 'application/json'
+      }
+    });
+    
+    if (response.ok) {
+      location.reload();
+    } else {
+      alert('Error deleting category');
+    }
+  } catch (error) {
+    console.error('Error:', error);
+    alert('Error deleting category');
+  } finally {
+    hideLoading();
+  }
+}
+
+async function deleteSubCategory(id) {
+  if (!confirm('Are you sure you want to delete this subcategory? All products in this subcategory will also be deleted.')) return;
+  
+  showLoading();
+  try {
+    const response = await fetch(`/admin/subcategory/${id}/delete/`, {
+      method: 'DELETE',
+      headers: {
+        'X-CSRFToken': getCookie('csrftoken'),
+        'Content-Type': 'application/json'
+      }
+    });
+    
+    if (response.ok) {
+      location.reload();
+    } else {
+      alert('Error deleting subcategory');
+    }
+  } catch (error) {
+    console.error('Error:', error);
+    alert('Error deleting subcategory');
+  } finally {
+    hideLoading();
+  }
+}
+
+async function deleteBrand(id) {
+  if (!confirm('Are you sure you want to delete this brand? All products of this brand will also be deleted.')) return;
+  
+  showLoading();
+  try {
+    const response = await fetch(`/admin/brand/${id}/delete/`, {
+      method: 'DELETE',
+      headers: {
+        'X-CSRFToken': getCookie('csrftoken'),
+        'Content-Type': 'application/json'
+      }
+    });
+    
+    if (response.ok) {
+      location.reload();
+    } else {
+      alert('Error deleting brand');
+    }
+  } catch (error) {
+    console.error('Error:', error);
+    alert('Error deleting brand');
+  } finally {
+    hideLoading();
+  }
+}
+
+// Form Submission
+document.getElementById('addCategoryForm')?.addEventListener('submit', async function(e) {
+  e.preventDefault();
+  const formData = new FormData(this);
+  
+  showLoading();
+  try {
+    const response = await fetch('{% url "add_category" %}', {
+      method: 'POST',
+      body: formData,
+      headers: {
+        'X-CSRFToken': getCookie('csrftoken')
+      }
+    });
+    
+    if (response.ok) {
+      location.reload();
+    } else {
+      const error = await response.text();
+      alert('Error adding category: ' + error);
+    }
+  } catch (error) {
+    console.error('Error:', error);
+    alert('Error adding category');
+  } finally {
+    hideLoading();
+  }
+});
+
+document.getElementById('addSubCategoryForm')?.addEventListener('submit', async function(e) {
+  e.preventDefault();
+  const formData = new FormData(this);
+  
+  showLoading();
+  try {
+    const response = await fetch('{% url "add_subcategory" %}', {
+      method: 'POST',
+      body: formData,
+      headers: {
+        'X-CSRFToken': getCookie('csrftoken')
+      }
+    });
+    
+    if (response.ok) {
+      location.reload();
+    } else {
+      const error = await response.text();
+      alert('Error adding subcategory: ' + error);
+    }
+  } catch (error) {
+    console.error('Error:', error);
+    alert('Error adding subcategory');
+  } finally {
+    hideLoading();
+  }
+});
+
+document.getElementById('addBrandForm')?.addEventListener('submit', async function(e) {
+  e.preventDefault();
+  const formData = new FormData(this);
+  
+  showLoading();
+  try {
+    const response = await fetch('{% url "add_brand" %}', {
+      method: 'POST',
+      body: formData,
+      headers: {
+        'X-CSRFToken': getCookie('csrftoken')
+      }
+    });
+    
+    if (response.ok) {
+      location.reload();
+    } else {
+      const error = await response.text();
+      alert('Error adding brand: ' + error);
+    }
+  } catch (error) {
+    console.error('Error:', error);
+    alert('Error adding brand');
+  } finally {
+    hideLoading();
+  }
+});
+
+// Helper function to get CSRF token
+function getCookie(name) {
+  let cookieValue = null;
+  if (document.cookie && document.cookie !== '') {
+    const cookies = document.cookie.split(';');
+    for (let i = 0; i < cookies.length; i++) {
+      const cookie = cookies[i].trim();
+      if (cookie.substring(0, name.length + 1) === (name + '=')) {
+        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+        break;
+      }
+    }
+  }
+  return cookieValue;
+}
+
+// Initialize
+document.addEventListener('DOMContentLoaded', function() {
+  // Set active tab from URL hash or default to categories
+  const hash = window.location.hash.substring(1);
+  if (hash === 'subcategories' || hash === 'brands') {
+    showTab(hash);
+  } else {
+    showTab('categories');
+  }
+  
+  // Add keyboard shortcuts
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+      closeAddCategoryModal();
+      closeAddSubCategoryModal();
+      closeAddBrandModal();
+      closeEditModal();
+    }
+  });
+});
+</script>
+{% endblock %}
+>>>>>>> c1e91ee02321eeff0fb91a2f54b26d61b61395df

@@ -17,9 +17,10 @@ urlpatterns = [
     #path('brand/oppo/', views.oppo_products, name='oppo_products'),
 
     # User dashboard
-    path('dashboard/', views.user_dashboard, name='dashboard'),
+    path('dashboard/', views.user_dashboard, name='user_dashboard'),
     path('accounts/', include('django.contrib.auth.urls')),
     path('orders/', views.order_history, name='order_history'),
+    path('orders/<int:order_id>/', views.order_history, name='order_history'),
     
    
 
