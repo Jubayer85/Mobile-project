@@ -54,19 +54,7 @@ urlpatterns = [
     path('order-success/<int:order_id>/', views.order_success, name='order_success'),
     
 
-# Category and Brand Management
-    path('admin-dashboard/add-category-modal/', views.add_category_modal, name='add_category_modal'),
-    path('admin-dashboard/subcategory-modal/', views.subcategory_modal, name='subcategory_modal'),
-    path('admin-dashboard/add-category/', views.add_category, name='add_category'),
-    path('admin-dashboard/add-subcategory/', views.add_subcategory, name='add_subcategory'),
-    path("admin-dashboard/load-subcategories/",views.load_subcategories, name="load_subcategories"),
-    path('admin-dashboard/add-brand-modal/', views.add_brand_modal, name='add_brand_modal'),
-    path('admin-dashboard/add-brand/', views.add_brand, name='add_brand'),
-    path('admin-dashboard/manage-categories/', views.manage_categories, name='admin_manage_categories'),
-    path('category/<int:category_id>/edit/', views.edit_category, name='edit_category'),
-    path('admin-dashboard/subcategory/<int:subcategory_id>/edit/', views.edit_subcategory, name='edit_subcategory'),
-    path('admin/brand/<int:brand_id>/edit/', views.edit_brand, name='edit_brand'),
-    path('admin-dashboard/categories/<int:id>/toggle/', views.category_toggle, name='category_toggle'),
+
    
 
     # NEW: Footer required URLs

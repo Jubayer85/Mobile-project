@@ -377,305 +377,666 @@ def admin_order_detail(request, order_id):
 
 
 # ====================== HTMX CATEGORY/BRAND ======================
-@staff_member_required
-@require_http_methods(["POST"])
-def add_category(request):
-    if request.method == "POST":
-        form = CategoryForm(request.POST)
-        if form.is_valid():
-            form.save()
-            return HttpResponse("""
-                <script>
-                    document.getElementById('addCategoryModal').classList.add('hidden');
-                    document.body.dispatchEvent(new Event('categoryChanged'));
-                </script>
-            """)
-    else:
-        form = CategoryForm()
-
-    return render(request, "admin/forms/category_form.html", {"form": form})
-
-
-def add_subcategory(request):
-    if request.method == "POST":
-        form = SubCategoryForm(request.POST)
-        if form.is_valid():
-            form.save()
-            return HttpResponse("""
-                <script>
-                    document.getElementById('addSubcategoryModal').classList.add('hidden');
-                    document.body.dispatchEvent(new Event('subcategoryChanged'));
-                </script>
-            """)
-    else:
-        form = SubCategoryForm()
-
-    return render(request, "admin/forms/subcategory_form.html", {"form": form})
-
-
-@staff_member_required
-def load_subcategories(request):
-    category_id = request.GET.get("category")
-
-    subcategories = SubCategory.objects.filter(
-        category_id=category_id
-    ).order_by("name")
-
-    html = render_to_string(
-        "admin/partials/subcategory_options.html",
-        {"subcategories": subcategories}
-    )
-
-    return HttpResponse(html)
-
-@staff_member_required
-@require_http_methods(["POST"])
-def add_brand(request):
-    if request.method == "POST":
-        form = BrandForm(request.POST)
-        if form.is_valid():
-            form.save()
-            return HttpResponse("""
-                <script>
-                    document.getElementById('addBrandModal').classList.add('hidden');
-                    document.body.dispatchEvent(new Event('brandChanged'));
-                </script>
-            """)
-    else:
-        form = BrandForm()
-
-    return render(request, "admin/forms/brand_form.html", {"form": form})
-
-@staff_member_required
-def add_category_modal(request):
-    """Modal for adding category"""
-    return render(request, 'admin/partials/add_category.html')
-
-
-
-
-@staff_member_required
-def subcategory_modal(request):
-    categories = Category.objects.all()   # 🔴 THIS LINE IS MUST
-
-    return render(
-        request,
-        "admin/partials/subcategory_modal.html",
-        {
-            "categories": categories
-        }
-    )
-
-@staff_member_required
-def add_brand_modal(request):
-    """Modal for adding brand"""
-    return render(request, 'admin/partials/add_brand.html')
-
-
-
-
-def subcategory_products(request, slug):
-    products = Product.objects.filter(subcategory__slug=slug, is_active=True)
-    return render(request, 'product_list.html', {'products': products})
-
-def brand_products(request, slug):
-    products = Product.objects.filter(brand__slug=slug, is_active=True)
-    return render(request, 'product_list.html', {'products': products})
-
-def category_products(request, slug):
-    products = Product.objects.filter(
-        category__slug=slug,
-        is_active=True
-    ).select_related('category', 'brand')
-
-    return render(request, 'product_list.html', {
-        'products': products,
-        'page_title': slug.replace('-', ' ').title()
-    })
-
-
-
-
-def category_products(request, slug):
-    """Category-র সব প্রোডাক্ট"""
-    category = get_object_or_404(Category, slug=slug, is_active=True)
-    
-    # Get products from this category and its subcategories
-    subcategory_ids = category.subcategories.filter(is_active=True).values_list('id', flat=True)
-    
-    products_list = Product.objects.filter(
-        Q(category=category) |  # Use Q instead of models.Q
-        Q(subcategory__id__in=subcategory_ids),
-        is_active=True
-    ).distinct()
-    
-    # Pagination
-    paginator = Paginator(products_list, 12)  # Show 12 products per page
-    page_number = request.GET.get('page')
-    products = paginator.get_page(page_number)
-    
-    context = {
-        'category': category,
-        'products': products,
-        'subcategories': category.subcategories.filter(is_active=True)
-    }
-    return render(request, 'products/product_list.html', context)
-
-def subcategory_products(request, slug):
-    """SubCategory-র প্রোডাক্ট"""
-    subcategory = get_object_or_404(SubCategory, slug=slug, is_active=True)
-    
-    products_list = Product.objects.filter(
-        subcategory=subcategory,
-        is_active=True
-    )
-    
-    # Pagination
-    paginator = Paginator(products_list, 12)
-    page_number = request.GET.get('page')
-    products = paginator.get_page(page_number)
-    
-    context = {
-        'subcategory': subcategory,
-        'category': subcategory.category,
-        'products': products
-    }
-    return render(request, 'products/product_list.html', context)
-
-
+def is_admin(user):
+    return user.is_authenticated and user.is_staff
 
 @login_required
-@user_passes_test(lambda u: u.is_staff)
+@user_passes_test(is_admin)
 def manage_categories(request):
-    """Category, SubCategory and Brand management page"""
-    categories = Category.objects.all().prefetch_related('subcategories', 'products')
-    subcategories = SubCategory.objects.all().select_related('category')
-    brands = Brand.objects.all().prefetch_related('products')
+    # Calculate stats
+    total_categories = Category.objects.count()
+    total_subcategories = SubCategory.objects.count()
+    total_brands = Brand.objects.count()
+    
+    # Get all data
+    categories = Category.objects.all().prefetch_related('subcategories')
+    subcategories = SubCategory.objects.select_related('category').all()
+    brands = Brand.objects.all()
     
     context = {
+        'page_title': 'Category Management',
+        'total_categories': total_categories,
+        'total_subcategories': total_subcategories,
+        'total_brands': total_brands,
         'categories': categories,
         'subcategories': subcategories,
         'brands': brands,
     }
     return render(request, 'admin/manage_categories.html', context)
 
+# Category CRUD Views
+@login_required
+@user_passes_test(is_admin)
+def add_category(request):
+    if request.method == 'POST':
+        name = request.POST.get('name')
+        description = request.POST.get('description')
+        is_active = request.POST.get('is_active') == 'true'
+        icon = request.POST.get('icon', 'fas fa-boxes')
+        
+        if not name:
+            messages.error(request, 'Category name is required.')
+            return redirect('manage_categories')
+        
+        category = Category.objects.create(
+            name=name,
+            description=description,
+            is_active=is_active,
+            icon=icon
+        )
+        messages.success(request, f'Category "{name}" added successfully!')
+        return redirect('manage_categories')
+    
+    return render(request, 'admin/add_category.html')
 
 @login_required
-@user_passes_test(lambda u: u.is_staff)
-def edit_category(request, category_id):
-    """Edit an existing category"""
-    category = get_object_or_404(Category, id=category_id)
+@user_passes_test(is_admin)
+def edit_category(request, pk):
+    category = get_object_or_404(Category, pk=pk)
     
     if request.method == 'POST':
-        form = CategoryForm(request.POST, request.FILES, instance=category)
-        if form.is_valid():
-            form.save()
-            messages.success(request, 'Category updated successfully!')
+        name = request.POST.get('name')
+        description = request.POST.get('description')
+        is_active = request.POST.get('is_active') == 'true'
+        icon = request.POST.get('icon', 'fas fa-boxes')
+        
+        if not name:
+            messages.error(request, 'Category name is required.')
             return redirect('manage_categories')
-    else:
-        form = CategoryForm(instance=category)
+        
+        category.name = name
+        category.description = description
+        category.is_active = is_active
+        category.icon = icon
+        category.save()
+        
+        messages.success(request, f'Category "{name}" updated successfully!')
+        return redirect('manage_categories')
     
-    context = {
-        'form': form,
-        'category': category,
-        'title': 'Edit Category'
-    }
-    return render(request, 'admin/edit_category.html', context)
-
-
-
+    return render(request, 'admin/edit_category.html', {'category': category})
 
 @login_required
-@user_passes_test(lambda u: u.is_staff)
-def edit_subcategory(request, subcategory_id):
-    """Edit an existing subcategory"""
-    subcategory = get_object_or_404(SubCategory, id=subcategory_id)
+@user_passes_test(is_admin)
+def delete_category(request, pk):
+    category = get_object_or_404(Category, pk=pk)
     
     if request.method == 'POST':
-        form = SubCategoryForm(request.POST, instance=subcategory)
-        if form.is_valid():
-            form.save()
-            messages.success(request, 'SubCategory updated successfully!')
-            return redirect('manage_categories')
-    else:
-        form = SubCategoryForm(instance=subcategory)
+        category_name = category.name
+        category.delete()
+        messages.success(request, f'Category "{category_name}" deleted successfully!')
+        return redirect('manage_categories')
     
-    context = {
-        'form': form,
-        'subcategory': subcategory,
-        'title': 'Edit SubCategory'
-    }
-    return render(request, 'admin/edit_subcategory.html', context)
-
-@login_required
-@user_passes_test(lambda u: u.is_staff)
-def edit_brand(request, brand_id):
-    """Edit an existing brand"""
-    brand = get_object_or_404(Brand, id=brand_id)
-    
-    if request.method == 'POST':
-        form = BrandForm(request.POST, request.FILES, instance=brand)
-        if form.is_valid():
-            form.save()
-            messages.success(request, 'Brand updated successfully!')
-            return redirect('manage_categories')
-    else:
-        form = BrandForm(instance=brand)
-    
-    context = {
-        'form': form,
-        'brand': brand,
-        'title': 'Edit Brand'
-    }
-    return render(request, 'admin/edit_brand.html', context)
-
-def categories(request):
-    """
-    Admin categories management view
-    """
-    # শুধুমাত্র admin/user access দিতে চাইলে
-    if not request.user.is_staff:
-        return redirect('home')
-    
-    categories = Category.objects.all()
-    return render(request, 'admin/categories.html', {'categories': categories})
-
-def category_toggle(request, id):
-    category = Category.objects.get(id=id)
-    category.is_active = not category.is_active
-    category.save()
-
-    return render(request, 'admin/partials/category_row.html', {
-        'category': category
+    return render(request, 'admin/confirm_delete.html', {
+        'object': category,
+        'object_type': 'category'
     })
 
-def category_row(request, pk):
+@login_required
+@user_passes_test(is_admin)
+def toggle_category_status(request, pk):
     category = get_object_or_404(Category, pk=pk)
-    return render(request, "admin/partials/category_row.html", {"category": category})
-
-
-def category_edit_inline(request, pk):
-    category = get_object_or_404(Category, pk=pk)
-    return render(request, "admin/partials/category_row_edit.html", {"category": category})
-
-
-def category_update_inline(request, pk):
-    category = get_object_or_404(Category, pk=pk)
-    category.name = request.POST.get("name")
-    category.slug = request.POST.get("slug")
-    category.is_active = bool(request.POST.get("is_active"))
+    category.is_active = not category.is_active
     category.save()
+    
+    status = "activated" if category.is_active else "deactivated"
+    messages.success(request, f'Category "{category.name}" {status} successfully!')
+    return redirect('manage_categories')
 
-    return render(request, "admin/partials/category_row.html", {"category": category})
+# Subcategory CRUD Views
+@login_required
+@user_passes_test(is_admin)
+def add_subcategory(request):
+    categories = Category.objects.filter(is_active=True)
+    
+    if request.method == 'POST':
+        name = request.POST.get('name')
+        description = request.POST.get('description')
+        category_id = request.POST.get('category')
+        is_active = request.POST.get('is_active') == 'true'
+        
+        if not name or not category_id:
+            messages.error(request, 'Subcategory name and parent category are required.')
+            return redirect('manage_categories')
+        
+        category = get_object_or_404(Category, pk=category_id)
+        
+        subcategory = SubCategory.objects.create(
+            category=category,
+            name=name,
+            description=description,
+            is_active=is_active
+        )
+        
+        messages.success(request, f'Subcategory "{name}" added successfully!')
+        return redirect('manage_categories')
+    
+    return render(request, 'admin/add_subcategory.html', {'categories': categories})
+
+@login_required
+@user_passes_test(is_admin)
+def edit_subcategory(request, pk):
+    subcategory = get_object_or_404(SubCategory, pk=pk)
+    categories = Category.objects.filter(is_active=True)
+    
+    if request.method == 'POST':
+        name = request.POST.get('name')
+        description = request.POST.get('description')
+        category_id = request.POST.get('category')
+        is_active = request.POST.get('is_active') == 'true'
+        
+        if not name or not category_id:
+            messages.error(request, 'Subcategory name and parent category are required.')
+            return redirect('manage_categories')
+        
+        category = get_object_or_404(Category, pk=category_id)
+        
+        subcategory.name = name
+        subcategory.description = description
+        subcategory.category = category
+        subcategory.is_active = is_active
+        subcategory.save()
+        
+        messages.success(request, f'Subcategory "{name}" updated successfully!')
+        return redirect('manage_categories')
+    
+    return render(request, 'admin/edit_subcategory.html', {
+        'subcategory': subcategory,
+        'categories': categories
+    })
+
+@login_required
+@user_passes_test(is_admin)
+def delete_subcategory(request, pk):
+    subcategory = get_object_or_404(SubCategory, pk=pk)
+    
+    if request.method == 'POST':
+        subcategory_name = subcategory.name
+        subcategory.delete()
+        messages.success(request, f'Subcategory "{subcategory_name}" deleted successfully!')
+        return redirect('manage_categories')
+    
+    return render(request, 'admin/confirm_delete.html', {
+        'object': subcategory,
+        'object_type': 'subcategory'
+    })
+
+@login_required
+@user_passes_test(is_admin)
+def toggle_subcategory_status(request, pk):
+    subcategory = get_object_or_404(SubCategory, pk=pk)
+    subcategory.is_active = not subcategory.is_active
+    subcategory.save()
+    
+    status = "activated" if subcategory.is_active else "deactivated"
+    messages.success(request, f'Subcategory "{subcategory.name}" {status} successfully!')
+    return redirect('manage_categories')
+
+# Brand CRUD Views
+@login_required
+@user_passes_test(is_admin)
+def add_brand(request):
+    categories = Category.objects.filter(is_active=True)
+    
+    if request.method == 'POST':
+        name = request.POST.get('name')
+        description = request.POST.get('description')
+        logo_initials = request.POST.get('logo_initials', name[:2].upper())
+        tier = request.POST.get('tier', 'standard')
+        is_active = request.POST.get('is_active') == 'true'
+        category_ids = request.POST.getlist('categories')
+        
+        if not name:
+            messages.error(request, 'Brand name is required.')
+            return redirect('manage_categories')
+        
+        brand = Brand.objects.create(
+            name=name,
+            description=description,
+            logo_initials=logo_initials,
+            tier=tier,
+            is_active=is_active
+        )
+        
+        if category_ids:
+            categories = Category.objects.filter(id__in=category_ids)
+            brand.categories.set(categories)
+        
+        messages.success(request, f'Brand "{name}" added successfully!')
+        return redirect('manage_categories')
+    
+    return render(request, 'admin/add_brand.html', {'categories': categories})
+
+@login_required
+@user_passes_test(is_admin)
+def edit_brand(request, pk):
+    brand = get_object_or_404(Brand, pk=pk)
+    categories = Category.objects.filter(is_active=True)
+    
+    if request.method == 'POST':
+        name = request.POST.get('name')
+        description = request.POST.get('description')
+        logo_initials = request.POST.get('logo_initials', name[:2].upper())
+        tier = request.POST.get('tier', 'standard')
+        is_active = request.POST.get('is_active') == 'true'
+        category_ids = request.POST.getlist('categories')
+        
+        if not name:
+            messages.error(request, 'Brand name is required.')
+            return redirect('manage_categories')
+        
+        brand.name = name
+        brand.description = description
+        brand.logo_initials = logo_initials
+        brand.tier = tier
+        brand.is_active = is_active
+        brand.save()
+        
+        if category_ids:
+            categories = Category.objects.filter(id__in=category_ids)
+            brand.categories.set(categories)
+        else:
+            brand.categories.clear()
+        
+        messages.success(request, f'Brand "{name}" updated successfully!')
+        return redirect('manage_categories')
+    
+    return render(request, 'admin/edit_brand.html', {
+        'brand': brand,
+        'categories': categories
+    })
+
+@login_required
+@user_passes_test(is_admin)
+def delete_brand(request, pk):
+    brand = get_object_or_404(Brand, pk=pk)
+    
+    if request.method == 'POST':
+        brand_name = brand.name
+        brand.delete()
+        messages.success(request, f'Brand "{brand_name}" deleted successfully!')
+        return redirect('manage_categories')
+    
+    return render(request, 'admin/confirm_delete.html', {
+        'object': brand,
+        'object_type': 'brand'
+    })
+
+@login_required
+@user_passes_test(is_admin)
+def toggle_brand_status(request, pk):
+    brand = get_object_or_404(Brand, pk=pk)
+    brand.is_active = not brand.is_active
+    brand.save()
+    
+    status = "activated" if brand.is_active else "deactivated"
+    messages.success(request, f'Brand "{brand.name}" {status} successfully!')
+    return redirect('manage_categories')
 
 
-@require_http_methods(["DELETE"])
-def category_delete(request, pk):
-    category = get_object_or_404(Category, pk=pk)
-    category.delete()
-    return HttpResponse("")
+# ====================== FRONTEND VIEWS ======================
 
+def category_products(request, slug):
+    """View products by category"""
+    category = get_object_or_404(Category, slug=slug, is_active=True)
+    products = Product.objects.filter(category=category, is_active=True)
+    subcategories = SubCategory.objects.filter(category=category, is_active=True)
+    
+    # Get brands available in this category
+    brands = Brand.objects.filter(
+        categories=category,
+        is_active=True
+    ).distinct()
+    
+    # Filtering logic
+    selected_brands = request.GET.getlist('brand')
+    selected_subcategories = request.GET.getlist('subcategory')
+    min_price = request.GET.get('min_price')
+    max_price = request.GET.get('max_price')
+    sort_by = request.GET.get('sort', 'newest')
+    search_query = request.GET.get('q', '')
+    
+    # Apply search filter
+    if search_query:
+        products = products.filter(
+            Q(name__icontains=search_query) |
+            Q(description__icontains=search_query) |
+            Q(brand__name__icontains=search_query)
+        )
+    
+    # Apply brand filter
+    if selected_brands:
+        products = products.filter(brand__id__in=selected_brands)
+    
+    # Apply subcategory filter
+    if selected_subcategories:
+        products = products.filter(subcategory__id__in=selected_subcategories)
+    
+    # Apply price filter
+    if min_price:
+        try:
+            products = products.filter(price__gte=float(min_price))
+        except ValueError:
+            pass
+    
+    if max_price:
+        try:
+            products = products.filter(price__lte=float(max_price))
+        except ValueError:
+            pass
+    
+    # Apply sorting
+    if sort_by == 'price_low':
+        products = products.order_by('price')
+    elif sort_by == 'price_high':
+        products = products.order_by('-price')
+    elif sort_by == 'name':
+        products = products.order_by('name')
+    elif sort_by == 'popular':
+        # You might want to add a popularity field or use order count
+        products = products.order_by('-created_at')
+    else:  # newest
+        products = products.order_by('-created_at')
+    
+    context = {
+        'category': category,
+        'products': products,
+        'subcategories': subcategories,
+        'brands': brands,
+        'selected_brands': selected_brands,
+        'selected_subcategories': selected_subcategories,
+        'min_price': min_price,
+        'max_price': max_price,
+        'sort_by': sort_by,
+        'search_query': search_query,
+        'product_count': products.count(),
+    }
+    return render(request, 'products/category_products.html', context)
 
+def subcategory_products(request, category_slug, subcategory_slug):
+    """View products by subcategory"""
+    category = get_object_or_404(Category, slug=category_slug, is_active=True)
+    subcategory = get_object_or_404(
+        SubCategory, 
+        slug=subcategory_slug, 
+        category=category,
+        is_active=True
+    )
+    
+    # Get products in this subcategory
+    products = Product.objects.filter(
+        subcategory=subcategory,
+        is_active=True
+    )
+    
+    # Get other subcategories in same category
+    other_subcategories = SubCategory.objects.filter(
+        category=category,
+        is_active=True
+    ).exclude(id=subcategory.id)
+    
+    # Get brands available in this subcategory
+    brands = Brand.objects.filter(
+        products__subcategory=subcategory,
+        is_active=True
+    ).distinct()
+    
+    # Filtering logic (same as category_products)
+    selected_brands = request.GET.getlist('brand')
+    min_price = request.GET.get('min_price')
+    max_price = request.GET.get('max_price')
+    sort_by = request.GET.get('sort', 'newest')
+    search_query = request.GET.get('q', '')
+    
+    # Apply search filter
+    if search_query:
+        products = products.filter(
+            Q(name__icontains=search_query) |
+            Q(description__icontains=search_query) |
+            Q(brand__name__icontains=search_query)
+        )
+    
+    # Apply brand filter
+    if selected_brands:
+        products = products.filter(brand__id__in=selected_brands)
+    
+    # Apply price filter
+    if min_price:
+        try:
+            products = products.filter(price__gte=float(min_price))
+        except ValueError:
+            pass
+    
+    if max_price:
+        try:
+            products = products.filter(price__lte=float(max_price))
+        except ValueError:
+            pass
+    
+    # Apply sorting
+    if sort_by == 'price_low':
+        products = products.order_by('price')
+    elif sort_by == 'price_high':
+        products = products.order_by('-price')
+    elif sort_by == 'name':
+        products = products.order_by('name')
+    elif sort_by == 'popular':
+        products = products.order_by('-created_at')
+    else:  # newest
+        products = products.order_by('-created_at')
+    
+    context = {
+        'category': category,
+        'subcategory': subcategory,
+        'products': products,
+        'other_subcategories': other_subcategories,
+        'brands': brands,
+        'selected_brands': selected_brands,
+        'min_price': min_price,
+        'max_price': max_price,
+        'sort_by': sort_by,
+        'search_query': search_query,
+        'product_count': products.count(),
+    }
+    return render(request, 'products/subcategory_products.html', context)
+
+def brand_products(request, slug):
+    """View products by brand"""
+    brand = get_object_or_404(Brand, slug=slug, is_active=True)
+    
+    # Get products for this brand
+    products = Product.objects.filter(brand=brand, is_active=True)
+    
+    # Get categories where this brand has products
+    categories = Category.objects.filter(
+        products__brand=brand,
+        is_active=True
+    ).distinct()
+    
+    # Get subcategories where this brand has products
+    subcategories = SubCategory.objects.filter(
+        products__brand=brand,
+        is_active=True
+    ).distinct()
+    
+    # Filtering logic
+    selected_categories = request.GET.getlist('category')
+    selected_subcategories = request.GET.getlist('subcategory')
+    min_price = request.GET.get('min_price')
+    max_price = request.GET.get('max_price')
+    sort_by = request.GET.get('sort', 'newest')
+    search_query = request.GET.get('q', '')
+    
+    # Apply search filter
+    if search_query:
+        products = products.filter(
+            Q(name__icontains=search_query) |
+            Q(description__icontains=search_query)
+        )
+    
+    # Apply category filter
+    if selected_categories:
+        products = products.filter(category__id__in=selected_categories)
+    
+    # Apply subcategory filter
+    if selected_subcategories:
+        products = products.filter(subcategory__id__in=selected_subcategories)
+    
+    # Apply price filter
+    if min_price:
+        try:
+            products = products.filter(price__gte=float(min_price))
+        except ValueError:
+            pass
+    
+    if max_price:
+        try:
+            products = products.filter(price__lte=float(max_price))
+        except ValueError:
+            pass
+    
+    # Apply sorting
+    if sort_by == 'price_low':
+        products = products.order_by('price')
+    elif sort_by == 'price_high':
+        products = products.order_by('-price')
+    elif sort_by == 'name':
+        products = products.order_by('name')
+    elif sort_by == 'popular':
+        products = products.order_by('-created_at')
+    else:  # newest
+        products = products.order_by('-created_at')
+    
+    # Get other brands in same categories
+    other_brands = Brand.objects.filter(
+        categories__in=categories,
+        is_active=True
+    ).exclude(id=brand.id).distinct()[:10]
+    
+    context = {
+        'brand': brand,
+        'products': products,
+        'categories': categories,
+        'subcategories': subcategories,
+        'other_brands': other_brands,
+        'selected_categories': selected_categories,
+        'selected_subcategories': selected_subcategories,
+        'min_price': min_price,
+        'max_price': max_price,
+        'sort_by': sort_by,
+        'search_query': search_query,
+        'product_count': products.count(),
+    }
+    return render(request, 'products/brand_products.html', context)
+
+def product_detail(request, slug):
+    """Product detail view"""
+    product = get_object_or_404(Product, slug=slug, is_active=True)
+    
+    # Get related products (same category)
+    related_products = Product.objects.filter(
+        category=product.category,
+        is_active=True
+    ).exclude(id=product.id)[:8]
+    
+    # Get other products from same brand
+    same_brand_products = Product.objects.filter(
+        brand=product.brand,
+        is_active=True
+    ).exclude(id=product.id)[:4]
+    
+    context = {
+        'product': product,
+        'related_products': related_products,
+        'same_brand_products': same_brand_products,
+    }
+    return render(request, 'products/product_detail.html', context)
+
+def search_products(request):
+    """Search products across all categories"""
+    query = request.GET.get('q', '')
+    category_id = request.GET.get('category', '')
+    brand_id = request.GET.get('brand', '')
+    min_price = request.GET.get('min_price', '')
+    max_price = request.GET.get('max_price', '')
+    sort_by = request.GET.get('sort', 'relevance')
+    
+    # Start with all active products
+    products = Product.objects.filter(is_active=True)
+    
+    # Apply search query
+    if query:
+        products = products.filter(
+            Q(name__icontains=query) |
+            Q(description__icontains=query) |
+            Q(category__name__icontains=query) |
+            Q(subcategory__name__icontains=query) |
+            Q(brand__name__icontains=query)
+        )
+    
+    # Apply category filter
+    if category_id:
+        products = products.filter(category_id=category_id)
+    
+    # Apply brand filter
+    if brand_id:
+        products = products.filter(brand_id=brand_id)
+    
+    # Apply price filter
+    if min_price:
+        try:
+            products = products.filter(price__gte=float(min_price))
+        except ValueError:
+            pass
+    
+    if max_price:
+        try:
+            products = products.filter(price__lte=float(max_price))
+        except ValueError:
+            pass
+    
+    # Apply sorting
+    if sort_by == 'price_low':
+        products = products.order_by('price')
+    elif sort_by == 'price_high':
+        products = products.order_by('-price')
+    elif sort_by == 'name':
+        products = products.order_by('name')
+    elif sort_by == 'newest':
+        products = products.order_by('-created_at')
+    else:  # relevance (default)
+        # You could implement more sophisticated relevance sorting
+        products = products.order_by('-created_at')
+    
+    # Get all categories and brands for filters
+    all_categories = Category.objects.filter(is_active=True)
+    all_brands = Brand.objects.filter(is_active=True)
+    
+    # Get unique categories and brands from search results
+    result_categories = Category.objects.filter(
+        products__in=products,
+        is_active=True
+    ).distinct()
+    
+    result_brands = Brand.objects.filter(
+        products__in=products,
+        is_active=True
+    ).distinct()
+    
+    context = {
+        'products': products,
+        'query': query,
+        'all_categories': all_categories,
+        'all_brands': all_brands,
+        'result_categories': result_categories,
+        'result_brands': result_brands,
+        'selected_category': category_id,
+        'selected_brand': brand_id,
+        'min_price': min_price,
+        'max_price': max_price,
+        'sort_by': sort_by,
+        'product_count': products.count(),
+    }
+    return render(request, 'products/search_results.html', context)
 # Placeholder views for footer links
 def shop_all(request):
     products = Product.objects.filter(is_active=True)
