@@ -5,10 +5,12 @@ app_name = 'admin_dashboard'
 
 urlpatterns = [
     path("manage-categories/", views.manage_categories, name="manage_categories"),
+   
+    path("category/add/", views.add_category, name="add_category"),
+    path("subcategory/add/", views.add_subcategory, name="add_subcategory"),
+    path("brand/add/", views.add_brand, name="add_brand"),
 
-    path("category/<int:pk>/row/", views.category_row, name="category_row"),
-    path("category/<int:pk>/edit/", views.category_edit_inline, name="category_edit"),
-    path("category/<int:pk>/update/", views.category_update_inline, name="category_update"),
-    path("category/<int:pk>/toggle/", views.category_toggle, name="category_toggle"),
-    path("category/<int:pk>/delete/", views.category_delete, name="category_delete"),
+    #path("category/list/", views.category_list, name="category_list"),
+    #path("subcategory/list/", views.subcategory_list, name="subcategory_list"),
+    #path("brand/list/", views.brand_list, name="brand_list"),
 ]

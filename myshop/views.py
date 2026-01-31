@@ -380,42 +380,37 @@ def admin_order_detail(request, order_id):
 @staff_member_required
 @require_http_methods(["POST"])
 def add_category(request):
-    name = request.POST.get('name', '').strip()
-    if name:
-        category = Category.objects.create(
-            name=name,
-            slug=name.lower().replace(' ', '-')
-        )
-        
-        html = render_to_string('admin/partials/category_option.html', {
-            'category': category
-        })
-        return HttpResponse(html)
-    
-    return HttpResponse(status=400)
+    if request.method == "POST":
+        form = CategoryForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return HttpResponse("""
+                <script>
+                    document.getElementById('addCategoryModal').classList.add('hidden');
+                    document.body.dispatchEvent(new Event('categoryChanged'));
+                </script>
+            """)
+    else:
+        form = CategoryForm()
+
+    return render(request, "admin/forms/category_form.html", {"form": form})
 
 
-@staff_member_required
-@require_http_methods(["POST"])
 def add_subcategory(request):
-    name = request.POST.get("name")
-    category_id = request.POST.get("category")
+    if request.method == "POST":
+        form = SubCategoryForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return HttpResponse("""
+                <script>
+                    document.getElementById('addSubcategoryModal').classList.add('hidden');
+                    document.body.dispatchEvent(new Event('subcategoryChanged'));
+                </script>
+            """)
+    else:
+        form = SubCategoryForm()
 
-    if not name or not category_id:
-        return HttpResponse(status=400)
-
-    category = get_object_or_404(Category, id=category_id)
-
-    subcategory = SubCategory.objects.create(
-        name=name,
-        category=category
-    )
-
-    return render(
-        request,
-        "admin/partials/subcategory_option.html",
-        {"subcategory": subcategory}
-    )
+    return render(request, "admin/forms/subcategory_form.html", {"form": form})
 
 
 @staff_member_required
@@ -436,21 +431,20 @@ def load_subcategories(request):
 @staff_member_required
 @require_http_methods(["POST"])
 def add_brand(request):
-    name = request.POST.get('name', '').strip()
-    if name:
-        brand = Brand.objects.create(
-            name=name,
-            slug=name.lower().replace(' ', '-')
-        )
-        
-        html = render_to_string('admin/partials/brand_option.html', {
-            'brand': brand
-        })
-        return HttpResponse(html)
-    
-    return HttpResponse(status=400)
+    if request.method == "POST":
+        form = BrandForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return HttpResponse("""
+                <script>
+                    document.getElementById('addBrandModal').classList.add('hidden');
+                    document.body.dispatchEvent(new Event('brandChanged'));
+                </script>
+            """)
+    else:
+        form = BrandForm()
 
-
+    return render(request, "admin/forms/brand_form.html", {"form": form})
 
 @staff_member_required
 def add_category_modal(request):
