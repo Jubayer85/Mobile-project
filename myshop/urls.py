@@ -9,6 +9,7 @@ from django.urls import path, include
 
 urlpatterns = [
     # Public pages
+    path('admin-dashboard/', include('myshop.urls_admin')),
     path('', views.home, name='home'),
     path('register/', views.register, name='register'),
     path('login-redirect/', views.login_redirect, name='login_redirect'),
