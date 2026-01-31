@@ -20,18 +20,12 @@ ProductImageFormSet = modelformset_factory(
 class CategoryForm(forms.ModelForm):
     class Meta:
         model = Category
-        fields = ['name', 'slug']
+        fields = ["name", "is_active"]
         widgets = {
-            'name': forms.TextInput(attrs={
-                'class': 'w-full rounded-5g border border-slate-300 px-4 py-2',
-                'placeholder': 'Enter category name'
-            }),
-            'slug': forms.TextInput(attrs={
-                'class': 'w-full rounded-3g border border-slate-300 px-4 py-2',
-                'placeholder': 'auto-generated or custom'
+            "name": forms.TextInput(attrs={
+                "class": "w-full rounded-lg border-gray-300 focus:ring-blue-500 focus:border-blue-500"
             }),
         }
-
 class SubCategoryForm(forms.ModelForm):
     class Meta:
         model = SubCategory
