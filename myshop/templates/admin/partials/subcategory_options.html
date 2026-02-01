@@ -1,7 +1,0 @@
-<option value="">Select subcategory</option>
-
-{% for sub in subcategories %}
-  <option value="{{ sub.id }}">{{ sub.name }}</option>
-{% empty %}
-  <option value="">No subcategory found</option>
-{% endfor %}
