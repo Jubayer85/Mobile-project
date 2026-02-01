@@ -1,0 +1,968 @@
+{% extends "admin/base_admin.html" %}
+{% load static %}
+
+{% block title %}Edit Product | Admin Dashboard{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 text-slate-800">
+    <!-- Header -->
+    <div class="bg-white shadow-sm border-b border-slate-200">
+        <div class="max-w-7xl mx-auto px-6 py-4">
+            <div class="flex items-center justify-between">
+                <div>
+                    <nav class="flex items-center space-x-2 text-sm text-slate-500 mb-1">
+                        <a href="{% url 'admin_dashboard' %}" class="hover:text-indigo-600 transition-colors">Dashboard</a>
+                        <span class="text-slate-300">›</span>
+                        <a href="{% url 'admin_product_list' %}" class="hover:text-indigo-600 transition-colors">Products</a>
+                        <span class="text-slate-300">›</span>
+                        <span class="text-slate-800 font-medium">Edit Product</span>
+                    </nav>
+                    <h1 class="text-2xl font-bold text-slate-900">Edit Product: {{ product.name }}</h1>
+                    <p class="text-slate-500 mt-1">Update product information and settings</p>
+                </div>
+                <div class="flex items-center space-x-3">
+                    <span class="px-3 py-1 {% if product.is_active %}bg-emerald-50 text-emerald-700{% else %}bg-rose-50 text-rose-700{% endif %} text-xs font-medium rounded-full border {% if product.is_active %}border-emerald-200{% else %}border-rose-200{% endif %}">
+                        <i class="fas fa-circle text-xs mr-1"></i>
+                        {% if product.is_active %}Active{% else %}Inactive{% endif %}
+                    </span>
+                    <a href="{% url 'product_detail' product.slug %}" 
+                       target="_blank"
+                       class="px-4 py-2 text-sm text-slate-600 hover:text-slate-800 hover:bg-slate-50 rounded-lg border border-slate-300 transition-colors">
+                        <i class="fas fa-external-link-alt mr-2"></i>View Live
+                    </a>
+                    <button onclick="window.history.back()" 
+                            class="px-4 py-2 text-sm text-slate-600 hover:text-slate-800 hover:bg-slate-50 rounded-lg border border-slate-300 transition-colors">
+                        <i class="fas fa-arrow-left mr-2"></i>Back
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="max-w-7xl mx-auto px-6 py-8">
+        {% if messages %}
+            <div class="mb-8 space-y-3">
+                {% for message in messages %}
+                <div class="flex items-center justify-between p-4 rounded-xl {% if message.tags == 'success' %}bg-emerald-50 border border-emerald-200 text-emerald-700{% elif message.tags == 'error' %}bg-rose-50 border border-rose-200 text-rose-700{% else %}bg-indigo-50 border border-indigo-200 text-indigo-700{% endif %}">
+                    <div class="flex items-center">
+                        {% if message.tags == 'success' %}
+                        <i class="fas fa-check-circle text-emerald-500 mr-3 text-lg"></i>
+                        {% elif message.tags == 'error' %}
+                        <i class="fas fa-exclamation-circle text-rose-500 mr-3 text-lg"></i>
+                        {% else %}
+                        <i class="fas fa-info-circle text-indigo-500 mr-3 text-lg"></i>
+                        {% endif %}
+                        <span class="font-medium">{{ message }}</span>
+                    </div>
+                    <button onclick="this.parentElement.remove()" class="text-slate-400 hover:text-slate-600">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        <!-- Product Stats -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+            <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-4">
+                <div class="flex items-center">
+                    <div class="w-10 h-10 rounded-lg bg-blue-100 text-blue-600 flex items-center justify-center mr-3">
+                        <i class="fas fa-eye"></i>
+                    </div>
+                    <div>
+                        <p class="text-sm text-slate-500">Views</p>
+                        <p class="text-xl font-bold text-slate-900">{{ product.views|default:"0" }}</p>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-4">
+                <div class="flex items-center">
+                    <div class="w-10 h-10 rounded-lg bg-emerald-100 text-emerald-600 flex items-center justify-center mr-3">
+                        <i class="fas fa-shopping-cart"></i>
+                    </div>
+                    <div>
+                        <p class="text-sm text-slate-500">Orders</p>
+                        <p class="text-xl font-bold text-slate-900">{{ product.orders.count|default:"0" }}</p>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-4">
+                <div class="flex items-center">
+                    <div class="w-10 h-10 rounded-lg bg-amber-100 text-amber-600 flex items-center justify-center mr-3">
+                        <i class="fas fa-star"></i>
+                    </div>
+                    <div>
+                        <p class="text-sm text-slate-500">Rating</p>
+                        <p class="text-xl font-bold text-slate-900">{{ product.average_rating|default:"0.0" }}/5.0</p>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-4">
+                <div class="flex items-center">
+                    <div class="w-10 h-10 rounded-lg bg-purple-100 text-purple-600 flex items-center justify-center mr-3">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                    <div>
+                        <p class="text-sm text-slate-500">Updated</p>
+                        <p class="text-sm font-medium text-slate-900">{{ product.updated_at|date:"M d, Y" }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
+            <!-- Left Sidebar - Quick Actions -->
+            <div class="lg:col-span-1">
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 sticky top-8">
+                    <h3 class="font-semibold text-slate-900 mb-6 text-lg">Quick Actions</h3>
+                    
+                    <!-- Status Toggle -->
+                    <div class="mb-6">
+                        <form method="POST" action="{% url 'toggle_product_status' product.id %}" class="mb-4">
+                            {% csrf_token %}
+                            <button type="submit" 
+                                    class="w-full px-4 py-3 rounded-xl border {% if product.is_active %}border-rose-300 text-rose-700 hover:bg-rose-50{% else %}border-emerald-300 text-emerald-700 hover:bg-emerald-50{% endif %} font-medium transition-colors text-left">
+                                <i class="fas fa-toggle-{% if product.is_active %}on{% else %}off{% endif %} mr-2"></i>
+                                {% if product.is_active %}Deactivate Product{% else %}Activate Product{% endif %}
+                            </button>
+                        </form>
+                        
+                        <a href="{% url 'product_detail' product.slug %}" 
+                           target="_blank"
+                           class="block w-full px-4 py-3 rounded-xl border border-slate-300 text-slate-700 hover:bg-slate-50 font-medium transition-colors text-left mb-3">
+                            <i class="fas fa-external-link-alt mr-2"></i>
+                            View Live Page
+                        </a>
+                        
+                        <a href="{% url 'duplicate_product' product.id %}" 
+                           class="block w-full px-4 py-3 rounded-xl border border-indigo-300 text-indigo-700 hover:bg-indigo-50 font-medium transition-colors text-left mb-3">
+                            <i class="fas fa-copy mr-2"></i>
+                            Duplicate Product
+                        </a>
+                        
+                        <a href="{% url 'delete_product' product.id %}" 
+                           class="block w-full px-4 py-3 rounded-xl border border-rose-300 text-rose-700 hover:bg-rose-50 font-medium transition-colors text-left"
+                           onclick="return confirm('Are you sure you want to delete this product? This action cannot be undone.');">
+                            <i class="fas fa-trash mr-2"></i>
+                            Delete Product
+                        </a>
+                    </div>
+                    
+                    <!-- Last Updated -->
+                    <div class="pt-6 border-t border-slate-200">
+                        <h4 class="text-sm font-semibold text-slate-700 mb-3">Product Info</h4>
+                        <div class="space-y-2 text-sm">
+                            <div class="flex justify-between">
+                                <span class="text-slate-500">SKU:</span>
+                                <span class="font-medium text-slate-900">{{ product.sku|default:"Not set" }}</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-slate-500">Stock:</span>
+                                <span class="font-medium {% if product.stock_quantity > 10 %}text-emerald-600{% elif product.stock_quantity > 0 %}text-amber-600{% else %}text-rose-600{% endif %}">
+                                    {{ product.stock_quantity|default:"0" }} units
+                                </span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-slate-500">Created:</span>
+                                <span class="font-medium text-slate-900">{{ product.created_at|date:"M d, Y" }}</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-slate-500">Updated:</span>
+                                <span class="font-medium text-slate-900">{{ product.updated_at|date:"M d, Y" }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Form -->
+            <div class="lg:col-span-3">
+                <form method="POST" enctype="multipart/form-data" id="productForm" class="space-y-8" action="{% url 'edit_product' product.id %}">
+                    {% csrf_token %}
+                    
+                    <!-- Card 1: Basic Information -->
+                    <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                        <div class="px-8 py-6 border-b border-slate-200 bg-gradient-to-r from-slate-50 to-white">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center space-x-3">
+                                    <div class="w-10 h-10 rounded-lg bg-indigo-100 text-indigo-600 flex items-center justify-center">
+                                        <i class="fas fa-info-circle"></i>
+                                    </div>
+                                    <div>
+                                        <h2 class="text-xl font-bold text-slate-900">Basic Information</h2>
+                                        <p class="text-slate-500 text-sm">Update product name, category and brand details</p>
+                                    </div>
+                                </div>
+                                <span class="px-3 py-1 bg-indigo-100 text-indigo-700 text-xs font-medium rounded-full">Required</span>
+                            </div>
+                        </div>
+                        
+                        <div class="p-8 space-y-6">
+                            <!-- Product Name & Slug -->
+                            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                                <div>
+                                    <label class="block text-sm font-semibold text-slate-700 mb-2">
+                                        Product Name <span class="text-rose-500">*</span>
+                                    </label>
+                                    <div class="relative">
+                                        <input type="text" 
+                                               name="name" 
+                                               id="id_name"
+                                               value="{{ product.name }}"
+                                               required
+                                               placeholder="e.g., iPhone 16 Pro Max 256GB"
+                                               class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 pl-10 text-slate-800 shadow-sm focus:border-indigo-500 focus:ring-3 focus:ring-indigo-500/20 transition-all duration-300 placeholder:text-slate-400 hover:border-slate-400">
+                                        <div class="absolute left-3 top-3.5 text-slate-400">
+                                            <i class="fas fa-tag"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div>
+                                    <label class="block text-sm font-semibold text-slate-700 mb-2">
+                                        URL Slug
+                                    </label>
+                                    <div class="relative">
+                                        <input type="text" 
+                                               name="slug" 
+                                               id="id_slug"
+                                               value="{{ product.slug }}"
+                                               placeholder="e.g., iphone-16-pro-max-256gb"
+                                               class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 pl-10 text-slate-800 shadow-sm focus:border-indigo-500 focus:ring-3 focus:ring-indigo-500/20 transition-all duration-300 placeholder:text-slate-400 hover:border-slate-400">
+                                        <div class="absolute left-3 top-3.5 text-slate-400">
+                                            <i class="fas fa-link"></i>
+                                        </div>
+                                    </div>
+                                    <button type="button" id="generateSlug" 
+                                            class="mt-2 text-sm text-indigo-600 hover:text-indigo-800 font-medium inline-flex items-center">
+                                        <i class="fas fa-magic mr-2"></i> Regenerate from name
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <!-- Category, SubCategory & Brand -->
+                            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                                <!-- Category -->
+                                <div>
+                                    <div class="flex items-center justify-between mb-2">
+                                        <label class="block text-sm font-semibold text-slate-700">
+                                            Category <span class="text-rose-500">*</span>
+                                        </label>
+                                        <a href="{% url 'add_category' %}" 
+                                           target="_blank"
+                                           class="text-xs text-indigo-600 hover:text-indigo-800 font-medium inline-flex items-center">
+                                            <i class="fas fa-plus-circle mr-1"></i> Add New
+                                        </a>
+                                    </div>
+                                    <div class="relative">
+                                        <select name="category"
+                                                id="id_category"
+                                                required
+                                                class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 pl-10 text-slate-800 shadow-sm
+                                                       focus:border-indigo-500 focus:ring-3 focus:ring-indigo-500/20 transition-all duration-300
+                                                       hover:border-slate-400 appearance-none">
+                                            <option value="">Select a category</option>
+                                            {% for category in categories %}
+                                                <option value="{{ category.id }}" {% if product.category.id == category.id %}selected{% endif %}>
+                                                    {{ category.name }}
+                                                </option>
+                                            {% endfor %}
+                                        </select>
+                                        <div class="absolute left-3 top-3.5 text-slate-400 pointer-events-none">
+                                            <i class="fas fa-layer-group"></i>
+                                        </div>
+                                        <div class="absolute right-3 top-3.5 text-slate-400 pointer-events-none">
+                                            <i class="fas fa-chevron-down"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- SubCategory -->
+                                <div>
+                                    <div class="flex items-center justify-between mb-2">
+                                        <label class="block text-sm font-semibold text-slate-700">
+                                            SubCategory <span class="text-rose-500">*</span>
+                                        </label>
+                                        <a href="{% url 'add_subcategory' %}" 
+                                           target="_blank"
+                                           class="text-xs text-amber-600 hover:text-amber-800 font-medium inline-flex items-center">
+                                            <i class="fas fa-plus-square mr-1"></i> Add New
+                                        </a>
+                                    </div>
+                                    <div class="relative">
+                                        <select name="subcategory" 
+                                                id="id_subcategory" 
+                                                required
+                                                class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 pl-10 text-slate-800 shadow-sm 
+                                                       focus:border-indigo-500 focus:ring-3 focus:ring-indigo-500/20 transition-all duration-300 
+                                                       hover:border-slate-400 appearance-none">
+                                            <option value="">Select a subcategory</option>
+                                            {% for subcategory in subcategories %}
+                                                <option value="{{ subcategory.id }}" {% if product.subcategory.id == subcategory.id %}selected{% endif %}>
+                                                    {{ subcategory.name }}
+                                                </option>
+                                            {% endfor %}
+                                        </select>
+                                        <div class="absolute left-3 top-3.5 text-slate-400 pointer-events-none">
+                                            <i class="fas fa-tags"></i>
+                                        </div>
+                                        <div class="absolute right-3 top-3.5 text-slate-400 pointer-events-none">
+                                            <i class="fas fa-chevron-down"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Brand -->
+                                <div>
+                                    <div class="flex items-center justify-between mb-2">
+                                        <label class="block text-sm font-semibold text-slate-700">
+                                            Brand <span class="text-rose-500">*</span>
+                                        </label>
+                                        <a href="{% url 'add_brand' %}" 
+                                           target="_blank"
+                                           class="text-xs text-indigo-600 hover:text-indigo-800 font-medium inline-flex items-center">
+                                            <i class="fas fa-plus-circle mr-1"></i> Add New
+                                        </a>
+                                    </div>
+                                    <div class="relative">
+                                        <select name="brand" 
+                                                id="id_brand" 
+                                                required
+                                                class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 pl-10 text-slate-800 shadow-sm 
+                                                       focus:border-indigo-500 focus:ring-3 focus:ring-indigo-500/20 transition-all duration-300 
+                                                       hover:border-slate-400 appearance-none">
+                                            <option value="">Select a brand</option>
+                                            {% for brand in brands %}
+                                                <option value="{{ brand.id }}" {% if product.brand.id == brand.id %}selected{% endif %}>
+                                                    {{ brand.name }}
+                                                </option>
+                                            {% endfor %}
+                                        </select>
+                                        <div class="absolute left-3 top-3.5 text-slate-400 pointer-events-none">
+                                            <i class="fas fa-copyright"></i>
+                                        </div>
+                                        <div class="absolute right-3 top-3.5 text-slate-400 pointer-events-none">
+                                            <i class="fas fa-chevron-down"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Card 2: Pricing & Stock -->
+                    <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                        <div class="px-8 py-6 border-b border-slate-200 bg-gradient-to-r from-slate-50 to-white">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-10 h-10 rounded-lg bg-emerald-100 text-emerald-600 flex items-center justify-center">
+                                    <i class="fas fa-money-bill-wave"></i>
+                                </div>
+                                <div>
+                                    <h2 class="text-xl font-bold text-slate-900">Pricing & Stock</h2>
+                                    <p class="text-slate-500 text-sm">Update pricing, stock quantity and product status</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="p-8">
+                            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                                <!-- Price -->
+                                <div>
+                                    <label class="block text-sm font-semibold text-slate-700 mb-2">
+                                        Price (৳) <span class="text-rose-500">*</span>
+                                    </label>
+                                    <div class="relative">
+                                        <div class="absolute left-3 top-3.5 text-slate-400 font-medium">৳</div>
+                                        <input type="number" 
+                                               name="price" 
+                                               id="id_price"
+                                               value="{{ product.price }}"
+                                               required
+                                               min="0"
+                                               step="1"
+                                               placeholder="0"
+                                               class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 pl-10 text-slate-800 shadow-sm focus:border-indigo-500 focus:ring-3 focus:ring-indigo-500/20 transition-all duration-300 placeholder:text-slate-400 hover:border-slate-400">
+                                    </div>
+                                    <p class="text-xs text-slate-400 mt-2">
+                                        <i class="fas fa-percentage mr-1"></i> Competitive pricing recommended
+                                    </p>
+                                </div>
+                                
+                                <!-- Compare Price -->
+                                <div>
+                                    <label class="block text-sm font-semibold text-slate-700 mb-2">
+                                        Compare Price (৳)
+                                    </label>
+                                    <div class="relative">
+                                        <div class="absolute left-3 top-3.5 text-slate-400 font-medium">৳</div>
+                                        <input type="number" 
+                                               name="compare_price" 
+                                               id="id_compare_price"
+                                               value="{{ product.compare_price|default:'' }}"
+                                               min="0"
+                                               step="1"
+                                               placeholder="0"
+                                               class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 pl-10 text-slate-800 shadow-sm focus:border-indigo-500 focus:ring-3 focus:ring-indigo-500/20 transition-all duration-300 placeholder:text-slate-400 hover:border-slate-400">
+                                    </div>
+                                    <p class="text-xs text-slate-400 mt-2">
+                                        <i class="fas fa-tag mr-1"></i> Original price for discount display
+                                    </p>
+                                </div>
+                                
+                                <!-- Stock Quantity -->
+                                <div>
+                                    <label class="block text-sm font-semibold text-slate-700 mb-2">
+                                        Stock Quantity
+                                    </label>
+                                    <div class="relative">
+                                        <input type="number" 
+                                               name="stock_quantity" 
+                                               id="id_stock_quantity"
+                                               value="{{ product.stock_quantity }}"
+                                               min="0"
+                                               step="1"
+                                               class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 pl-10 text-slate-800 shadow-sm focus:border-indigo-500 focus:ring-3 focus:ring-indigo-500/20 transition-all duration-300 placeholder:text-slate-400 hover:border-slate-400">
+                                        <div class="absolute left-3 top-3.5 text-slate-400">
+                                            <i class="fas fa-boxes"></i>
+                                        </div>
+                                    </div>
+                                    <div class="mt-2">
+                                        {% if product.stock_quantity > 10 %}
+                                            <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800">
+                                                <i class="fas fa-check-circle mr-1"></i> In Stock
+                                            </span>
+                                        {% elif product.stock_quantity > 0 %}
+                                            <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-amber-100 text-amber-800">
+                                                <i class="fas fa-exclamation-triangle mr-1"></i> Low Stock
+                                            </span>
+                                        {% else %}
+                                            <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-rose-100 text-rose-800">
+                                                <i class="fas fa-times-circle mr-1"></i> Out of Stock
+                                            </span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- SKU -->
+                            <div class="mt-6">
+                                <label class="block text-sm font-semibold text-slate-700 mb-2">
+                                    SKU (Stock Keeping Unit)
+                                </label>
+                                <div class="relative">
+                                    <input type="text" 
+                                           name="sku" 
+                                           id="id_sku"
+                                           value="{{ product.sku|default:'' }}"
+                                           placeholder="e.g., IPH-16-256-BLK"
+                                           class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 pl-10 text-slate-800 shadow-sm focus:border-indigo-500 focus:ring-3 focus:ring-indigo-500/20 transition-all duration-300 placeholder:text-slate-400 hover:border-slate-400">
+                                    <div class="absolute left-3 top-3.5 text-slate-400">
+                                        <i class="fas fa-barcode"></i>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Status Toggles -->
+                            <div class="mt-8 space-y-4">
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <!-- Is Active -->
+                                    <label class="custom-checkbox flex items-center justify-between p-3 rounded-lg border border-slate-200 hover:border-indigo-300 hover:bg-indigo-50 transition-colors cursor-pointer">
+                                        <div class="flex items-center">
+                                            <input type="checkbox" 
+                                                   name="is_active" 
+                                                   id="id_is_active"
+                                                   value="true"
+                                                   {% if product.is_active %}checked{% endif %}>
+                                            <span class="checkmark"></span>
+                                            <span class="ml-3 font-medium text-slate-700">Active Product</span>
+                                        </div>
+                                        <span class="px-2 py-1 bg-emerald-100 text-emerald-700 text-xs font-medium rounded">Live</span>
+                                    </label>
+                                    
+                                    <!-- Is Featured -->
+                                    <label class="custom-checkbox flex items-center justify-between p-3 rounded-lg border border-slate-200 hover:border-indigo-300 hover:bg-indigo-50 transition-colors cursor-pointer">
+                                        <div class="flex items-center">
+                                            <input type="checkbox" 
+                                                   name="is_featured" 
+                                                   id="id_is_featured"
+                                                   value="true"
+                                                   {% if product.is_featured %}checked{% endif %}>
+                                            <span class="checkmark"></span>
+                                            <span class="ml-3 font-medium text-slate-700">Featured Product</span>
+                                        </div>
+                                        <span class="px-2 py-1 bg-amber-100 text-amber-700 text-xs font-medium rounded">Featured</span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Card 3: Description -->
+                    <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                        <div class="px-8 py-6 border-b border-slate-200 bg-gradient-to-r from-slate-50 to-white">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-10 h-10 rounded-lg bg-blue-100 text-blue-600 flex items-center justify-center">
+                                    <i class="fas fa-align-left"></i>
+                                </div>
+                                <div>
+                                    <h2 class="text-xl font-bold text-slate-900">Description & Details</h2>
+                                    <p class="text-slate-500 text-sm">Update product description and specifications</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="p-8">
+                            <div>
+                                <label class="block text-sm font-semibold text-slate-700 mb-2">
+                                    Product Description <span class="text-rose-500">*</span>
+                                </label>
+                                <textarea name="description" 
+                                          id="id_description"
+                                          required
+                                          rows="6"
+                                          placeholder="Describe the product features, specifications, and benefits..."
+                                          class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 text-slate-800 shadow-sm focus:border-indigo-500 focus:ring-3 focus:ring-indigo-500/20 transition-all duration-300 placeholder:text-slate-400 hover:border-slate-400">{{ product.description }}</textarea>
+                                <div class="flex items-center justify-between mt-4 text-sm text-slate-500">
+                                    <div class="flex items-center space-x-4">
+                                        <span><i class="fas fa-keyboard mr-1"></i> Min. 100 characters</span>
+                                        <span><i class="fas fa-lightbulb mr-1"></i> Include keywords</span>
+                                    </div>
+                                    <span id="charCount" class="font-medium">{{ product.description|length }} characters</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Card 4: Media -->
+                    <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                        <div class="px-8 py-6 border-b border-slate-200 bg-gradient-to-r from-slate-50 to-white">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center space-x-3">
+                                    <div class="w-10 h-10 rounded-lg bg-purple-100 text-purple-600 flex items-center justify-center">
+                                        <i class="fas fa-images"></i>
+                                    </div>
+                                    <div>
+                                        <h2 class="text-xl font-bold text-slate-900">Product Images</h2>
+                                        <p class="text-slate-500 text-sm">Update main product image and gallery</p>
+                                    </div>
+                                </div>
+                                <!-- Gallery Button -->
+                                <button type="button"
+                                        onclick="openGalleryManager()"
+                                        class="px-4 py-2 rounded-lg bg-gradient-to-r from-purple-600 to-purple-700 text-white font-medium hover:from-purple-700 hover:to-purple-800">
+                                    <i class="fas fa-images mr-2"></i> Manage Gallery
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="p-8">
+                            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                                <!-- Current Image -->
+                                <div>
+                                    <label class="block text-sm font-semibold text-slate-700 mb-2">
+                                        Current Main Image
+                                    </label>
+                                    <div class="border-2 border-slate-200 rounded-2xl p-6 bg-gradient-to-br from-slate-50 to-white">
+                                        <div class="flex items-center justify-center">
+                                            {% if product.image %}
+                                                <img id="currentImage" 
+                                                     src="{{ product.image.url }}" 
+                                                     alt="{{ product.name }}"
+                                                     class="w-48 h-48 rounded-xl border-4 border-white shadow-lg object-cover">
+                                            {% else %}
+                                                <div class="text-center">
+                                                    <i class="fas fa-image text-4xl text-slate-300 mb-4"></i>
+                                                    <p class="text-slate-500">No image set</p>
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                        <div class="mt-4 text-center">
+                                            <span class="text-sm text-slate-600">
+                                                <i class="fas fa-info-circle mr-1"></i>
+                                                {% if product.image %}
+                                                    {{ product.image.name|truncatechars:30 }}
+                                                {% else %}
+                                                    No image uploaded
+                                                {% endif %}
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Upload New Image -->
+                                <div>
+                                    <label class="block text-sm font-semibold text-slate-700 mb-2">
+                                        Upload New Image
+                                    </label>
+                                    <div onclick="document.getElementById('id_image').click()" 
+                                         class="file-upload-area border-3 border-dashed border-slate-300 rounded-2xl p-8 text-center cursor-pointer hover:border-indigo-400 hover:bg-indigo-50 bg-slate-50 transition-all duration-300 group">
+                                        <div class="w-20 h-20 mx-auto mb-4 text-slate-300 group-hover:text-indigo-400">
+                                            <i class="fas fa-cloud-upload-alt text-5xl"></i>
+                                        </div>
+                                        <p class="text-lg font-semibold text-slate-700 mb-2 group-hover:text-indigo-600">
+                                            Click to upload new image
+                                        </p>
+                                        <p class="text-sm text-slate-500 mb-4">
+                                            JPG, PNG or WebP • Max 5MB • Recommended 800×800
+                                        </p>
+                                        <input type="file" 
+                                               name="image" 
+                                               id="id_image"
+                                               accept="image/*"
+                                               class="hidden">
+                                        <button type="button" 
+                                                onclick="document.getElementById('id_image').click()"
+                                                class="px-4 py-2 bg-slate-200 text-slate-700 rounded-lg hover:bg-slate-300 text-sm font-medium">
+                                            <i class="fas fa-folder-open mr-2"></i>Browse Files
+                                        </button>
+                                    </div>
+                                    {% if product.image %}
+                                    <div class="mt-4">
+                                        <label class="custom-checkbox flex items-center p-3 rounded-lg border border-slate-200 hover:border-rose-300 hover:bg-rose-50 transition-colors cursor-pointer">
+                                            <input type="checkbox" 
+                                                   name="remove_image" 
+                                                   id="id_remove_image"
+                                                   value="true">
+                                            <span class="checkmark"></span>
+                                            <span class="ml-3 font-medium text-slate-700">Remove current image</span>
+                                        </label>
+                                    </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            
+                            <!-- Gallery Images Preview -->
+                            <div class="mt-8">
+                                <h3 class="text-lg font-semibold text-slate-800 mb-4">Gallery Images</h3>
+                                <div id="galleryContainer" class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                                    <!-- Gallery images will appear here -->
+                                    <div class="border-2 border-dashed border-slate-300 rounded-xl p-6 text-center hover:border-indigo-400 cursor-pointer"
+                                         onclick="openGalleryManager()">
+                                        <i class="fas fa-plus text-slate-400 text-3xl mb-2"></i>
+                                        <p class="text-sm text-slate-500">Add Gallery Images</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Card 5: SEO & Metadata -->
+                    <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                        <div class="px-8 py-6 border-b border-slate-200 bg-gradient-to-r from-slate-50 to-white">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-10 h-10 rounded-lg bg-teal-100 text-teal-600 flex items-center justify-center">
+                                    <i class="fas fa-search"></i>
+                                </div>
+                                <div>
+                                    <h2 class="text-xl font-bold text-slate-900">SEO & Metadata</h2>
+                                    <p class="text-slate-500 text-sm">Optimize for search engines</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="p-8">
+                            <div class="space-y-6">
+                                <!-- Meta Title -->
+                                <div>
+                                    <label class="block text-sm font-semibold text-slate-700 mb-2">
+                                        Meta Title (SEO)
+                                    </label>
+                                    <input type="text" 
+                                           name="meta_title" 
+                                           id="id
+                                           <!-- Meta Title -->
+                                    <div>
+                                        <label class="block text-sm font-semibold text-slate-700 mb-2">
+                                            Meta Title (SEO)
+                                        </label>
+                                        <div class="relative">
+                                            <input type="text" 
+                                                   name="meta_title" 
+                                                   id="id_meta_title"
+                                                   value="{{ product.meta_title|default:product.name }}"
+                                                   maxlength="60"
+                                                   placeholder="Optimized title for search engines (max 60 characters)"
+                                                   class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 pl-10 text-slate-800 shadow-sm focus:border-indigo-500 focus:ring-3 focus:ring-indigo-500/20 transition-all duration-300 placeholder:text-slate-400 hover:border-slate-400">
+                                            <div class="absolute left-3 top-3.5 text-slate-400">
+                                                <i class="fas fa-heading"></i>
+                                            </div>
+                                            <div class="absolute right-3 top-3.5 text-sm text-slate-400">
+                                                <span id="titleCharCount">60</span>
+                                            </div>
+                                        </div>
+                                        <p class="text-xs text-slate-400 mt-2">
+                                            <i class="fas fa-search mr-1"></i> Appears in browser tab and search results
+                                        </p>
+                                    </div>
+                                    
+                                    <!-- Meta Description -->
+                                    <div>
+                                        <label class="block text-sm font-semibold text-slate-700 mb-2">
+                                            Meta Description (SEO)
+                                        </label>
+                                        <div class="relative">
+                                            <textarea name="meta_description" 
+                                                      id="id_meta_description"
+                                                      rows="3"
+                                                      maxlength="160"
+                                                      placeholder="Brief description for search results (max 160 characters)"
+                                                      class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 pl-10 text-slate-800 shadow-sm focus:border-indigo-500 focus:ring-3 focus:ring-indigo-500/20 transition-all duration-300 placeholder:text-slate-400 hover:border-slate-400">{{ product.meta_description|default:product.description|truncatechars:160 }}</textarea>
+                                            <div class="absolute left-3 top-3.5 text-slate-400">
+                                                <i class="fas fa-align-left"></i>
+                                            </div>
+                                            <div class="absolute right-3 top-3.5 text-sm text-slate-400">
+                                                <span id="descCharCount">160</span>
+                                            </div>
+                                        </div>
+                                        <p class="text-xs text-slate-400 mt-2">
+                                            <i class="fas fa-info-circle mr-1"></i> Keep between 120-160 characters for best results
+                                        </p>
+                                    </div>
+                                    
+                                    <!-- Meta Keywords -->
+                                    <div>
+                                        <label class="block text-sm font-semibold text-slate-700 mb-2">
+                                            Meta Keywords
+                                        </label>
+                                        <div class="relative">
+                                            <input type="text" 
+                                                   name="meta_keywords" 
+                                                   id="id_meta_keywords"
+                                                   value="{{ product.meta_keywords|default:'' }}"
+                                                   placeholder="keywords, separated by commas"
+                                                   class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 pl-10 text-slate-800 shadow-sm focus:border-indigo-500 focus:ring-3 focus:ring-indigo-500/20 transition-all duration-300 placeholder:text-slate-400 hover:border-slate-400">
+                                            <div class="absolute left-3 top-3.5 text-slate-400">
+                                                <i class="fas fa-tags"></i>
+                                            </div>
+                                        </div>
+                                        <p class="text-xs text-slate-400 mt-2">
+                                            <i class="fas fa-lightbulb mr-1"></i> Focus on 5-10 relevant keywords
+                                        </p>
+                                    </div>
+                                    
+                                    <!-- SEO Preview -->
+                                    <div class="mt-8 p-4 bg-slate-50 rounded-xl border border-slate-200">
+                                        <h4 class="text-sm font-semibold text-slate-700 mb-3 flex items-center">
+                                            <i class="fas fa-eye mr-2"></i> SEO Preview
+                                        </h4>
+                                        <div class="bg-white p-4 rounded-lg border border-slate-300">
+                                            <p id="seoTitlePreview" class="text-lg font-medium text-blue-700 truncate">
+                                                {{ product.meta_title|default:product.name|truncatechars:60 }}
+                                            </p>
+                                            <p id="seoUrlPreview" class="text-sm text-emerald-600 mt-1">
+                                                {{ request.get_host }}/products/{{ product.slug }}
+                                            </p>
+                                            <p id="seoDescPreview" class="text-sm text-slate-600 mt-2 line-clamp-2">
+                                                {{ product.meta_description|default:product.description|truncatechars:160 }}
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Form Actions -->
+                    <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                        <div class="px-8 py-6">
+                            <div class="flex flex-col sm:flex-row items-center justify-between space-y-4 sm:space-y-0">
+                                <div class="flex items-center space-x-3">
+                                    <div class="w-10 h-10 rounded-lg bg-gradient-to-r from-indigo-100 to-purple-100 text-indigo-600 flex items-center justify-center">
+                                        <i class="fas fa-save"></i>
+                                    </div>
+                                    <div>
+                                        <h3 class="font-semibold text-slate-900">Save Changes</h3>
+                                        <p class="text-sm text-slate-500">Review and save all updates</p>
+                                    </div>
+                                </div>
+                                
+                                <div class="flex items-center space-x-3">
+                                    <button type="button" 
+                                            onclick="window.history.back()"
+                                            class="px-6 py-3 rounded-xl border border-slate-300 text-slate-700 font-medium hover:bg-slate-50 transition-colors">
+                                        <i class="fas fa-times mr-2"></i>Cancel
+                                    </button>
+                                    <button type="submit"
+                                            class="px-6 py-3 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-medium hover:from-indigo-700 hover:to-purple-700 shadow-md hover:shadow-lg transition-all duration-300">
+                                        <i class="fas fa-save mr-2"></i>Save Product Changes
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Gallery Manager Modal -->
+<div id="galleryModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden items-center justify-center p-4">
+    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden">
+        <div class="px-6 py-4 border-b border-slate-200 bg-gradient-to-r from-slate-50 to-white flex items-center justify-between">
+            <h3 class="text-xl font-bold text-slate-900">
+                <i class="fas fa-images mr-2"></i>Manage Gallery Images
+            </h3>
+            <button onclick="closeGalleryManager()" class="text-slate-400 hover:text-slate-600">
+                <i class="fas fa-times text-2xl"></i>
+            </button>
+        </div>
+        <div class="p-6 overflow-y-auto max-h-[70vh]">
+            <!-- Gallery content would be loaded dynamically here -->
+            <div class="text-center py-12 text-slate-400">
+                <i class="fas fa-images text-5xl mb-4"></i>
+                <p class="text-lg">Gallery manager would be implemented here</p>
+                <p class="text-sm mt-2">This would allow uploading, sorting, and deleting gallery images</p>
+            </div>
+        </div>
+        <div class="px-6 py-4 border-t border-slate-200 bg-slate-50 flex items-center justify-end space-x-3">
+            <button onclick="closeGalleryManager()" 
+                    class="px-4 py-2 rounded-lg border border-slate-300 text-slate-700 font-medium hover:bg-slate-100">
+                Cancel
+            </button>
+            <button class="px-4 py-2 rounded-lg bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-medium hover:from-indigo-700 hover:to-purple-700">
+                Save Changes
+            </button>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Character counters
+document.addEventListener('DOMContentLoaded', function() {
+    const description = document.getElementById('id_description');
+    const metaTitle = document.getElementById('id_meta_title');
+    const metaDesc = document.getElementById('id_meta_description');
+    
+    // Update char count for description
+    if (description) {
+        const charCount = document.getElementById('charCount');
+        description.addEventListener('input', function() {
+            charCount.textContent = this.value.length + ' characters';
+            charCount.className = 'font-medium ' + 
+                (this.value.length < 100 ? 'text-rose-600' : 'text-emerald-600');
+        });
+    }
+    
+    // Update char count for meta title
+    if (metaTitle) {
+        const titleCharCount = document.getElementById('titleCharCount');
+        const seoTitlePreview = document.getElementById('seoTitlePreview');
+        
+        metaTitle.addEventListener('input', function() {
+            const remaining = 60 - this.value.length;
+            titleCharCount.textContent = remaining;
+            titleCharCount.className = 'text-sm ' + 
+                (remaining < 10 ? 'text-rose-600' : 
+                 remaining < 20 ? 'text-amber-600' : 'text-slate-400');
+            
+            // Update SEO preview
+            seoTitlePreview.textContent = this.value || '{{ product.name }}';
+        });
+    }
+    
+    // Update char count for meta description
+    if (metaDesc) {
+        const descCharCount = document.getElementById('descCharCount');
+        const seoDescPreview = document.getElementById('seoDescPreview');
+        
+        metaDesc.addEventListener('input', function() {
+            const remaining = 160 - this.value.length;
+            descCharCount.textContent = remaining;
+            descCharCount.className = 'text-sm ' + 
+                (remaining < 20 ? 'text-rose-600' : 
+                 remaining < 40 ? 'text-amber-600' : 'text-slate-400');
+            
+            // Update SEO preview
+            seoDescPreview.textContent = this.value || '{{ product.description|truncatechars:160 }}';
+        });
+    }
+    
+    // Generate slug from product name
+    const generateSlugBtn = document.getElementById('generateSlug');
+    const nameInput = document.getElementById('id_name');
+    const slugInput = document.getElementById('id_slug');
+    
+    if (generateSlugBtn && nameInput && slugInput) {
+        generateSlugBtn.addEventListener('click', function() {
+            const name = nameInput.value.trim();
+            if (name) {
+                const slug = name.toLowerCase()
+                    .replace(/[^a-z0-9\s-]/g, '')
+                    .replace(/\s+/g, '-')
+                    .replace(/-+/g, '-');
+                slugInput.value = slug;
+            }
+        });
+    }
+    
+    // Image preview functionality
+    const imageInput = document.getElementById('id_image');
+    const currentImage = document.getElementById('currentImage');
+    
+    if (imageInput) {
+        imageInput.addEventListener('change', function(e) {
+            if (e.target.files && e.target.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    if (currentImage) {
+                        currentImage.src = e.target.result;
+                    }
+                };
+                reader.readAsDataURL(e.target.files[0]);
+            }
+        });
+    }
+});
+
+// Gallery Manager Functions
+function openGalleryManager() {
+    document.getElementById('galleryModal').classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+}
+
+function closeGalleryManager() {
+    document.getElementById('galleryModal').classList.add('hidden');
+    document.body.style.overflow = 'auto';
+}
+
+// Close modal on ESC key
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape' && !document.getElementById('galleryModal').classList.contains('hidden')) {
+        closeGalleryManager();
+    }
+});
+
+// Form submission confirmation
+document.getElementById('productForm').addEventListener('submit', function(e) {
+    // Optional: Add form validation here
+    const name = document.getElementById('id_name').value.trim();
+    const price = document.getElementById('id_price').value;
+    
+    if (!name) {
+        e.preventDefault();
+        alert('Product name is required.');
+        return false;
+    }
+    
+    if (!price || parseFloat(price) <= 0) {
+        e.preventDefault();
+        alert('Please enter a valid price.');
+        return false;
+    }
+    
+    // Optional: Show loading indicator
+    const submitBtn = this.querySelector('button[type="submit"]');
+    if (submitBtn) {
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Saving...';
+        submitBtn.disabled = true;
+    }
+    
+    return true;
+});
+</script>
+{% endblock %}
