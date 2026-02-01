@@ -45,8 +45,12 @@
             <div class="p-5">
 
                 <p class="text-xs text-primary font-semibold mb-1">
-                    {{ product.brand.name }}
-                </p>
+            {% if product.brand %}
+                {{ product.brand.name }}
+            {% else %}
+                Brand
+            {% endif %}
+        </p>
 
                 <h3 class="font-bold text-lg leading-tight line-clamp-1 mb-2">
                     {{ product.name }}
