@@ -1,0 +1,521 @@
+edit<!-- templates/admin/edit_category.html -->
+{% extends 'admin/base_admin.html' %}
+{% load static %}
+
+{% block title %}Edit Category - Admin Dashboard{% endblock %}
+
+{% block extra_css %}
+<style>
+    .image-preview-container {
+        width: 200px;
+        height: 200px;
+        border: 2px dashed #d1d5db;
+        border-radius: 0.75rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+        margin-bottom: 1rem;
+        background: #f9fafb;
+    }
+    
+    .image-preview-container img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+    
+    .icon-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 0.75rem;
+        margin-top: 0.5rem;
+    }
+    
+    .icon-option {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 1rem;
+        border: 2px solid #e5e7eb;
+        border-radius: 0.5rem;
+        cursor: pointer;
+        transition: all 0.2s;
+        background: white;
+    }
+    
+    .icon-option:hover {
+        border-color: #6366f1;
+        background: #f5f3ff;
+    }
+    
+    .icon-option.selected {
+        border-color: #6366f1;
+        background: #eef2ff;
+    }
+    
+    .icon-option i {
+        font-size: 1.5rem;
+        margin-bottom: 0.5rem;
+        color: #4b5563;
+    }
+    
+    .icon-option.selected i {
+        color: #4f46e5;
+    }
+    
+    .icon-name {
+        font-size: 0.75rem;
+        color: #6b7280;
+        text-align: center;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+    <!-- Breadcrumb -->
+    <nav class="flex mb-6" aria-label="Breadcrumb">
+        <ol class="inline-flex items-center space-x-1 md:space-x-3">
+            <li class="inline-flex items-center">
+                <a href="{% url 'admin_dashboard' %}" class="inline-flex items-center text-sm font-medium text-gray-700 hover:text-indigo-600">
+                    <i class="fas fa-home mr-2"></i>
+                    Dashboard
+                </a>
+            </li>
+            <li>
+                <div class="flex items-center">
+                    <i class="fas fa-chevron-right text-gray-400"></i>
+                    <a href="{% url 'manage_categories' %}" class="ml-1 text-sm font-medium text-gray-700 hover:text-indigo-600 md:ml-2">
+                        Categories
+                    </a>
+                </div>
+            </li>
+            <li aria-current="page">
+                <div class="flex items-center">
+                    <i class="fas fa-chevron-right text-gray-400"></i>
+                    <span class="ml-1 text-sm font-medium text-indigo-600 md:ml-2">
+                        Edit Category
+                    </span>
+                </div>
+            </li>
+        </ol>
+    </nav>
+
+    <!-- Header -->
+    <div class="mb-8">
+        <div class="flex items-center justify-between">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-900">Edit Category</h1>
+                <p class="text-gray-600 mt-2">Update category details and settings</p>
+            </div>
+            <a href="{% url 'manage_categories' %}" 
+               class="inline-flex items-center px-4 py-2.5 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50">
+                <i class="fas fa-arrow-left mr-2"></i>
+                Back to Categories
+            </a>
+        </div>
+    </div>
+
+    <!-- Form Card -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+        <div class="p-6">
+            <form method="POST" enctype="multipart/form-data" class="space-y-8">
+                {% csrf_token %}
+                
+                <!-- Basic Information -->
+                <div>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Basic Information</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label for="name" class="block text-sm font-medium text-gray-700 mb-2">
+                                Category Name *
+                            </label>
+                            <input type="text" id="name" name="name" 
+                                   value="{{ category.name }}" required
+                                   class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-200 focus:border-indigo-500 transition-colors"
+                                   placeholder="e.g., Smartphones, Laptops">
+                        </div>
+                        
+                        <div>
+                            <label for="slug" class="block text-sm font-medium text-gray-700 mb-2">
+                                URL Slug
+                            </label>
+                            <input type="text" id="slug" name="slug" 
+                                   value="{{ category.slug }}"
+                                   class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-200 focus:border-indigo-500 transition-colors bg-gray-50"
+                                   placeholder="auto-generated" readonly>
+                            <p class="text-xs text-gray-500 mt-1">Automatically generated from name</p>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-6">
+                        <label for="description" class="block text-sm font-medium text-gray-700 mb-2">
+                            Description
+                        </label>
+                        <textarea id="description" name="description" rows="4"
+                                  class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-200 focus:border-indigo-500 transition-colors"
+                                  placeholder="Describe this category...">{{ category.description }}</textarea>
+                    </div>
+                </div>
+                
+                <!-- Icon Selection -->
+                <div>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Category Icon</h3>
+                    <div class="mb-4">
+                        <label for="icon-input" class="block text-sm font-medium text-gray-700 mb-2">
+                            Icon Class
+                        </label>
+                        <div class="flex items-center">
+                            <div class="relative flex-1">
+                                <input type="text" id="icon-input" name="icon" 
+                                       value="{{ category.icon|default:'fas fa-boxes' }}"
+                                       class="w-full pl-12 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-200 focus:border-indigo-500 transition-colors">
+                                <div class="absolute left-3 top-1/2 transform -translate-y-1/2">
+                                    <i id="icon-preview" class="{{ category.icon|default:'fas fa-boxes' }} text-gray-500"></i>
+                                </div>
+                            </div>
+                            <button type="button" onclick="showIconPicker()" 
+                                    class="ml-3 px-4 py-2.5 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50">
+                                Pick Icon
+                            </button>
+                        </div>
+                        <p class="text-xs text-gray-500 mt-1">Font Awesome icon class</p>
+                    </div>
+                    
+                    <!-- Icon Grid (hidden by default) -->
+                    <div id="icon-picker" class="hidden">
+                        <div class="icon-grid">
+                            <!-- Common icons for mobile shop -->
+                            <div class="icon-option" onclick="selectIcon('fas fa-mobile-alt', 'Mobile')">
+                                <i class="fas fa-mobile-alt"></i>
+                                <span class="icon-name">Mobile</span>
+                            </div>
+                            <div class="icon-option" onclick="selectIcon('fas fa-laptop', 'Laptop')">
+                                <i class="fas fa-laptop"></i>
+                                <span class="icon-name">Laptop</span>
+                            </div>
+                            <div class="icon-option" onclick="selectIcon('fas fa-tablet-alt', 'Tablet')">
+                                <i class="fas fa-tablet-alt"></i>
+                                <span class="icon-name">Tablet</span>
+                            </div>
+                            <div class="icon-option" onclick="selectIcon('fas fa-headphones', 'Headphones')">
+                                <i class="fas fa-headphones"></i>
+                                <span class="icon-name">Headphones</span>
+                            </div>
+                            <div class="icon-option" onclick="selectIcon('fas fa-tv', 'TV')">
+                                <i class="fas fa-tv"></i>
+                                <span class="icon-name">TV</span>
+                            </div>
+                            <div class="icon-option" onclick="selectIcon('fas fa-camera', 'Camera')">
+                                <i class="fas fa-camera"></i>
+                                <span class="icon-name">Camera</span>
+                            </div>
+                            <div class="icon-option" onclick="selectIcon('fas fa-gamepad', 'Gaming')">
+                                <i class="fas fa-gamepad"></i>
+                                <span class="icon-name">Gaming</span>
+                            </div>
+                            <div class="icon-option" onclick="selectIcon('fas fa-smartwatch', 'Watch')">
+                                <i class="fas fa-smartwatch"></i>
+                                <span class="icon-name">Watch</span>
+                            </div>
+                            <div class="icon-option" onclick="selectIcon('fas fa-bolt', 'Accessories')">
+                                <i class="fas fa-bolt"></i>
+                                <span class="icon-name">Accessories</span>
+                            </div>
+                            <div class="icon-option" onclick="selectIcon('fas fa-microchip', 'Components')">
+                                <i class="fas fa-microchip"></i>
+                                <span class="icon-name">Components</span>
+                            </div>
+                            <div class="icon-option" onclick="selectIcon('fas fa-network-wired', 'Networking')">
+                                <i class="fas fa-network-wired"></i>
+                                <span class="icon-name">Networking</span>
+                            </div>
+                            <div class="icon-option" onclick="selectIcon('fas fa-print', 'Printers')">
+                                <i class="fas fa-print"></i>
+                                <span class="icon-name">Printers</span>
+                            </div>
+                            <div class="icon-option" onclick="selectIcon('fas fa-server', 'Servers')">
+                                <i class="fas fa-server"></i>
+                                <span class="icon-name">Servers</span>
+                            </div>
+                            <div class="icon-option" onclick="selectIcon('fas fa-sd-card', 'Storage')">
+                                <i class="fas fa-sd-card"></i>
+                                <span class="icon-name">Storage</span>
+                            </div>
+                            <div class="icon-option" onclick="selectIcon('fas fa-keyboard', 'Keyboard')">
+                                <i class="fas fa-keyboard"></i>
+                                <span class="icon-name">Keyboard</span>
+                            </div>
+                            <div class="icon-option" onclick="selectIcon('fas fa-mouse', 'Mouse')">
+                                <i class="fas fa-mouse"></i>
+                                <span class="icon-name">Mouse</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Image Upload -->
+                <div>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Category Image</h3>
+                    <div class="flex flex-col md:flex-row gap-6">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">
+                                Current Image
+                            </label>
+                            <div class="image-preview-container">
+                                {% if category.image %}
+                                    <img src="{{ category.image.url }}" 
+                                         alt="{{ category.name }}" 
+                                         id="current-image"
+                                         onerror="this.src='{% static 'img/default-category.png' %}'">
+                                {% else %}
+                                    <div class="text-center">
+                                        <i class="fas fa-image text-4xl text-gray-300 mb-2"></i>
+                                        <p class="text-sm text-gray-500">No image</p>
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="flex-1">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">
+                                Upload New Image
+                            </label>
+                            <div class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
+                                <div class="image-preview-container mb-4" id="image-preview">
+                                    {% if category.image %}
+                                        <img src="{{ category.image.url }}" 
+                                             alt="Preview" 
+                                             id="preview-image"
+                                             onerror="this.src='{% static 'img/default-category.png' %}'">
+                                    {% else %}
+                                        <div class="text-center">
+                                            <i class="fas fa-cloud-upload-alt text-4xl text-gray-300 mb-2"></i>
+                                            <p class="text-sm text-gray-500">Image preview</p>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                
+                                <input type="file" id="image" name="image" accept="image/*" 
+                                       class="hidden" onchange="previewImage(event)">
+                                
+                                <div class="space-y-3">
+                                    <button type="button" onclick="document.getElementById('image').click()" 
+                                            class="inline-flex items-center px-4 py-2.5 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50">
+                                        <i class="fas fa-upload mr-2"></i>
+                                        Choose Image
+                                    </button>
+                                    
+                                    {% if category.image %}
+                                    <button type="button" onclick="removeImage()" 
+                                            class="inline-flex items-center px-4 py-2.5 border border-red-300 rounded-lg text-sm font-medium text-red-700 hover:bg-red-50 ml-3">
+                                        <i class="fas fa-trash mr-2"></i>
+                                        Remove Image
+                                    </button>
+                                    {% endif %}
+                                    
+                                    <input type="hidden" name="remove_image" id="remove-image" value="false">
+                                </div>
+                                
+                                <p class="text-xs text-gray-500 mt-3">
+                                    Recommended: 800x800px, JPG, PNG or WebP format
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Settings -->
+                <div>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Settings</h3>
+                    <div class="space-y-4">
+                        <div class="flex items-center">
+                            <input type="checkbox" id="is_active" name="is_active" 
+                                   {% if category.is_active %}checked{% endif %}
+                                   class="w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500">
+                            <label for="is_active" class="ml-3 text-sm text-gray-700">
+                                Active (Visible to customers)
+                            </label>
+                        </div>
+                        
+                        <div class="flex items-center">
+                            <input type="checkbox" id="is_featured" name="is_featured" 
+                                   {% if category.is_featured %}checked{% endif %}
+                                   class="w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500">
+                            <label for="is_featured" class="ml-3 text-sm text-gray-700">
+                                Featured Category (Show on homepage)
+                            </label>
+                        </div>
+                        
+                        <div class="flex items-center">
+                            <input type="checkbox" id="show_in_menu" name="show_in_menu" 
+                                   {% if category.show_in_menu %}checked{% endif %}
+                                   class="w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500">
+                            <label for="show_in_menu" class="ml-3 text-sm text-gray-700">
+                                Show in Navigation Menu
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Meta Information (Readonly) -->
+                <div class="bg-gray-50 rounded-lg p-4">
+                    <h3 class="text-sm font-medium text-gray-900 mb-3">Meta Information</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div>
+                            <p class="text-xs text-gray-500">Created</p>
+                            <p class="text-sm font-medium text-gray-900">
+                                {{ category.created_at|date:"F j, Y, g:i a" }}
+                            </p>
+                        </div>
+                        <div>
+                            <p class="text-xs text-gray-500">Last Updated</p>
+                            <p class="text-sm font-medium text-gray-900">
+                                {{ category.updated_at|date:"F j, Y, g:i a" }}
+                            </p>
+                        </div>
+                        <div>
+                            <p class="text-xs text-gray-500">Products Count</p>
+                            <p class="text-sm font-medium text-gray-900">
+                                {{ category.products.count|default:"0" }} products
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Form Actions -->
+                <div class="flex items-center justify-between pt-6 border-t border-gray-200">
+                    <div>
+                        <a href="{% url 'delete_category' category.id %}" 
+                           class="inline-flex items-center px-4 py-2.5 border border-red-300 rounded-lg text-sm font-medium text-red-700 hover:bg-red-50">
+                            <i class="fas fa-trash mr-2"></i>
+                            Delete Category
+                        </a>
+                    </div>
+                    
+                    <div class="flex space-x-3">
+                        <a href="{% url 'manage_categories' %}" 
+                           class="px-5 py-2.5 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50">
+                            Cancel
+                        </a>
+                        <button type="submit" 
+                                class="px-5 py-2.5 bg-indigo-600 text-white rounded-lg text-sm font-medium hover:bg-indigo-700 flex items-center">
+                            <i class="fas fa-save mr-2"></i>
+                            Update Category
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+// Image preview functionality
+function previewImage(event) {
+    const input = event.target;
+    const preview = document.getElementById('preview-image');
+    const previewContainer = document.getElementById('image-preview');
+    
+    if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        
+        reader.onload = function(e) {
+            if (!preview) {
+                previewContainer.innerHTML = `<img src="${e.target.result}" alt="Preview" id="preview-image" class="w-full h-full object-cover">`;
+            } else {
+                preview.src = e.target.result;
+            }
+        }
+        
+        reader.readAsDataURL(input.files[0]);
+    }
+}
+
+// Remove image
+function removeImage() {
+    document.getElementById('remove-image').value = 'true';
+    document.getElementById('image').value = '';
+    document.getElementById('image-preview').innerHTML = `
+        <div class="text-center">
+            <i class="fas fa-cloud-upload-alt text-4xl text-gray-300 mb-2"></i>
+            <p class="text-sm text-gray-500">Image preview</p>
+        </div>
+    `;
+}
+
+// Icon picker functionality
+let selectedIcon = '{{ category.icon|default:"fas fa-boxes" }}';
+
+function showIconPicker() {
+    const picker = document.getElementById('icon-picker');
+    picker.classList.toggle('hidden');
+    
+    // Clear previous selection
+    document.querySelectorAll('.icon-option').forEach(icon => {
+        icon.classList.remove('selected');
+    });
+    
+    // Select current icon if exists in grid
+    const currentIconOption = Array.from(document.querySelectorAll('.icon-option')).find(icon => {
+        return icon.querySelector('i').className.includes(selectedIcon.replace('fas fa-', ''));
+    });
+    
+    if (currentIconOption) {
+        currentIconOption.classList.add('selected');
+    }
+}
+
+function selectIcon(iconClass, iconName) {
+    selectedIcon = iconClass;
+    document.getElementById('icon-input').value = iconClass;
+    document.getElementById('icon-preview').className = iconClass + ' text-gray-500';
+    
+    // Update selection
+    document.querySelectorAll('.icon-option').forEach(icon => {
+        icon.classList.remove('selected');
+    });
+    event.currentTarget.classList.add('selected');
+    
+    // Close picker after selection
+    setTimeout(() => {
+        document.getElementById('icon-picker').classList.add('hidden');
+    }, 300);
+}
+
+// Update slug based on name
+document.getElementById('name').addEventListener('input', function(e) {
+    const name = e.target.value;
+    const slug = name.toLowerCase()
+        .replace(/[^\w\s-]/g, '') // Remove special chars
+        .replace(/\s+/g, '-')     // Replace spaces with hyphens
+        .replace(/--+/g, '-')     // Replace multiple hyphens
+        .trim();
+    
+    document.getElementById('slug').value = slug;
+});
+
+// Initialize icon preview
+document.addEventListener('DOMContentLoaded', function() {
+    // Set initial icon preview
+    const iconInput = document.getElementById('icon-input');
+    if (iconInput) {
+        document.getElementById('icon-preview').className = iconInput.value + ' text-gray-500';
+    }
+    
+    // Auto-generate slug if empty
+    const nameField = document.getElementById('name');
+    const slugField = document.getElementById('slug');
+    if (nameField.value && (!slugField.value || slugField.value === 'auto-generated')) {
+        const slug = nameField.value.toLowerCase()
+            .replace(/[^\w\s-]/g, '')
+            .replace(/\s+/g, '-')
+            .replace(/--+/g, '-')
+            .trim();
+        slugField.value = slug;
+    }
+});
+</script>
+{% endblock %}

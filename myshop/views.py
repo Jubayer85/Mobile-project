@@ -482,6 +482,115 @@ def toggle_category_status(request, pk):
     messages.success(request, f'Category "{category.name}" {status} successfully!')
     return redirect('manage_categories')
 
+@login_required
+@user_passes_test(is_admin)
+def toggle_category_status(request, pk):
+    category = get_object_or_404(Category, pk=pk)
+    
+    if request.method == 'POST':
+        category.is_active = not category.is_active
+        category.save()
+        
+        status = "activated" if category.is_active else "deactivated"
+        message = f'Category "{category.name}" {status} successfully!'
+        
+        # If it's an AJAX request
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest' or request.headers.get('HX-Request'):
+            return JsonResponse({
+                'success': True,
+                'message': message,
+                'is_active': category.is_active
+            })
+        
+        messages.success(request, message)
+    
+    return redirect('manage_categories')
+
+# Alternative: Create a combined view that handles all category operations
+@login_required
+@user_passes_test(is_admin)
+def category_actions(request, pk=None):
+    """
+    Combined view for category CRUD operations using HTMX
+    """
+    if request.method == 'GET' and not pk:
+        # Get category list for HTMX requests
+        categories = Category.objects.all()
+        return render(request, 'admin/partials/category_list.html', {
+            'categories': categories
+        })
+    
+    if pk:
+        category = get_object_or_404(Category, pk=pk)
+        
+        if request.method == 'GET':
+            # Return category data for editing
+            return JsonResponse({
+                'id': category.id,
+                'name': category.name,
+                'description': category.description or '',
+                'is_active': category.is_active,
+                'icon': category.icon,
+                'image_url': category.image.url if category.image else ''
+            })
+        
+        elif request.method == 'POST':
+            # Update category
+            name = request.POST.get('name')
+            description = request.POST.get('description')
+            is_active = request.POST.get('is_active') == 'true'
+            icon = request.POST.get('icon', 'fas fa-boxes')
+            
+            category.name = name
+            category.description = description
+            category.is_active = is_active
+            category.icon = icon
+            
+            if 'image' in request.FILES:
+                category.image = request.FILES['image']
+            
+            category.save()
+            
+            return JsonResponse({
+                'success': True,
+                'message': 'Category updated successfully'
+            })
+        
+        elif request.method == 'DELETE':
+            # Delete category
+            category.delete()
+            return JsonResponse({
+                'success': True,
+                'message': 'Category deleted successfully'
+            })
+    
+    else:
+        # Create new category
+        if request.method == 'POST':
+            name = request.POST.get('name')
+            description = request.POST.get('description')
+            is_active = request.POST.get('is_active') == 'true'
+            icon = request.POST.get('icon', 'fas fa-boxes')
+            
+            category = Category.objects.create(
+                name=name,
+                description=description,
+                is_active=is_active,
+                icon=icon
+            )
+            
+            if 'image' in request.FILES:
+                category.image = request.FILES['image']
+                category.save()
+            
+            return JsonResponse({
+                'success': True,
+                'message': 'Category created successfully',
+                'category_id': category.id
+            })
+    
+    return JsonResponse({'success': False, 'message': 'Invalid request'}, status=400)
+
 # Subcategory CRUD Views
 @login_required
 @user_passes_test(is_admin)
