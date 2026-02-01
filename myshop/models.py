@@ -88,12 +88,52 @@ class SubCategory(models.Model):
         return self.products.filter(is_active=True).count()
 
 class Brand(models.Model):
+    TIER_CHOICES = [
+        ('premium', 'Premium'),
+        ('standard', 'Standard'),
+        ('budget', 'Budget'),
+    ]
+    
     name = models.CharField(max_length=100)
-    slug = models.SlugField(unique=True)
+    slug = models.SlugField(max_length=100, unique=True, blank=True)
+    description = models.TextField(blank=True, null=True)
+    logo = models.ImageField(upload_to='brands/logos/', blank=True, null=True)
+    tier = models.CharField(max_length=20, choices=TIER_CHOICES, default='standard')
+    website = models.URLField(blank=True, null=True)
+    country = models.CharField(max_length=100, blank=True, null=True)
+    meta_title = models.CharField(max_length=200, blank=True, null=True)
+    meta_description = models.TextField(blank=True, null=True)
     is_active = models.BooleanField(default=True)
-
+    is_featured = models.BooleanField(default=False)
+    show_in_brands = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    # Remove logo_initials if you don't have it in your model
+    # logo_initials = models.CharField(max_length=10, blank=True, null=True)
+    
+    class Meta:
+        ordering = ['name']
+        verbose_name = 'Brand'
+        verbose_name_plural = 'Brands'
+    
     def __str__(self):
         return self.name
+    
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = slugify(self.name)
+            counter = 1
+            original_slug = self.slug
+            
+            while Brand.objects.filter(slug=self.slug).exists():
+                self.slug = f'{original_slug}-{counter}'
+                counter += 1
+        
+        super().save(*args, **kwargs)
+    
+    def get_tier_display(self):
+        return dict(self.TIER_CHOICES).get(self.tier, self.tier)
 
 
 class Product(models.Model):

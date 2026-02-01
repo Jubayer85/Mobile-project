@@ -684,36 +684,58 @@ def toggle_subcategory_status(request, pk):
 @login_required
 @user_passes_test(is_admin)
 def add_brand(request):
-    categories = Category.objects.filter(is_active=True)
-    
     if request.method == 'POST':
         name = request.POST.get('name')
         description = request.POST.get('description')
-        logo_initials = request.POST.get('logo_initials', name[:2].upper())
         tier = request.POST.get('tier', 'standard')
+        website = request.POST.get('website')
+        country = request.POST.get('country')
+        meta_title = request.POST.get('meta_title')
+        meta_description = request.POST.get('meta_description')
         is_active = request.POST.get('is_active') == 'true'
-        category_ids = request.POST.getlist('categories')
+        is_featured = request.POST.get('is_featured') == 'true'
+        show_in_brands = request.POST.get('show_in_brands') == 'true'
+        logo = request.FILES.get('logo')
         
         if not name:
             messages.error(request, 'Brand name is required.')
             return redirect('manage_categories')
         
-        brand = Brand.objects.create(
-            name=name,
-            description=description,
-            logo_initials=logo_initials,
-            tier=tier,
-            is_active=is_active
-        )
-        
-        if category_ids:
-            categories = Category.objects.filter(id__in=category_ids)
-            brand.categories.set(categories)
-        
-        messages.success(request, f'Brand "{name}" added successfully!')
-        return redirect('manage_categories')
+        try:
+            # Create brand with only the fields that exist in your model
+            brand_data = {
+                'name': name,
+                'description': description,
+                'tier': tier,
+                'website': website or None,
+                'country': country or None,
+                'meta_title': meta_title or None,
+                'meta_description': meta_description or None,
+                'is_active': is_active,
+                'is_featured': is_featured,
+                'show_in_brands': show_in_brands,
+            }
+            
+            # Create brand instance
+            brand = Brand(**brand_data)
+            
+            # Save to generate slug
+            brand.save()
+            
+            # Add logo after saving (to handle image upload)
+            if logo:
+                brand.logo = logo
+                brand.save()
+            
+            messages.success(request, f'Brand "{name}" added successfully!')
+            return redirect('manage_categories')
+            
+        except Exception as e:
+            messages.error(request, f'Error adding brand: {str(e)}')
+            return redirect('manage_categories')
     
-    return render(request, 'admin/add_brand.html', {'categories': categories})
+    # GET request - show form
+    return render(request, 'admin/add_brand.html')
 
 @login_required
 @user_passes_test(is_admin)

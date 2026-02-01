@@ -1,0 +1,469 @@
+<!-- templates/admin/edit_brand.html -->
+{% extends 'admin/base_admin.html' %}
+{% load static %}
+
+{% block title %}Edit Brand - Admin Dashboard{% endblock %}
+
+{% block extra_css %}
+<style>
+    .image-preview-container {
+        width: 200px;
+        height: 200px;
+        border: 2px dashed #d1d5db;
+        border-radius: 0.75rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+        margin-bottom: 1rem;
+        background: #f9fafb;
+    }
+    
+    .image-preview-container img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        padding: 1rem;
+    }
+    
+    .tier-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 0.5rem 1rem;
+        border-radius: 0.5rem;
+        font-size: 0.875rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+    
+    .tier-badge:hover {
+        transform: translateY(-1px);
+    }
+    
+    .tier-badge.selected {
+        transform: scale(1.05);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+    <!-- Breadcrumb -->
+    <nav class="flex mb-6" aria-label="Breadcrumb">
+        <ol class="inline-flex items-center space-x-1 md:space-x-3">
+            <li class="inline-flex items-center">
+                <a href="{% url 'admin_dashboard' %}" class="inline-flex items-center text-sm font-medium text-gray-700 hover:text-amber-600">
+                    <i class="fas fa-home mr-2"></i>
+                    Dashboard
+                </a>
+            </li>
+            <li>
+                <div class="flex items-center">
+                    <i class="fas fa-chevron-right text-gray-400"></i>
+                    <a href="{% url 'manage_categories' %}" class="ml-1 text-sm font-medium text-gray-700 hover:text-amber-600 md:ml-2">
+                        Categories
+                    </a>
+                </div>
+            </li>
+            <li aria-current="page">
+                <div class="flex items-center">
+                    <i class="fas fa-chevron-right text-gray-400"></i>
+                    <span class="ml-1 text-sm font-medium text-amber-600 md:ml-2">
+                        Edit Brand
+                    </span>
+                </div>
+            </li>
+        </ol>
+    </nav>
+
+    <!-- Header -->
+    <div class="mb-8">
+        <div class="flex items-center justify-between">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-900">Edit Brand</h1>
+                <p class="text-gray-600 mt-2">Update brand details and settings</p>
+            </div>
+            <a href="{% url 'manage_categories' %}" 
+               class="inline-flex items-center px-4 py-2.5 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50">
+                <i class="fas fa-arrow-left mr-2"></i>
+                Back to Categories
+            </a>
+        </div>
+    </div>
+
+    <!-- Form Card -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+        <div class="p-6">
+            <form method="POST" enctype="multipart/form-data" class="space-y-8">
+                {% csrf_token %}
+                
+                <!-- Brand Information -->
+                <div>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Brand Information</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label for="name" class="block text-sm font-medium text-gray-700 mb-2">
+                                Brand Name *
+                            </label>
+                            <input type="text" id="name" name="name" 
+                                   value="{{ brand.name }}" required
+                                   class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-200 focus:border-amber-500 transition-colors">
+                        </div>
+                        
+                        <div>
+                            <label for="slug" class="block text-sm font-medium text-gray-700 mb-2">
+                                URL Slug
+                            </label>
+                            <input type="text" id="slug" name="slug" 
+                                   value="{{ brand.slug }}"
+                                   class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-200 focus:border-amber-500 transition-colors bg-gray-50"
+                                   readonly>
+                            <p class="text-xs text-gray-500 mt-1">Automatically generated from name</p>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-6">
+                        <label for="description" class="block text-sm font-medium text-gray-700 mb-2">
+                            Brand Description
+                        </label>
+                        <textarea id="description" name="description" rows="4"
+                                  class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-200 focus:border-amber-500 transition-colors"
+                                  placeholder="Describe the brand, its history, reputation, etc.">{{ brand.description }}</textarea>
+                    </div>
+                </div>
+                
+                <!-- Brand Tier Selection -->
+                <div>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Brand Tier</h3>
+                    <p class="text-sm text-gray-600 mb-4">Select the brand positioning in the market</p>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <input type="hidden" id="tier" name="tier" value="{{ brand.tier|default:'standard' }}">
+                        
+                        <div class="tier-badge bg-purple-50 text-purple-700 border-2 border-purple-200 {% if brand.tier == 'premium' %}selected border-purple-400 bg-purple-100{% endif %}"
+                             onclick="selectTier('premium')">
+                            <div class="flex items-center">
+                                <i class="fas fa-crown mr-3"></i>
+                                <div>
+                                    <div class="font-semibold">Premium</div>
+                                    <div class="text-xs opacity-75">High-end, luxury brands</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="tier-badge bg-blue-50 text-blue-700 border-2 border-blue-200 {% if brand.tier == 'standard' or not brand.tier %}selected border-blue-400 bg-blue-100{% endif %}"
+                             onclick="selectTier('standard')">
+                            <div class="flex items-center">
+                                <i class="fas fa-star mr-3"></i>
+                                <div>
+                                    <div class="font-semibold">Standard</div>
+                                    <div class="text-xs opacity-75">Mainstream, popular brands</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="tier-badge bg-green-50 text-green-700 border-2 border-green-200 {% if brand.tier == 'budget' %}selected border-green-400 bg-green-100{% endif %}"
+                             onclick="selectTier('budget')">
+                            <div class="flex items-center">
+                                <i class="fas fa-wallet mr-3"></i>
+                                <div>
+                                    <div class="font-semibold">Budget</div>
+                                    <div class="text-xs opacity-75">Affordable, value brands</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Logo Upload -->
+                <div>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Brand Logo</h3>
+                    <div class="flex flex-col md:flex-row gap-6">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">
+                                Current Logo
+                            </label>
+                            <div class="image-preview-container">
+                                {% if brand.logo %}
+                                    <img src="{{ brand.logo.url }}" 
+                                         alt="{{ brand.name }}" 
+                                         id="current-logo"
+                                         onerror="this.src='{% static 'img/default-brand.png' %}'">
+                                {% else %}
+                                    <div class="text-center">
+                                        <i class="fas fa-copyright text-4xl text-gray-300 mb-2"></i>
+                                        <p class="text-sm text-gray-500">No logo</p>
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="flex-1">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">
+                                Upload New Logo
+                            </label>
+                            <div class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
+                                <div class="image-preview-container mx-auto mb-4" id="logo-preview">
+                                    {% if brand.logo %}
+                                        <img src="{{ brand.logo.url }}" 
+                                             alt="Preview" 
+                                             id="preview-logo"
+                                             onerror="this.src='{% static 'img/default-brand.png' %}'">
+                                    {% else %}
+                                        <div class="text-center">
+                                            <i class="fas fa-image text-4xl text-gray-300 mb-2"></i>
+                                            <p class="text-sm text-gray-500">Logo preview</p>
+                                            <p class="text-xs text-gray-400 mt-1">Transparent background preferred</p>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                
+                                <input type="file" id="logo" name="logo" accept="image/*" 
+                                       class="hidden" onchange="previewLogo(event)">
+                                
+                                <div class="space-y-3">
+                                    <button type="button" onclick="document.getElementById('logo').click()" 
+                                            class="inline-flex items-center px-4 py-2.5 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50">
+                                        <i class="fas fa-upload mr-2"></i>
+                                        Upload Logo
+                                    </button>
+                                    
+                                    {% if brand.logo %}
+                                    <button type="button" onclick="removeLogo()" 
+                                            class="inline-flex items-center px-4 py-2.5 border border-red-300 rounded-lg text-sm font-medium text-red-700 hover:bg-red-50 ml-3">
+                                        <i class="fas fa-trash mr-2"></i>
+                                        Remove Logo
+                                    </button>
+                                    {% endif %}
+                                    
+                                    <input type="hidden" name="remove_logo" id="remove-logo" value="false">
+                                </div>
+                                
+                                <p class="text-xs text-gray-500 mt-3">
+                                    Recommended: 400x400px, PNG with transparent background
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Website & Contact -->
+                <div>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Additional Information</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label for="website" class="block text-sm font-medium text-gray-700 mb-2">
+                                Website URL
+                            </label>
+                            <input type="url" id="website" name="website"
+                                   value="{{ brand.website|default:'' }}"
+                                   class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-200 focus:border-amber-500 transition-colors"
+                                   placeholder="https://example.com">
+                        </div>
+                        
+                        <div>
+                            <label for="country" class="block text-sm font-medium text-gray-700 mb-2">
+                                Country of Origin
+                            </label>
+                            <input type="text" id="country" name="country"
+                                   value="{{ brand.country|default:'' }}"
+                                   class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-200 focus:border-amber-500 transition-colors"
+                                   placeholder="e.g., South Korea, USA">
+                        </div>
+                    </div>
+                    
+                    <div class="mt-6">
+                        <label for="meta_title" class="block text-sm font-medium text-gray-700 mb-2">
+                            Meta Title (for SEO)
+                        </label>
+                        <input type="text" id="meta_title" name="meta_title"
+                               value="{{ brand.meta_title|default:'' }}"
+                               class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-200 focus:border-amber-500 transition-colors"
+                               placeholder="e.g., Samsung Electronics - Official Brand">
+                    </div>
+                    
+                    <div class="mt-6">
+                        <label for="meta_description" class="block text-sm font-medium text-gray-700 mb-2">
+                            Meta Description (for SEO)
+                        </label>
+                        <textarea id="meta_description" name="meta_description" rows="2"
+                                  class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-200 focus:border-amber-500 transition-colors"
+                                  placeholder="Brief description for search engines">{{ brand.meta_description|default:'' }}</textarea>
+                    </div>
+                </div>
+                
+                <!-- Settings -->
+                <div>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Settings</h3>
+                    <div class="space-y-4">
+                        <div class="flex items-center">
+                            <input type="checkbox" id="is_active" name="is_active" 
+                                   {% if brand.is_active %}checked{% endif %}
+                                   class="w-4 h-4 text-amber-600 border-gray-300 rounded focus:ring-amber-500">
+                            <label for="is_active" class="ml-3 text-sm text-gray-700">
+                                Active (Visible to customers)
+                            </label>
+                        </div>
+                        
+                        <div class="flex items-center">
+                            <input type="checkbox" id="is_featured" name="is_featured" 
+                                   {% if brand.is_featured %}checked{% endif %}
+                                   class="w-4 h-4 text-amber-600 border-gray-300 rounded focus:ring-amber-500">
+                            <label for="is_featured" class="ml-3 text-sm text-gray-700">
+                                Featured Brand (Show on homepage)
+                            </label>
+                        </div>
+                        
+                        <div class="flex items-center">
+                            <input type="checkbox" id="show_in_brands" name="show_in_brands" 
+                                   {% if brand.show_in_brands %}checked{% endif %}
+                                   class="w-4 h-4 text-amber-600 border-gray-300 rounded focus:ring-amber-500">
+                            <label for="show_in_brands" class="ml-3 text-sm text-gray-700">
+                                Show in Brands Page
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Meta Information -->
+                <div class="bg-gray-50 rounded-lg p-4">
+                    <h3 class="text-sm font-medium text-gray-900 mb-3">Meta Information</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div>
+                            <p class="text-xs text-gray-500">Created</p>
+                            <p class="text-sm font-medium text-gray-900">
+                                {{ brand.created_at|date:"F j, Y, g:i a" }}
+                            </p>
+                        </div>
+                        <div>
+                            <p class="text-xs text-gray-500">Last Updated</p>
+                            <p class="text-sm font-medium text-gray-900">
+                                {{ brand.updated_at|date:"F j, Y, g:i a" }}
+                            </p>
+                        </div>
+                        <div>
+                            <p class="text-xs text-gray-500">Products Count</p>
+                            <p class="text-sm font-medium text-gray-900">
+                                {{ brand.products.count|default:"0" }} products
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Form Actions -->
+                <div class="flex items-center justify-between pt-6 border-t border-gray-200">
+                    <div>
+                        <a href="{% url 'delete_brand' brand.id %}" 
+                           class="inline-flex items-center px-4 py-2.5 border border-red-300 rounded-lg text-sm font-medium text-red-700 hover:bg-red-50">
+                            <i class="fas fa-trash mr-2"></i>
+                            Delete Brand
+                        </a>
+                    </div>
+                    
+                    <div class="flex space-x-3">
+                        <a href="{% url 'manage_categories' %}" 
+                           class="px-5 py-2.5 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50">
+                            Cancel
+                        </a>
+                        <button type="submit" 
+                                class="px-5 py-2.5 bg-amber-600 text-white rounded-lg text-sm font-medium hover:bg-amber-700 flex items-center">
+                            <i class="fas fa-save mr-2"></i>
+                            Update Brand
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+// Logo preview functionality
+function previewLogo(event) {
+    const input = event.target;
+    const preview = document.getElementById('preview-logo');
+    const previewContainer = document.getElementById('logo-preview');
+    
+    if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        
+        reader.onload = function(e) {
+            if (!preview) {
+                previewContainer.innerHTML = `<img src="${e.target.result}" alt="Preview" id="preview-logo" class="w-full h-full object-contain p-4">`;
+            } else {
+                preview.src = e.target.result;
+            }
+        }
+        
+        reader.readAsDataURL(input.files[0]);
+    }
+}
+
+// Remove logo
+function removeLogo() {
+    document.getElementById('remove-logo').value = 'true';
+    document.getElementById('logo').value = '';
+    document.getElementById('logo-preview').innerHTML = `
+        <div class="text-center">
+            <i class="fas fa-image text-4xl text-gray-300 mb-2"></i>
+            <p class="text-sm text-gray-500">Logo preview</p>
+            <p class="text-xs text-gray-400 mt-1">Transparent background preferred</p>
+        </div>
+    `;
+}
+
+// Tier selection
+function selectTier(tier) {
+    document.getElementById('tier').value = tier;
+    
+    // Update UI
+    document.querySelectorAll('.tier-badge').forEach(badge => {
+        badge.classList.remove('selected', 'border-purple-400', 'bg-purple-100', 'border-blue-400', 'bg-blue-100', 'border-green-400', 'bg-green-100');
+    });
+    
+    const selectedBadge = event.currentTarget;
+    selectedBadge.classList.add('selected');
+    
+    // Add specific border color based on tier
+    if (tier === 'premium') {
+        selectedBadge.classList.add('border-purple-400', 'bg-purple-100');
+    } else if (tier === 'standard') {
+        selectedBadge.classList.add('border-blue-400', 'bg-blue-100');
+    } else if (tier === 'budget') {
+        selectedBadge.classList.add('border-green-400', 'bg-green-100');
+    }
+}
+
+// Update slug based on name
+document.getElementById('name').addEventListener('input', function(e) {
+    const name = e.target.value;
+    const slug = name.toLowerCase()
+        .replace(/[^\w\s-]/g, '')
+        .replace(/\s+/g, '-')
+        .replace(/--+/g, '-')
+        .trim();
+    
+    document.getElementById('slug').value = slug;
+});
+
+// Auto-generate slug if empty
+document.addEventListener('DOMContentLoaded', function() {
+    const nameField = document.getElementById('name');
+    const slugField = document.getElementById('slug');
+    
+    if (nameField.value && (!slugField.value || slugField.value === 'auto-generated')) {
+        const slug = nameField.value.toLowerCase()
+            .replace(/[^\w\s-]/g, '')
+            .replace(/\s+/g, '-')
+            .replace(/--+/g, '-')
+            .trim();
+        slugField.value = slug;
+    }
+    
+    // Initialize tier selection
+    const tier = document.getElementById('tier').value;
+    selectTier(tier);
+});
+</script>
+{% endblock %}
