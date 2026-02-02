@@ -26,26 +26,27 @@ from .forms import ProductForm, ProductImageFormSet
 
 # ====================== HOME ======================
 def home(request):
-    thirty_days_ago = timezone.now() - timezone.timedelta(days=30)
+    """
+    Home page view
+    Works perfectly with partials
+    """
 
-    new_arrivals = Product.objects.filter(
-        is_active=True,
-        created_at__gte=thirty_days_ago
-    ).order_by('-created_at')[:8]
+    categories = Category.objects.filter(is_active=True)[:6]
 
-    featured_products = Product.objects.filter(
-        is_featured=True,
-        is_active=True
-    )[:8]
+    # New arrivals / latest products
+    new_arrivals = (
+        Product.objects
+        .filter(is_active=True)
+        .select_related('brand', 'category')  # important for partials
+        .order_by('-created_at')[:8]
+    )
 
-    brands = Brand.objects.all()   # ✅ safe
-
-    return render(request, 'home.html', {
+    context = {
+        'categories': categories,
         'new_arrivals': new_arrivals,
-        'featured_products': featured_products,
-        'brands': brands,
-    })
+    }
 
+    return render(request, 'home.html', context)
 
 
 # ====================== AUTH ======================

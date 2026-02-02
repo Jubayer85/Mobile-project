@@ -96,7 +96,7 @@ class Brand(models.Model):
     
     name = models.CharField(max_length=100)
     slug = models.SlugField(max_length=100, unique=True, blank=True)
-    description = models.TextField(blank=True, null=True)
+    #description = models.TextField(blank=True, null=True)
     logo = models.ImageField(upload_to='brands/logos/', blank=True, null=True)
     tier = models.CharField(max_length=20, choices=TIER_CHOICES, default='standard')
     website = models.URLField(blank=True, null=True)
