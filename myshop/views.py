@@ -146,15 +146,123 @@ def delete_product(request, pk):
 def product_detail(request, slug):
     product = get_object_or_404(Product, slug=slug, is_active=True)
     
+    # Get related products from same brand
     related_products = Product.objects.filter(
         brand=product.brand,
         is_active=True
     ).exclude(id=product.id)[:4]
     
-    return render(request, 'product_detail.html', {
+    # Split colors into list if they exist
+    colors_list = []
+    if product.colors:
+        colors_list = [color.strip() for color in product.colors.split(',')]
+    
+    # Split features into list if they exist
+    features_list = []
+    if product.features:
+        features_list = [feature.strip() for feature in product.features.split('\n') if feature.strip()]
+    
+    # Calculate discount percentage if compare_price exists
+    discount_percent = 0
+    discount_amount = 0
+    if product.compare_price and product.compare_price > product.price:
+        discount_amount = product.compare_price - product.price
+        discount_percent = int((discount_amount / product.compare_price) * 100)
+    
+    # Get recently viewed products (simplified version)
+    recently_viewed = Product.objects.filter(
+        is_active=True
+    ).exclude(id=product.id).order_by('-created_at')[:6]
+    
+    # Get popular products (featured)
+    popular_products = Product.objects.filter(
+        is_active=True,
+        is_featured=True
+    ).exclude(id=product.id)[:6]
+    
+    # Performance metrics (you can customize this)
+    performance_metrics = [
+        {'name': 'Performance', 'score': 9.2},
+        {'name': 'Camera', 'score': 9.5},
+        {'name': 'Battery Life', 'score': 8.8},
+        {'name': 'Display Quality', 'score': 9.3},
+        {'name': 'Build Quality', 'score': 9.0},
+        {'name': 'Software', 'score': 8.7},
+    ]
+    
+    # Get category and subcategory for breadcrumb
+    category = product.category
+    subcategory = product.subcategory
+    
+    # Prepare specifications dictionary
+    specifications = {
+        'display': product.display_size or '6.7" AMOLED',
+        'ram': product.ram or '8GB',
+        'storage': product.storage or '256GB',
+        'processor': product.processor or 'Snapdragon 8 Gen 3',
+        'camera': product.camera or '50MP + 12MP + 12MP',
+        'battery': product.battery_capacity or '5000 mAh',
+        'os': 'Android 14 / iOS 17',
+        'connectivity': '5G, Wi-Fi 6, Bluetooth 5.3',
+    }
+    
+    # Get warranty info
+    warranty = product.warranty or '1 Year'
+    
+    # Prepare context
+    context = {
         'product': product,
-        'related_products': related_products
-    })
+        'related_products': related_products,
+        'recently_viewed': recently_viewed,
+        'popular_products': popular_products,
+        'performance_metrics': performance_metrics,
+        'colors_list': colors_list,
+        'features_list': features_list,
+        'discount_percent': discount_percent,
+        'discount_amount': discount_amount,
+        'category': category,
+        'subcategory': subcategory,
+        'specifications': specifications,
+        'warranty': warranty,
+        'stock_status': 'In Stock' if product.stock_quantity > 10 else 
+                       'Low Stock' if product.stock_quantity > 0 else 
+                       'Out of Stock',
+    }
+    
+    return render(request, 'product_detail.html', context)
+
+def add_to_wishlist(request, product_id):
+    if request.method == 'POST':
+        try:
+            product = Product.objects.get(id=product_id, is_active=True)
+            # Here you would add wishlist logic
+            return JsonResponse({
+                'success': True,
+                'message': f'{product.name} added to wishlist'
+            })
+        except Product.DoesNotExist:
+            return JsonResponse({
+                'success': False,
+                'message': 'Product not found'
+            }, status=404)
+    return JsonResponse({'success': False, 'message': 'Invalid request'}, status=400)
+
+def compare_product(request, product_id):
+    if request.method == 'POST':
+        try:
+            product = Product.objects.get(id=product_id, is_active=True)
+            # Here you would add comparison logic
+            return JsonResponse({
+                'success': True,
+                'message': f'{product.name} added to comparison'
+            })
+        except Product.DoesNotExist:
+            return JsonResponse({
+                'success': False,
+                'message': 'Product not found'
+            }, status=404)
+    return JsonResponse({'success': False, 'message': 'Invalid request'}, status=400)
+
 
 # ====================== CART ======================
 @login_required
