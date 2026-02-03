@@ -104,8 +104,13 @@ def admin_product_list(request):
     products = Product.objects.select_related('brand', 'category').order_by('-created_at')
     return render(request, 'admin_product_list.html', {'products': products})
 
+
 @staff_member_required
 def add_product(request):
+    categories = Category.objects.filter(is_active=True)
+    subcategories = SubCategory.objects.filter(is_active=True)
+    brands = Brand.objects.filter(is_active=True)
+
     if request.method == 'POST':
         form = ProductForm(request.POST, request.FILES)
         if form.is_valid():
@@ -114,9 +119,15 @@ def add_product(request):
             return redirect('admin_product_list')
     else:
         form = ProductForm()
-    
-    return render(request, 'add_product.html', {'form': form})
 
+    context = {
+        'form': form,
+        'categories': categories,
+        'subcategories': subcategories,
+        'brands': brands,
+    }
+
+    return render(request, 'admin/add_product.html', context)
 @staff_member_required
 def edit_product(request, pk):
     product = get_object_or_404(Product, pk=pk)
