@@ -21,29 +21,26 @@ from django.db.models import Q
 from django.contrib.auth.models import User
 from .forms import CategoryForm, SubCategoryForm, BrandForm
 from django.contrib.auth.decorators import login_required, user_passes_test
-from .models import ( Product, Brand, Category,SubCategory,ProductImage,Cart, CartItem,Order, OrderItem, Customer)
+from .models import ( Product, Brand, Category,SubCategory,ProductImage,Cart, CartItem,Order, OrderItem, Customer, Wishlist)
 from .forms import ProductForm, ProductImageFormSet
 
 # ====================== HOME ======================
 def home(request):
-    """
-    Home page view
-    Works perfectly with partials
-    """
-
     categories = Category.objects.filter(is_active=True)[:6]
 
-    # New arrivals / latest products
-    new_arrivals = (
-        Product.objects
-        .filter(is_active=True)
-        .select_related('brand', 'category')  # important for partials
-        .order_by('-created_at')[:8]
-    )
+    new_arrivals = Product.objects.filter(
+        is_active=True
+    ).order_by('-created_at')[:8]
+
+    featured_products = Product.objects.filter(
+        is_active=True,
+        is_featured=True
+    )[:8]
 
     context = {
         'categories': categories,
         'new_arrivals': new_arrivals,
+        'featured_products': featured_products,
     }
 
     return render(request, 'home.html', context)
@@ -1415,3 +1412,54 @@ def newsletter_subscribe(request):
         return HttpResponse('Subscribed successfully!', status=200)
     return HttpResponse('Method not allowed', status=405)
 
+
+@login_required
+def wishlist_view(request):
+    wishlist_items = Wishlist.objects.filter(user=request.user)
+    context = {
+        'wishlist_items': wishlist_items,
+    }
+    return render(request, 'wishlist.html', context)
+
+@login_required
+def add_to_wishlist(request, product_id):
+    if request.method == 'POST':
+        product = get_object_or_404(Product, id=product_id)
+        
+        # Check if already in wishlist
+        wishlist_item, created = Wishlist.objects.get_or_create(
+            user=request.user,
+            product=product
+        )
+        
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return JsonResponse({
+                'success': True,
+                'message': f'{product.name} added to wishlist',
+                'wishlist_count': Wishlist.objects.filter(user=request.user).count()
+            })
+        
+        return redirect('wishlist')
+    return redirect('product_detail', slug=product.slug)
+
+@login_required
+def remove_from_wishlist(request, item_id):
+    if request.method == 'POST':
+        wishlist_item = get_object_or_404(Wishlist, id=item_id, user=request.user)
+        wishlist_item.delete()
+        
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return JsonResponse({
+                'success': True,
+                'message': 'Item removed from wishlist',
+                'wishlist_count': Wishlist.objects.filter(user=request.user).count()
+            })
+        
+        return redirect('wishlist')
+    return redirect('wishlist')
+
+# Context processor to get wishlist count
+def wishlist_count(request):
+    if request.user.is_authenticated:
+        return {'wishlist_count': Wishlist.objects.filter(user=request.user).count()}
+    return {'wishlist_count': 0}
