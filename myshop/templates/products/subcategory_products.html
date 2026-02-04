@@ -290,11 +290,13 @@
                       </span>
                     {% endif %}
                   </div>
-                  {% if product.emi_available %}
-                    <p class="text-xs text-green-600 mt-1">
-                      EMI from ৳{{ product.emi_price|default:product.selling_price|divide:12|floatformat:0 }}/month
-                    </p>
-                  {% endif %}
+                 {% if product.emi_available %}
+  {% with emi=product.selling_price %}
+    <p class="text-xs text-green-600 mt-1">
+      EMI from ৳{{ emi|floatformat:0 }}/month
+    </p>
+  {% endwith %}
+{% endif %}
                 </div>
                 
                 <!-- Actions -->
