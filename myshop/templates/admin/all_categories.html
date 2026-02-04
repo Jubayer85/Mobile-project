@@ -1,0 +1,186 @@
+<!-- templates/categories/all_categories.html -->
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}All Categories - MobileShop{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 py-8">
+  
+  <!-- Breadcrumb -->
+  <nav class="flex mb-6" aria-label="Breadcrumb">
+    <ol class="inline-flex items-center space-x-1 md:space-x-3">
+      <li class="inline-flex items-center">
+        <a href="{% url 'home' %}" class="inline-flex items-center text-sm font-medium text-gray-700 hover:text-indigo-600">
+          <i class="fas fa-home mr-2"></i>
+          Home
+        </a>
+      </li>
+      <li aria-current="page">
+        <div class="flex items-center">
+          <i class="fas fa-chevron-right text-gray-400"></i>
+          <span class="ml-1 text-sm font-medium text-indigo-600 md:ml-2">
+            All Categories
+          </span>
+        </div>
+      </li>
+    </ol>
+  </nav>
+
+  <!-- Header -->
+  <div class="text-center mb-12">
+    <h1 class="text-4xl font-bold text-gray-900 mb-4">Shop by Category</h1>
+    <p class="text-lg text-gray-600 max-w-2xl mx-auto">
+      Browse our wide range of mobile phones and accessories by category
+    </p>
+  </div>
+
+  <!-- Categories Grid -->
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-12">
+    {% for category in categories %}
+      <a href="{% url 'category_products' category.slug %}" 
+         class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-shadow duration-300 group">
+        
+        <!-- Category Image -->
+        <div class="relative h-48 overflow-hidden">
+          {% if category.image %}
+            <img src="{{ category.image.url }}" 
+                 alt="{{ category.name }}"
+                 class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
+          {% else %}
+            <div class="w-full h-full bg-gradient-to-br from-indigo-50 to-purple-50 flex items-center justify-center">
+              <i class="fas fa-mobile-alt text-5xl text-indigo-400"></i>
+            </div>
+          {% endif %}
+          
+          <!-- Overlay -->
+          <div class="absolute inset-0 bg-black bg-opacity-20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+        </div>
+
+        <!-- Category Info -->
+        <div class="p-6">
+          <div class="flex items-center justify-between mb-2">
+            <h3 class="text-xl font-semibold text-gray-900 group-hover:text-indigo-600">
+              {{ category.name }}
+            </h3>
+            {% if category.product_count %}
+              <span class="text-sm bg-indigo-100 text-indigo-600 px-3 py-1 rounded-full">
+                {{ category.product_count }}
+              </span>
+            {% endif %}
+          </div>
+          
+          {% if category.description %}
+            <p class="text-gray-600 text-sm mb-4 line-clamp-2">
+              {{ category.description|truncatewords:15 }}
+            </p>
+          {% endif %}
+          
+          <!-- Subcategories -->
+          {% if category.subcategories.all %}
+            <div class="mt-4 pt-4 border-t border-gray-100">
+              <h4 class="text-sm font-medium text-gray-700 mb-2">Popular in {{ category.name }}</h4>
+              <div class="flex flex-wrap gap-2">
+                {% for sub in category.subcategories.all|slice:":3" %}
+                  <span class="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded">
+                    {{ sub.name }}
+                  </span>
+                {% endfor %}
+                {% if category.subcategories.count > 3 %}
+                  <span class="text-xs text-gray-500">+{{ category.subcategories.count|add:"-3" }} more</span>
+                {% endif %}
+              </div>
+            </div>
+          {% endif %}
+        </div>
+      </a>
+    {% empty %}
+      <div class="col-span-full text-center py-12">
+        <div class="mx-auto w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mb-4">
+          <i class="fas fa-folder-open text-3xl text-gray-400"></i>
+        </div>
+        <h3 class="text-xl font-semibold text-gray-900 mb-2">No Categories Found</h3>
+        <p class="text-gray-600">Categories will be added soon.</p>
+      </div>
+    {% endfor %}
+  </div>
+
+  <!-- Featured Brands Section -->
+  {% if featured_brands %}
+    <div class="mb-12">
+      <div class="flex items-center justify-between mb-8">
+        <div>
+          <h2 class="text-2xl font-bold text-gray-900">Popular Brands</h2>
+          <p class="text-gray-600 mt-1">Shop by your favorite brands</p>
+        </div>
+        <a href="{% url 'brand_list' %}" class="text-indigo-600 hover:text-indigo-800 font-medium">
+          View All Brands →
+        </a>
+      </div>
+      
+      <div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-4">
+        {% for brand in featured_brands %}
+          <a href="{% url 'brand_products' brand.slug %}" 
+             class="bg-white border border-gray-200 rounded-lg p-4 hover:border-indigo-300 hover:shadow-sm transition-all duration-200 group">
+            <div class="aspect-square flex items-center justify-center p-2">
+              {% if brand.logo %}
+                <img src="{{ brand.logo.url }}" 
+                     alt="{{ brand.name }}"
+                     class="max-w-full max-h-full object-contain group-hover:scale-105 transition-transform duration-200">
+              {% else %}
+                <div class="text-center">
+                  <i class="fas fa-tag text-2xl text-gray-300 mb-1"></i>
+                  <p class="text-xs text-gray-500 truncate">{{ brand.name }}</p>
+                </div>
+              {% endif %}
+            </div>
+            <p class="text-center text-sm font-medium text-gray-700 mt-2 truncate">
+              {{ brand.name }}
+            </p>
+          </a>
+        {% endfor %}
+      </div>
+    </div>
+  {% endif %}
+
+  <!-- Featured Products -->
+  {% if featured_products %}
+    <div>
+      <h2 class="text-2xl font-bold text-gray-900 mb-8">Featured Products</h2>
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        {% for product in featured_products %}
+          <div class="bg-white rounded-lg border border-gray-200 overflow-hidden hover:shadow-md transition-shadow duration-300">
+            <a href="{% url 'product_detail' product.slug %}">
+              <div class="relative h-40 overflow-hidden">
+                {% if product.images.all %}
+                  <img src="{{ product.images.first.image.url }}" 
+                       alt="{{ product.name }}"
+                       class="w-full h-full object-cover hover:scale-105 transition-transform duration-300">
+                {% else %}
+                  <div class="w-full h-full bg-gray-100 flex items-center justify-center">
+                    <i class="fas fa-image text-3xl text-gray-300"></i>
+                  </div>
+                {% endif %}
+              </div>
+            </a>
+            <div class="p-4">
+              <a href="{% url 'product_detail' product.slug %}" class="block">
+                <h3 class="font-medium text-gray-900 hover:text-indigo-600 line-clamp-1 mb-1">
+                  {{ product.name }}
+                </h3>
+              </a>
+              <p class="text-xs text-gray-500 mb-2">{{ product.brand.name }}</p>
+              <div class="flex items-center justify-between">
+                <span class="font-bold text-gray-900">৳{{ product.selling_price }}</span>
+                {% if product.original_price > product.selling_price %}
+                  <span class="text-xs text-gray-500 line-through">৳{{ product.original_price }}</span>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

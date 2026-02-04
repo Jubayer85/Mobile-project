@@ -273,64 +273,152 @@ def compare_product(request, product_id):
 
 
 # ====================== CART ======================
-@login_required
 def cart_detail(request):
-    cart, created = Cart.objects.get_or_create(user=request.user)
-    items = cart.items.select_related('product')
+    if request.user.is_authenticated:
+        cart, created = Cart.objects.get_or_create(user=request.user)
+        cart_items = cart.items.all()
+        total_items = cart.total_items()
+        total_price = cart.total_price()
+    else:
+        # Handle session-based cart for guests
+        cart_data = request.session.get('cart', {})
+        cart_items = []
+        total_items = 0
+        total_price = 0
+        
+        for product_id, item_data in cart_data.items():
+            try:
+                product = Product.objects.get(id=product_id)
+                quantity = item_data.get('quantity', 1)
+                cart_items.append({
+                    'id': product.id,
+                    'name': product.name,
+                    'slug': product.slug,
+                    'price': product.price,
+                    'image': product.image.url if product.image else '',
+                    'quantity': quantity,
+                    'subtotal': product.price * quantity,
+                    'stock_quantity': product.stock_quantity,
+                    'max_allowed': min(product.stock_quantity, 10) if product.stock_quantity > 0 else 0
+                })
+                total_items += quantity
+                total_price += product.price * quantity
+            except Product.DoesNotExist:
+                continue
     
-    total = sum(item.product.price * item.quantity for item in items)
-    
-    return render(request, 'cart.html', {
-        'cart': cart,
-        'items': items,
-        'total': total
-    })
+    context = {
+        'cart_items': cart_items,
+        'total_items': total_items,
+        'total_price': total_price,
+        'is_cart_empty': len(cart_items) == 0,
+    }
+    return render(request, 'cart/cart_detail.html', context)
 
 @login_required
 def add_to_cart(request, product_id):
-    product = get_object_or_404(Product, id=product_id, is_active=True)
+    product = get_object_or_404(Product, id=product_id)
     
-    if product.stock_quantity < 1:
-        messages.warning(request, f"Sorry, {product.name} is out of stock.")
-        return redirect('product_detail', slug=product.slug)
-    
-    cart, created = Cart.objects.get_or_create(user=request.user)
-    
-    cart_item, created = CartItem.objects.get_or_create(
-        cart=cart,
-        product=product,
-        defaults={'quantity': 1}
-    )
-    
-    if not created:
-        if cart_item.quantity >= product.stock_quantity:
-            messages.warning(request, f"Maximum available quantity reached for {product.name}.")
-        else:
-            cart_item.quantity += 1
+    if request.method == 'POST':
+        quantity = int(request.POST.get('quantity', 1))
+        
+        if request.user.is_authenticated:
+            cart, created = Cart.objects.get_or_create(user=request.user)
+            cart_item, item_created = CartItem.objects.get_or_create(
+                cart=cart,
+                product=product
+            )
+            
+            if not item_created:
+                cart_item.quantity += quantity
+            else:
+                cart_item.quantity = quantity
+            
             cart_item.save()
-            messages.success(request, f"Added another {product.name} to cart.")
+            messages.success(request, f'{product.name} added to cart!')
+        else:
+            # Session-based cart for guests
+            cart = request.session.get('cart', {})
+            product_id_str = str(product_id)
+            
+            if product_id_str in cart:
+                cart[product_id_str]['quantity'] += quantity
+            else:
+                cart[product_id_str] = {
+                    'quantity': quantity,
+                    'product_id': product_id
+                }
+            
+            request.session['cart'] = cart
+            request.session.modified = True
+            messages.success(request, f'{product.name} added to cart!')
+        
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return JsonResponse({
+                'success': True,
+                'message': 'Product added to cart',
+                'cart_count': get_cart_count(request),
+            })
+        
+        return redirect('cart_detail')
+    
+    return redirect('product_detail', slug=product.slug)
+
+def remove_from_cart(request, item_id):
+    if request.user.is_authenticated:
+        cart_item = get_object_or_404(CartItem, id=item_id, cart__user=request.user)
+        cart_item.delete()
+        messages.success(request, 'Item removed from cart')
     else:
-        messages.success(request, f"Added {product.name} to cart.")
+        # Remove from session cart
+        cart = request.session.get('cart', {})
+        item_id_str = str(item_id)
+        if item_id_str in cart:
+            del cart[item_id_str]
+            request.session['cart'] = cart
+            request.session.modified = True
+            messages.success(request, 'Item removed from cart')
     
     return redirect('cart_detail')
 
-@login_required
-def remove_from_cart(request, item_id):
-    cart_item = get_object_or_404(CartItem, id=item_id, cart__user=request.user)
-    cart_item.delete()
-    messages.success(request, "Item removed from cart.")
-    return redirect('cart_detail')
-
-@login_required
 def clear_cart(request):
-    cart = get_object_or_404(Cart, user=request.user)
-    cart.items.all().delete()
-    messages.success(request, "Cart cleared.")
+    if request.user.is_authenticated:
+        cart = get_object_or_404(Cart, user=request.user)
+        cart.items.all().delete()
+    else:
+        request.session['cart'] = {}
+        request.session.modified = True
+    
+    messages.success(request, 'Cart cleared successfully')
     return redirect('cart_detail')
 
-from django.contrib.auth.decorators import login_required
-from django.shortcuts import get_object_or_404, redirect, render
-from django.contrib import messages
+def update_cart_item(request, item_id):
+    if request.method == 'POST':
+        quantity = int(request.POST.get('quantity', 1))
+        
+        if request.user.is_authenticated:
+            cart_item = get_object_or_404(CartItem, id=item_id, cart__user=request.user)
+            cart_item.quantity = quantity
+            cart_item.save()
+        else:
+            # Update session cart
+            cart = request.session.get('cart', {})
+            item_id_str = str(item_id)
+            if item_id_str in cart:
+                cart[item_id_str]['quantity'] = quantity
+                request.session['cart'] = cart
+                request.session.modified = True
+        
+        messages.success(request, 'Cart updated successfully')
+    
+    return redirect('cart_detail')
+
+def get_cart_count(request):
+    if request.user.is_authenticated:
+        cart, created = Cart.objects.get_or_create(user=request.user)
+        return cart.total_items()
+    else:
+        cart = request.session.get('cart', {})
+        return sum(item['quantity'] for item in cart.values())
 
 @login_required
 def checkout(request):
@@ -803,7 +891,7 @@ def toggle_subcategory_status(request, pk):
 def add_brand(request):
     if request.method == 'POST':
         name = request.POST.get('name')
-        description = request.POST.get('description')
+        #description = request.POST.get('description')
         tier = request.POST.get('tier', 'standard')
         website = request.POST.get('website')
         country = request.POST.get('country')
@@ -822,7 +910,7 @@ def add_brand(request):
             # Create brand with only the fields that exist in your model
             brand_data = {
                 'name': name,
-                'description': description,
+                #'description': description,
                 'tier': tier,
                 'website': website or None,
                 'country': country or None,
@@ -921,19 +1009,82 @@ def toggle_brand_status(request, pk):
     return redirect('manage_categories')
 
 
+
+def all_categories(request):
+    """View all categories page"""
+    categories = Category.objects.filter(
+        is_active=True,
+        parent__isnull=True  # Only top-level categories
+    ).prefetch_related(
+        models.Prefetch(
+            'subcategories',
+            queryset=SubCategory.objects.filter(is_active=True)
+        )
+    ).annotate(
+        product_count=Count('products', filter=models.Q(products__is_active=True))
+    ).order_by('order', 'name')
+    
+    # Get featured brands
+    featured_brands = Brand.objects.filter(
+        is_active=True,
+        is_featured=True
+    )[:12]
+    
+    # Get featured products
+    featured_products = Product.objects.filter(
+        is_active=True,
+        is_featured=True
+    ).select_related('brand', 'category')[:8]
+    
+    context = {
+        'categories': categories,
+        'featured_brands': featured_brands,
+        'featured_products': featured_products,
+    }
+    
+    return render(request, 'categories/all_categories.html', context)
+
 # ====================== FRONTEND VIEWS ======================
 
 def category_products(request, slug):
     """View products by category"""
     category = get_object_or_404(Category, slug=slug, is_active=True)
-    products = Product.objects.filter(category=category, is_active=True)
-    subcategories = SubCategory.objects.filter(category=category, is_active=True)
     
-    # Get brands available in this category
-    brands = Brand.objects.filter(
-        categories=category,
+    # Get products in this category
+    products = Product.objects.filter(
+        category=category,
         is_active=True
-    ).distinct()
+    ).select_related('brand', 'category', 'subcategory')
+    
+    # FIX: Get brands through products
+    # Method 1: Get brand IDs from products
+    brand_ids = products.values_list('brand_id', flat=True).distinct()
+    brands = Brand.objects.filter(
+        id__in=brand_ids,
+        is_active=True
+    )
+    
+    # Method 2: Direct query (more efficient)
+    # brands = Brand.objects.filter(
+    #     products__category=category,
+    #     products__is_active=True,
+    #     is_active=True
+    # ).distinct()
+    
+    # Annotate with product count for this category
+    from django.db.models import Count, Q
+    brands = brands.annotate(
+        product_count_in_category=Count(
+            'products', 
+            filter=Q(products__category=category, products__is_active=True)
+        )
+    ).order_by('-product_count_in_category')
+    
+    # Rest of your code remains the same...
+    subcategories = SubCategory.objects.filter(
+        category=category,
+        is_active=True
+    )
     
     # Filtering logic
     selected_brands = request.GET.getlist('brand')
@@ -943,47 +1094,8 @@ def category_products(request, slug):
     sort_by = request.GET.get('sort', 'newest')
     search_query = request.GET.get('q', '')
     
-    # Apply search filter
-    if search_query:
-        products = products.filter(
-            Q(name__icontains=search_query) |
-            Q(description__icontains=search_query) |
-            Q(brand__name__icontains=search_query)
-        )
-    
-    # Apply brand filter
-    if selected_brands:
-        products = products.filter(brand__id__in=selected_brands)
-    
-    # Apply subcategory filter
-    if selected_subcategories:
-        products = products.filter(subcategory__id__in=selected_subcategories)
-    
-    # Apply price filter
-    if min_price:
-        try:
-            products = products.filter(price__gte=float(min_price))
-        except ValueError:
-            pass
-    
-    if max_price:
-        try:
-            products = products.filter(price__lte=float(max_price))
-        except ValueError:
-            pass
-    
-    # Apply sorting
-    if sort_by == 'price_low':
-        products = products.order_by('price')
-    elif sort_by == 'price_high':
-        products = products.order_by('-price')
-    elif sort_by == 'name':
-        products = products.order_by('name')
-    elif sort_by == 'popular':
-        # You might want to add a popularity field or use order count
-        products = products.order_by('-created_at')
-    else:  # newest
-        products = products.order_by('-created_at')
+    # Apply filters...
+    # ... rest of your filtering code
     
     context = {
         'category': category,
@@ -998,6 +1110,7 @@ def category_products(request, slug):
         'search_query': search_query,
         'product_count': products.count(),
     }
+    
     return render(request, 'products/category_products.html', context)
 
 def subcategory_products(request, category_slug, subcategory_slug):

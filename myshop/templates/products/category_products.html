@@ -1,0 +1,355 @@
+<!-- templates/shop/category_products.html -->
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ category.name }} - MobileShop{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 py-8">
+  
+  <!-- Breadcrumb -->
+  <nav class="flex mb-6" aria-label="Breadcrumb">
+    <ol class="inline-flex items-center space-x-1 md:space-x-3">
+      <li class="inline-flex items-center">
+        <a href="{% url 'home' %}" class="inline-flex items-center text-sm font-medium text-gray-700 hover:text-indigo-600">
+          <i class="fas fa-home mr-2"></i>
+          Home
+        </a>
+      </li>
+      <li>
+        <div class="flex items-center">
+          <i class="fas fa-chevron-right text-gray-400"></i>
+          <a href="{% url 'all_categories' %}" class="ml-1 text-sm font-medium text-gray-700 hover:text-indigo-600 md:ml-2">
+            Categories
+          </a>
+        </div>
+      </li>
+      <li aria-current="page">
+        <div class="flex items-center">
+          <i class="fas fa-chevron-right text-gray-400"></i>
+          <span class="ml-1 text-sm font-medium text-indigo-600 md:ml-2">
+            {{ category.name }}
+          </span>
+        </div>
+      </li>
+    </ol>
+  </nav>
+
+  <!-- Category Header -->
+  <div class="mb-8">
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div>
+        <h1 class="text-3xl font-bold text-gray-900">{{ category.name }}</h1>
+        {% if category.description %}
+          <p class="text-gray-600 mt-2">{{ category.description }}</p>
+        {% endif %}
+      </div>
+      
+      <div class="flex items-center space-x-4">
+        <!-- Sort Options -->
+        <select id="sort" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-200 focus:border-indigo-500">
+          <option value="newest">Newest First</option>
+          <option value="price_low">Price: Low to High</option>
+          <option value="price_high">Price: High to Low</option>
+          <option value="popular">Most Popular</option>
+        </select>
+        
+        <!-- View Toggle -->
+        <div class="flex border border-gray-300 rounded-lg overflow-hidden">
+          <button id="grid-view" class="p-2 bg-indigo-100 text-indigo-600 border-r">
+            <i class="fas fa-th-large"></i>
+          </button>
+          <button id="list-view" class="p-2 text-gray-600 hover:bg-gray-100">
+            <i class="fas fa-list"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="flex flex-col lg:flex-row gap-8">
+    
+    <!-- Sidebar Filters -->
+    <div class="lg:w-1/4">
+      <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 space-y-6">
+        
+        <!-- Brands Filter -->
+        <div>
+          <h3 class="text-lg font-semibold text-gray-900 mb-4">Brands</h3>
+          <div class="space-y-2">
+            {% for brand in brands %}
+              <label class="flex items-center">
+                <input type="checkbox" name="brand" value="{{ brand.id }}" 
+                       class="w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500">
+                <span class="ml-3 text-sm text-gray-700">{{ brand.name }}</span>
+                <span class="ml-auto text-xs text-gray-500">({{ brand.product_count }})</span>
+              </label>
+            {% endfor %}
+          </div>
+        </div>
+
+        <!-- Price Range -->
+        <div>
+          <h3 class="text-lg font-semibold text-gray-900 mb-4">Price Range</h3>
+          <div class="space-y-4">
+            <div class="flex items-center justify-between">
+              <span class="text-sm text-gray-600">Min: ৳<span id="min-price">0</span></span>
+              <span class="text-sm text-gray-600">Max: ৳<span id="max-price">100000</span></span>
+            </div>
+            <input type="range" min="0" max="100000" step="1000" 
+                   class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
+          </div>
+        </div>
+
+        <!-- Subcategories -->
+        {% if subcategories %}
+          <div>
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">Subcategories</h3>
+            <div class="space-y-2">
+              {% for sub in subcategories %}
+                <a href="{% url 'subcategory_products' sub.slug %}" 
+                   class="flex items-center px-3 py-2 text-sm text-gray-600 hover:bg-indigo-50 hover:text-indigo-600 rounded-lg transition-colors">
+                  {% if sub.image %}
+                    <img src="{{ sub.image.url }}" alt="{{ sub.name }}" class="w-6 h-6 rounded-full mr-3">
+                  {% endif %}
+                  {{ sub.name }}
+                  <span class="ml-auto text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded-full">
+                    {{ sub.product_count }}
+                  </span>
+                </a>
+              {% endfor %}
+            </div>
+          </div>
+        {% endif %}
+
+        <!-- Filter Button -->
+        <button id="apply-filters" class="w-full py-3 bg-indigo-600 text-white rounded-lg font-medium hover:bg-indigo-700 transition-colors">
+          Apply Filters
+        </button>
+        
+        <!-- Reset Filters -->
+        <button id="reset-filters" class="w-full py-2.5 border border-gray-300 text-gray-700 rounded-lg font-medium hover:bg-gray-50 transition-colors">
+          Reset All
+        </button>
+      </div>
+    </div>
+
+    <!-- Products Grid -->
+    <div class="lg:w-3/4">
+      
+      <!-- Products Count -->
+      <div class="mb-6">
+        <p class="text-gray-600">
+          Showing <span class="font-semibold">{{ products.count }}</span> products in {{ category.name }}
+        </p>
+      </div>
+
+      <!-- Products Grid -->
+      {% if products %}
+        <div id="products-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          {% for product in products %}
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-shadow duration-300">
+              
+              <!-- Product Image -->
+              <a href="{% url 'product_detail' product.slug %}">
+                <div class="relative h-56 overflow-hidden">
+                  {% if product.images.all %}
+                    <img src="{{ product.images.first.image.url }}" 
+                         alt="{{ product.name }}"
+                         class="w-full h-full object-cover hover:scale-105 transition-transform duration-300">
+                  {% else %}
+                    <div class="w-full h-full bg-gray-100 flex items-center justify-center">
+                      <i class="fas fa-image text-3xl text-gray-300"></i>
+                    </div>
+                  {% endif %}
+                  
+                  <!-- Badges -->
+                  {% if product.is_new %}
+                    <span class="absolute top-3 left-3 bg-green-500 text-white text-xs font-bold px-3 py-1 rounded-full">
+                      NEW
+                    </span>
+                  {% endif %}
+                  {% if product.discount_percentage %}
+                    <span class="absolute top-3 right-3 bg-red-500 text-white text-xs font-bold px-3 py-1 rounded-full">
+                      -{{ product.discount_percentage }}%
+                    </span>
+                  {% endif %}
+                </div>
+              </a>
+
+              <!-- Product Info -->
+              <div class="p-5">
+                <!-- Brand -->
+                <div class="mb-2">
+                  <a href="{% url 'brand_products' product.brand.slug %}" 
+                     class="text-xs font-medium text-indigo-600 hover:text-indigo-800">
+                    {{ product.brand.name }}
+                  </a>
+                </div>
+                
+                <!-- Product Name -->
+                <h3 class="mb-2">
+                  <a href="{% url 'product_detail' product.slug %}" 
+                     class="font-semibold text-gray-900 hover:text-indigo-600 line-clamp-2">
+                    {{ product.name }}
+                  </a>
+                </h3>
+                
+                <!-- Rating -->
+                {% if product.average_rating %}
+                  <div class="flex items-center mb-3">
+                    <div class="flex text-amber-400">
+                      {% for i in "12345" %}
+                        {% if forloop.counter <= product.average_rating %}
+                          <i class="fas fa-star"></i>
+                        {% elif forloop.counter|add:"-0.5" <= product.average_rating %}
+                          <i class="fas fa-star-half-alt"></i>
+                        {% else %}
+                          <i class="far fa-star"></i>
+                        {% endif %}
+                      {% endfor %}
+                    </div>
+                    <span class="ml-2 text-sm text-gray-600">({{ product.review_count }})</span>
+                  </div>
+                {% endif %}
+                
+                <!-- Price -->
+                <div class="mb-4">
+                  <div class="flex items-center">
+                    <span class="text-2xl font-bold text-gray-900">
+                      ৳{{ product.selling_price }}
+                    </span>
+                    {% if product.original_price > product.selling_price %}
+                      <span class="ml-3 text-sm text-gray-500 line-through">
+                        ৳{{ product.original_price }}
+                      </span>
+                    {% endif %}
+                  </div>
+                  {% if product.emi_available %}
+                    <p class="text-sm text-green-600 mt-1">
+                      EMI from ৳{{ product.emi_price|floatformat:0 }}/month
+                    </p>
+                  {% endif %}
+                </div>
+                
+                <!-- Actions -->
+                <div class="flex space-x-2">
+                  <button class="flex-1 py-2.5 bg-indigo-600 text-white rounded-lg font-medium hover:bg-indigo-700 transition-colors">
+                    <i class="fas fa-shopping-cart mr-2"></i>
+                    Add to Cart
+                  </button>
+                  <button class="px-4 py-2.5 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50">
+                    <i class="far fa-heart"></i>
+                  </button>
+                </div>
+                
+                <!-- Quick Info -->
+                <div class="mt-4 pt-4 border-t border-gray-100">
+                  <div class="flex items-center justify-between text-xs text-gray-500">
+                    <div class="flex items-center">
+                      <i class="fas fa-shipping-fast mr-1"></i>
+                      {% if product.free_shipping %}Free Shipping{% else %}Shipping: ৳{{ product.shipping_charge }}{% endif %}
+                    </div>
+                    <div>
+                      {% if product.stock_quantity > 0 %}
+                        <span class="text-green-600">In Stock</span>
+                      {% else %}
+                        <span class="text-red-600">Out of Stock</span>
+                      {% endif %}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+
+        <!-- Pagination -->
+        {% if products.has_other_pages %}
+          <div class="mt-12">
+            <nav class="flex items-center justify-center space-x-2">
+              {% if products.has_previous %}
+                <a href="?page={{ products.previous_page_number }}" 
+                   class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50">
+                  <i class="fas fa-chevron-left"></i>
+                </a>
+              {% endif %}
+
+              {% for i in products.paginator.page_range %}
+                {% if products.number == i %}
+                  <span class="px-4 py-2 bg-indigo-600 text-white rounded-lg font-medium">{{ i }}</span>
+                {% elif i > products.number|add:'-3' and i < products.number|add:'3' %}
+                  <a href="?page={{ i }}" class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50">{{ i }}</a>
+                {% endif %}
+              {% endfor %}
+
+              {% if products.has_next %}
+                <a href="?page={{ products.next_page_number }}" 
+                   class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50">
+                  <i class="fas fa-chevron-right"></i>
+                </a>
+              {% endif %}
+            </nav>
+          </div>
+        {% endif %}
+
+      {% else %}
+        <!-- No Products Found -->
+        <div class="text-center py-16">
+          <div class="mx-auto w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mb-6">
+            <i class="fas fa-box-open text-3xl text-gray-400"></i>
+          </div>
+          <h3 class="text-xl font-semibold text-gray-900 mb-2">No products found</h3>
+          <p class="text-gray-600 mb-8">We couldn't find any products in this category.</p>
+          <a href="{% url 'all_categories' %}" 
+             class="inline-flex items-center px-5 py-2.5 bg-indigo-600 text-white rounded-lg font-medium hover:bg-indigo-700">
+            <i class="fas fa-arrow-left mr-2"></i>
+            Browse Other Categories
+          </a>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  // View Toggle
+  document.getElementById('grid-view').addEventListener('click', function() {
+    document.getElementById('products-container').classList.remove('grid-cols-1');
+    document.getElementById('products-container').classList.add('grid-cols-1', 'sm:grid-cols-2', 'lg:grid-cols-3');
+    this.classList.add('bg-indigo-100', 'text-indigo-600');
+    document.getElementById('list-view').classList.remove('bg-indigo-100', 'text-indigo-600');
+  });
+
+  document.getElementById('list-view').addEventListener('click', function() {
+    document.getElementById('products-container').classList.remove('grid-cols-1', 'sm:grid-cols-2', 'lg:grid-cols-3');
+    document.getElementById('products-container').classList.add('grid-cols-1');
+    this.classList.add('bg-indigo-100', 'text-indigo-600');
+    document.getElementById('grid-view').classList.remove('bg-indigo-100', 'text-indigo-600');
+  });
+
+  // Sort Products
+  document.getElementById('sort').addEventListener('change', function() {
+    const sortBy = this.value;
+    // You can implement AJAX sorting here
+    console.log('Sort by:', sortBy);
+  });
+
+  // Apply Filters
+  document.getElementById('apply-filters').addEventListener('click', function() {
+    const selectedBrands = Array.from(document.querySelectorAll('input[name="brand"]:checked'))
+      .map(cb => cb.value);
+    // Implement filter logic here
+    console.log('Selected brands:', selectedBrands);
+  });
+
+  // Reset Filters
+  document.getElementById('reset-filters').addEventListener('click', function() {
+    document.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
+    // Reset other filters
+  });
+</script>
+{% endblock %}

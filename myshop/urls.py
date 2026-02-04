@@ -39,8 +39,15 @@ urlpatterns = [
     # Product details
     path('products/<slug:slug>/', views.product_detail, name='product_detail'),
     path('category/<slug:slug>/', views.category_products, name='category_products'),
-    path('subcategory/<slug:slug>/', views.subcategory_products, name='subcategory_products'),
+    path('category/<slug:category_slug>/<slug:subcategory_slug>/', 
+     views.subcategory_products, name='subcategory_products'),
+    #path('subcategory/<slug:slug>/', views.subcategory_products, name='subcategory_products'),
     path('brand/<slug:slug>/', views.brand_products, name='brand_products'),
+    path('categories/', views.all_categories, name='all_categories'),
+
+    #path('category/<slug:category_slug>/', views.category_products, name='category_products'),
+    #path('brand/<slug:brand_slug>/', views.brand_products, name='brand_products'),
+   # path('product/<slug:slug>/', views.product_detail, name='product_detail'),
 
 
     # Cart URLs
@@ -77,6 +84,9 @@ urlpatterns = [
     path('warranty-policy/', views.warranty_policy, name='warranty_policy'),
     path('track-order/', views.track_order, name='track_order'),
     path('newsletter/subscribe/', views.newsletter_subscribe, name='newsletter_subscribe'),
+
+
+   
 
     # Sound equipment URLs (Fixed typo: equopment → equipment)
    # path("sound/sound-equipment/", views.sound_equipment, name="sound_equipment"),
