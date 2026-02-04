@@ -108,7 +108,7 @@
             <h3 class="text-lg font-semibold text-gray-900 mb-4">Subcategories</h3>
             <div class="space-y-2">
               {% for sub in subcategories %}
-                <a href="{% url 'subcategory_products' sub.slug %}" 
+                <a href="{% url 'subcategory_products' category.slug sub.slug %}" 
                    class="flex items-center px-3 py-2 text-sm text-gray-600 hover:bg-indigo-50 hover:text-indigo-600 rounded-lg transition-colors">
                   {% if sub.image %}
                     <img src="{{ sub.image.url }}" alt="{{ sub.name }}" class="w-6 h-6 rounded-full mr-3">
