@@ -23,6 +23,8 @@ from .forms import CategoryForm, SubCategoryForm, BrandForm
 from django.contrib.auth.decorators import login_required, user_passes_test
 from .models import ( Product, Brand, Category,SubCategory,ProductImage,Cart, CartItem,Order, OrderItem, Customer, Wishlist)
 from .forms import ProductForm, ProductImageFormSet
+from .models import Order, OrderItem
+
 
 # ====================== HOME ======================
 def home(request):
@@ -514,10 +516,41 @@ def order_detail(request, order_id):
 # ====================== ADMIN ORDERS ======================
 @staff_member_required
 def admin_order_list(request):
-    orders = Order.objects.select_related('customer__user').order_by('-created_at')
-    return render(request, 'admin/order_list.html', {'orders': orders})
-
-
+    # Fix: Use 'customer' instead of 'customer__user'
+    orders = Order.objects.select_related('customer').order_by('-created_at')
+    
+    # Optional: Add filtering and pagination
+    status_filter = request.GET.get('status', '')
+    search_query = request.GET.get('q', '')
+    
+    if status_filter:
+        orders = orders.filter(status=status_filter)
+    
+    if search_query:
+        orders = orders.filter(
+            Q(order_number__icontains=search_query) |
+            Q(customer__username__icontains=search_query) |
+            Q(customer__email__icontains=search_query)
+        )
+    
+    # Pagination
+    paginator = Paginator(orders, 20)  # 20 items per page
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    
+    # Get status counts for filter
+    status_counts = {}
+    for status_choice in Order.ORDER_STATUS:
+        status_counts[status_choice[0]] = Order.objects.filter(status=status_choice[0]).count()
+    
+    context = {
+        'orders': page_obj,
+        'status_filter': status_filter,
+        'search_query': search_query,
+        'status_counts': status_counts,
+    }
+    
+    return render(request, 'admin/order_list.html', context)
 
 @staff_member_required
 def admin_user_list(request):
@@ -532,51 +565,85 @@ def admin_user_list(request):
     )
 
 
+@staff_member_required
 def admin_order_detail(request, order_id):
-    order = get_object_or_404(Order, id=order_id)
-
+    # ✅ FIX: customer select_related করুন (user নয়)
+    order = get_object_or_404(
+        Order.objects.select_related('customer'), 
+        id=order_id
+    )
+    
+    # Order items নিন (OrderItem model থেকে)
+    items = order.items.all()
+    
+    # Handle status update
     if request.method == "POST":
-        order.status = request.POST.get("status")
-        order.save(update_fields=["status"])
-
+        if 'status' in request.POST:
+            new_status = request.POST.get("status")
+            old_status = order.status
+            
+            if new_status != old_status:
+                order.status = new_status
+                order.save(update_fields=["status", "updated_at"])
+                
+                messages.success(
+                    request, 
+                    f'Order status updated from {old_status} to {new_status}'
+                )
+                
+                return redirect('admin_order_detail', order_id=order_id)
+    
+    # Calculate item totals
+    item_subtotal = sum(item.total_price for item in items)
+    item_count = items.count()
+    
+    # Timeline data
+    timeline = [
+        {
+            'title': 'Order Placed',
+            'description': 'Customer placed the order',
+            'date': order.created_at,
+            'completed': True
+        },
+        {
+            'title': 'Payment Confirmed',
+            'description': 'Payment was successfully processed',
+            'date': order.payment_date if hasattr(order, 'payment_date') else None,
+            'completed': True if order.payment_method == 'online' else False
+        },
+        {
+            'title': 'Order Processed',
+            'description': 'Order is being prepared for shipping',
+            'date': None,
+            'completed': order.status in ['processing', 'shipped', 'delivered']
+        },
+        {
+            'title': 'Order Shipped',
+            'description': 'Order has been shipped to customer',
+            'date': order.shipped_date if hasattr(order, 'shipped_date') else None,
+            'completed': order.status in ['shipped', 'delivered']
+        },
+        {
+            'title': 'Order Delivered',
+            'description': 'Order has been delivered to customer',
+            'date': order.delivered_date if hasattr(order, 'delivered_date') else None,
+            'completed': order.status == 'delivered'
+        }
+    ]
+    
     context = {
         "order": order,
-        "status_choices": Order.ORDER_STATUS,  # 🔴 এটা MUST
+        "items": items,
+        "item_subtotal": item_subtotal,
+        "item_count": item_count,
+        "timeline": timeline,
+        "status_choices": Order.ORDER_STATUS,
+        "payment_methods": Order.PAYMENT_METHODS,
     }
+    
     return render(request, "admin/order_detail.html", context)
     
-    # Update status change form
-    if request.method == 'POST' and 'status' in request.POST:
-        new_status = request.POST.get('status')
-        old_status = order.status
-        
-        if new_status != old_status:
-            order.status = new_status
-            order.save(update_fields=['status', 'updated_at'])
-            
-            # Log status change
-            messages.success(request, f'Order status updated from {old_status} to {new_status}')
-            
-            # Create notification/activity log
-            from .models import OrderActivity
-            OrderActivity.objects.create(
-                order=order,
-                user=request.user,
-                activity_type='status_change',
-                description=f'Status changed from {old_status} to {new_status}'
-            )
-            
-            return redirect('admin_order_detail', order_id=order_id)
     
-    context = {
-        'order': order,
-        'items': items,
-        'item_total': item_total,
-        'timeline': order_timeline,
-        'STATUS_CHOICES': Order.ORDER_STATUS,
-    }
-    
-    return render(request, 'admin/order_detail.html', context)
         
 
 
