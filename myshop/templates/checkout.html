@@ -9,108 +9,240 @@ Checkout | Mobile Shop
 <div class="max-w-7xl mx-auto px-6 py-10 grid grid-cols-1 lg:grid-cols-12 gap-8">
 
     <!-- LEFT: Billing Details -->
-    <div class="lg:col-span-7 bg-white rounded-xl p-6">
+    <div class="lg:col-span-7 bg-white rounded-xl p-6 shadow-sm">
+        <h2 class="text-xl font-bold mb-6">Shipping & Billing Details</h2>
 
-        <h2 class="text-xl font-bold mb-6">Billing Details</h2>
-
-        <form method="post" class="space-y-5">
+        <form method="post" id="checkout-form" class="space-y-5">
             {% csrf_token %}
+            
+            {% if messages %}
+            <div class="mb-4">
+                {% for message in messages %}
+                <div class="p-3 rounded-lg {% if message.tags == 'error' %}bg-red-50 text-red-700{% else %}bg-blue-50 text-blue-700{% endif %}">
+                    {{ message }}
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <input type="text" name="first_name" placeholder="First Name" required
-                       class="border rounded-lg px-4 py-3 w-full focus:ring-2 focus:ring-primary">
-
-                <input type="text" name="last_name" placeholder="Last Name" required
-                       class="border rounded-lg px-4 py-3 w-full focus:ring-2 focus:ring-primary">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">First Name *</label>
+                    <input type="text" name="first_name" placeholder="John" required
+                           value="{{ user.first_name }}"
+                           class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-primary focus:border-primary">
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Last Name *</label>
+                    <input type="text" name="last_name" placeholder="Doe" required
+                           value="{{ user.last_name }}"
+                           class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-primary focus:border-primary">
+                </div>
             </div>
 
-            <input type="text" name="phone" placeholder="Phone Number" required
-                   class="border rounded-lg px-4 py-3 w-full focus:ring-2 focus:ring-primary">
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Phone Number *</label>
+                <input type="text" name="phone" placeholder="01XXXXXXXXX" required
+                       class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-primary focus:border-primary">
+                <p class="text-xs text-gray-500 mt-1">We'll contact you for delivery updates</p>
+            </div>
 
-            <input type="email" name="email" placeholder="Email Address (optional)"
-                   class="border rounded-lg px-4 py-3 w-full focus:ring-2 focus:ring-primary">
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Email Address</label>
+                <input type="email" name="email" placeholder="your@email.com"
+                       value="{{ user.email }}"
+                       class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-primary focus:border-primary">
+                <p class="text-xs text-gray-500 mt-1">For order confirmation and tracking</p>
+            </div>
 
-            <textarea name="address" rows="3" placeholder="Full Delivery Address" required
-                      class="border rounded-lg px-4 py-3 w-full focus:ring-2 focus:ring-primary"></textarea>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Shipping Address *</label>
+                <textarea name="address" rows="3" placeholder="House #, Road #, Area, City, District" required
+                          class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-primary focus:border-primary"></textarea>
+                <p class="text-xs text-gray-500 mt-1">Please provide complete address for delivery</p>
+            </div>
 
-            <textarea name="notes" rows="2" placeholder="Order Notes (optional)"
-                      class="border rounded-lg px-4 py-3 w-full focus:ring-2 focus:ring-primary"></textarea>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Order Notes (Optional)</label>
+                <textarea name="notes" rows="2" placeholder="Special instructions for delivery..."
+                          class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-primary focus:border-primary"></textarea>
+            </div>
+
+            <!-- Hidden fields -->
+            <input type="hidden" name="payment_method" value="cod">
         </form>
     </div>
 
     <!-- RIGHT: Order Summary -->
-    <div class="lg:col-span-5 bg-white rounded-xl p-6 h-fit sticky top-24">
+    <div class="lg:col-span-5">
+        <div class="bg-white rounded-xl p-6 shadow-sm sticky top-24">
+            <h2 class="text-xl font-bold mb-6">Your Order</h2>
 
-        <h2 class="text-xl font-bold mb-6">Your Order</h2>
-
-        <!-- Cart Items -->
-        <div class="space-y-4 mb-6">
-
-            {% for item in cart_items %}
-            <div class="flex justify-between items-center text-sm">
-                <div>
-                    <p class="font-medium">{{ item.name }}</p>
-                    <p class="text-gray-500">Qty: {{ item.qty }}</p>
+            <!-- Cart Items -->
+            <div class="space-y-4 mb-6 max-h-60 overflow-y-auto pr-2">
+                {% for item in cart_items %}
+                <div class="flex gap-3 py-3 border-b">
+                    {% if item.product.image %}
+                    <img src="{{ item.product.image.url }}" 
+                         alt="{{ item.product.name }}"
+                         class="h-16 w-16 rounded-lg object-cover border">
+                    {% else %}
+                    <div class="h-16 w-16 rounded-lg bg-gray-100 border flex items-center justify-center">
+                        <span class="text-gray-400 text-xs">No image</span>
+                    </div>
+                    {% endif %}
+                    
+                    <div class="flex-1">
+                        <p class="font-medium text-sm">{{ item.product.name }}</p>
+                        <p class="text-xs text-gray-500">Qty: {{ item.quantity }}</p>
+                        <p class="text-sm text-gray-700 mt-1">৳{{ item.product.price|floatformat:2 }}</p>
+                    </div>
+                    
+                    <div class="text-right">
+                        <p class="font-semibold">৳{{ item.get_total_price|floatformat:2 }}</p>
+                    </div>
                 </div>
-                <p class="font-semibold">
-                    ৳ {{ item.price|floatformat:0 }}
-                </p>
-            </div>
-            {% empty %}
-            <p class="text-gray-500 text-sm">Your cart is empty.</p>
-            {% endfor %}
-
-        </div>
-
-        <!-- Price Summary -->
-        <div class="border-t pt-4 space-y-3 text-sm">
-
-            <div class="flex justify-between">
-                <span>Subtotal</span>
-                <span>৳ {{ total }}</span>
+                {% empty %}
+                <div class="text-center py-8">
+                    <p class="text-gray-500">Your cart is empty.</p>
+                    <a href="{% url 'shop' %}" class="text-primary hover:underline mt-2 inline-block">
+                        Continue Shopping
+                    </a>
+                </div>
+                {% endfor %}
             </div>
 
-            <div class="flex justify-between">
-                <span>Delivery Charge</span>
-                <span class="text-green-600">Free</span>
+            <!-- Price Summary -->
+            <div class="border-t pt-4 space-y-3 text-sm">
+                <div class="flex justify-between">
+                    <span class="text-gray-600">Subtotal</span>
+                    <span class="font-medium">৳{{ total|floatformat:2 }}</span>
+                </div>
+
+                <div class="flex justify-between">
+                    <span class="text-gray-600">Delivery Charge</span>
+                    <span class="text-green-600 font-medium">Free</span>
+                </div>
+
+                {% if total > 10000 %}
+                <div class="flex justify-between text-green-600">
+                    <span>You saved</span>
+                    <span class="font-medium">৳{{ total|floatformat:2|add:"0" }}</span>
+                </div>
+                {% endif %}
+
+                <div class="flex justify-between text-lg font-bold border-t pt-3">
+                    <span>Total Payable</span>
+                    <span class="text-primary">৳{{ total|floatformat:2 }}</span>
+                </div>
             </div>
 
-            <div class="flex justify-between text-lg font-bold border-t pt-3">
-                <span>Total</span>
-                <span class="text-primary">৳ {{ total }}</span>
+            <!-- Payment Method -->
+            <div class="mt-6">
+                <p class="font-medium mb-3">Payment Method</p>
+                
+                <div class="space-y-2">
+                    <label class="flex items-center gap-3 border rounded-lg px-4 py-3 hover:bg-gray-50 cursor-pointer">
+                        <input type="radio" name="payment_method_selector" value="cod" checked 
+                               class="h-4 w-4 text-primary" onchange="updatePaymentMethod(this.value)">
+                        <div class="flex-1">
+                            <span class="font-medium">Cash on Delivery</span>
+                            <p class="text-xs text-gray-500 mt-1">Pay when you receive the product</p>
+                        </div>
+                        <svg class="h-5 w-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path>
+                        </svg>
+                    </label>
+                    
+                    <label class="flex items-center gap-3 border rounded-lg px-4 py-3 hover:bg-gray-50 cursor-pointer opacity-50">
+                        <input type="radio" name="payment_method_selector" value="online" disabled
+                               class="h-4 w-4 text-gray-400">
+                        <div class="flex-1">
+                            <span class="font-medium text-gray-400">Online Payment</span>
+                            <p class="text-xs text-gray-400 mt-1">Coming soon</p>
+                        </div>
+                        <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                        </svg>
+                    </label>
+                </div>
             </div>
 
-        </div>
-
-        <!-- Payment Method -->
-        <div class="mt-6">
-            <p class="font-medium mb-3">Payment Method</p>
-
-            <div class="flex items-center gap-3 border rounded-lg px-4 py-3 bg-gray-50">
-                <input type="radio" checked>
-                <span>Cash on Delivery</span>
+            <!-- Terms & Conditions -->
+            <div class="mt-6 p-4 bg-blue-50 rounded-lg">
+                <label class="flex items-start gap-3 cursor-pointer">
+                    <input type="checkbox" required class="h-4 w-4 mt-1 text-primary">
+                    <span class="text-sm text-gray-700">
+                        I agree to the <a href="#" class="text-primary hover:underline">Terms & Conditions</a> and 
+                        <a href="#" class="text-primary hover:underline">Privacy Policy</a>.
+                    </span>
+                </label>
             </div>
-        </div>
 
-        <!-- Place Order -->
-        <form method="POST" id="checkout-form">
-            {% csrf_token %}
-        
-            <!-- form fields -->
-        
-            <button type="submit"
-                    class="block w-full mt-6 text-center
-                           bg-primary text-amber py-3 rounded-lg font-semibold
-                           hover:bg-blue-700 transition">
+            <!-- Place Order Button -->
+            <button type="submit" form="checkout-form"
+                    class="w-full mt-6 bg-primary text-white py-3 rounded-lg font-semibold
+                           hover:bg-blue-700 transition duration-300 flex items-center justify-center gap-2">
+                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                </svg>
                 Place Order
             </button>
-        </form>
 
-        <p class="text-xs text-gray-500 mt-4 text-center">
-            By placing your order, you agree to our terms & conditions.
-        </p>
-
+            <p class="text-xs text-gray-500 mt-4 text-center">
+                Your personal data will be used to process your order and support your experience.
+            </p>
+        </div>
+        
+        <!-- Continue Shopping -->
+        <div class="mt-4 text-center">
+            <a href="{% url 'shop' %}" 
+               class="inline-flex items-center gap-2 text-primary hover:text-blue-700">
+                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                </svg>
+                Continue Shopping
+            </a>
+        </div>
     </div>
 </div>
 
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Update payment method in hidden field
+    function updatePaymentMethod(value) {
+        document.querySelector('input[name="payment_method"]').value = value;
+    }
+    
+    // Form validation
+    document.getElementById('checkout-form').addEventListener('submit', function(e) {
+        const phone = document.querySelector('input[name="phone"]').value;
+        const address = document.querySelector('textarea[name="address"]').value;
+        
+        // Phone validation (Bangladeshi format)
+        const phoneRegex = /^01[3-9]\d{8}$/;
+        if (!phoneRegex.test(phone)) {
+            e.preventDefault();
+            alert('Please enter a valid Bangladeshi phone number (01XXXXXXXXX)');
+            return false;
+        }
+        
+        // Address validation
+        if (address.trim().length < 10) {
+            e.preventDefault();
+            alert('Please provide a complete shipping address');
+            return false;
+        }
+        
+        // Show loading
+        const submitBtn = this.querySelector('button[type="submit"]');
+        if (submitBtn) {
+            submitBtn.innerHTML = '<span class="flex items-center gap-2"><svg class="h-5 w-5 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Processing Order...</span>';
+            submitBtn.disabled = true;
+        }
+    });
+</script>
 {% endblock %}

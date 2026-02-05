@@ -424,60 +424,98 @@ def get_cart_count(request):
 
 @login_required
 def checkout(request):
-    cart = get_object_or_404(Cart, user=request.user)
-    items = cart.items.select_related('product')
-
-    if not items.exists():
+    user = request.user
+    cart = Cart.objects.filter(user=user).first()
+    
+    if not cart or cart.is_empty():
         messages.warning(request, "Your cart is empty.")
-        return redirect('cart_detail')
-
-    # Stock check
-    for item in items:
-        if item.quantity > item.product.stock_quantity:
-            messages.error(
-                request,
-                f"Not enough stock for {item.product.name}."
-            )
-            return redirect('cart_detail')
-
+        return redirect('cart')
+    
+    cart_items = cart.cartitem_set.all()
+    total = cart.total_price()
+    
     if request.method == 'POST':
-        user = request.user
-
-        shipping_address = request.POST.get('shipping_address', '').strip()
-
-        order = Order.objects.create(
-            customer=user,                      # ✅ FIXED
-            payment_method='cod',
-            shipping_address=shipping_address,
-            subtotal=sum(item.product.price * item.quantity for item in items),
-            total_amount=sum(item.product.price * item.quantity for item in items),
-        )
-
-        for item in items:
-            OrderItem.objects.create(
-                order=order,
-                product=item.product,
-                product_name=item.product.name,
-                unit_price=item.product.price,
-                quantity=item.quantity
+        # Get form data
+        first_name = request.POST.get('first_name', '').strip()
+        last_name = request.POST.get('last_name', '').strip()
+        phone = request.POST.get('phone', '').strip()
+        email = request.POST.get('email', user.email)
+        address = request.POST.get('address', '').strip()
+        notes = request.POST.get('notes', '').strip()
+        payment_method = request.POST.get('payment_method', 'cod')
+        
+        # Validation
+        if not all([first_name, last_name, phone, address]):
+            messages.error(request, "Please fill all required fields.")
+            return redirect('checkout')
+        
+        # Create shipping address string
+        shipping_address = f"""
+        Name: {first_name} {last_name}
+        Phone: {phone}
+        Email: {email if email else user.email}
+        Address: {address}
+        """
+        
+        # Create order
+        try:
+            # Generate order number
+            import random, string
+            order_number = "ORD-" + ''.join(random.choices(string.digits, k=8))
+            
+            order = Order.objects.create(
+                order_number=order_number,
+                customer=user,
+                status='pending',
+                payment_method=payment_method,
+                subtotal=total,
+                total_amount=total,
+                shipping_address=shipping_address,
             )
-
-            # Reduce stock
-            item.product.stock_quantity -= item.quantity
-            item.product.save(update_fields=['stock_quantity'])
-
-        # Clear cart
-        items.delete()
-
-        messages.success(request, "Order placed successfully!")
-        return redirect('order_success', order_id=order.id)
-
-    return render(request, 'checkout.html', {
-        'cart': cart,
-        'items': items,
-        'total': sum(item.product.price * item.quantity for item in items)
-    })
-
+            
+            # Add order items from cart
+            for cart_item in cart_items:
+                OrderItem.objects.create(
+                    order=order,
+                    product=cart_item.product,
+                    product_name=cart_item.product.name,
+                    unit_price=cart_item.product.price,
+                    quantity=cart_item.quantity,
+                    total_price=cart_item.product.price * cart_item.quantity
+                )
+            
+            # Clear cart after order
+            cart.items.all().delete()
+            
+            # Update user profile if needed
+            if not user.first_name:
+                user.first_name = first_name
+                user.last_name = last_name
+                if email:
+                    user.email = email
+                user.save()
+            
+            messages.success(request, f"Order #{order.order_number} placed successfully!")
+            return redirect('order_confirmation', order_id=order.id)
+            
+        except Exception as e:
+            messages.error(request, f"Error creating order: {str(e)}")
+            return redirect('checkout')
+    
+    # Get user info for pre-filling
+    user_data = {
+        'first_name': user.first_name or '',
+        'last_name': user.last_name or '',
+        'email': user.email or '',
+    }
+    
+    context = {
+        'cart_items': cart_items,
+        'total': total,
+        'user': user_data,
+    }
+    
+    return render(request, 'checkout.html', context)
 
 @login_required
 def order_success(request, order_id):
