@@ -24,6 +24,8 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from .models import ( Product, Brand, Category,SubCategory,ProductImage,Cart, CartItem,Order, OrderItem, Customer, Wishlist)
 from .forms import ProductForm, ProductImageFormSet
 from .models import Order, OrderItem
+from django.views.decorators.http import require_POST
+
 
 
 # ====================== HOME ======================
@@ -276,22 +278,40 @@ def compare_product(request, product_id):
 
 # ====================== CART ======================
 def cart_detail(request):
+    cart_items = []
+    total_items = 0
+    total_price = 0
+
     if request.user.is_authenticated:
         cart, created = Cart.objects.get_or_create(user=request.user)
-        cart_items = cart.items.all()
-        total_items = cart.total_items()
-        total_price = cart.total_price()
+
+        for item in cart.items.select_related('product'):
+            product = item.product
+            quantity = item.quantity
+
+            cart_items.append({
+                'id': item.id,
+                'name': product.name,
+                'slug': product.slug,
+                'price': product.price,
+                'image': product.image.url if product.image else '',
+                'quantity': quantity,
+                'subtotal': product.price * quantity,
+                'stock_quantity': product.stock_quantity,  # ✅ FIX
+                'max_allowed': min(product.stock_quantity, 10) if product.stock_quantity > 0 else 0
+            })
+
+            total_items += quantity
+            total_price += product.price * quantity
+
     else:
-        # Handle session-based cart for guests
         cart_data = request.session.get('cart', {})
-        cart_items = []
-        total_items = 0
-        total_price = 0
-        
+
         for product_id, item_data in cart_data.items():
             try:
                 product = Product.objects.get(id=product_id)
                 quantity = item_data.get('quantity', 1)
+
                 cart_items.append({
                     'id': product.id,
                     'name': product.name,
@@ -303,18 +323,22 @@ def cart_detail(request):
                     'stock_quantity': product.stock_quantity,
                     'max_allowed': min(product.stock_quantity, 10) if product.stock_quantity > 0 else 0
                 })
+
                 total_items += quantity
                 total_price += product.price * quantity
+
             except Product.DoesNotExist:
                 continue
-    
+
     context = {
         'cart_items': cart_items,
         'total_items': total_items,
         'total_price': total_price,
         'is_cart_empty': len(cart_items) == 0,
     }
+
     return render(request, 'cart/cart_detail.html', context)
+
 
 @login_required
 def add_to_cart(request, product_id):
@@ -395,25 +419,80 @@ def clear_cart(request):
 
 def update_cart_item(request, item_id):
     if request.method == 'POST':
-        quantity = int(request.POST.get('quantity', 1))
-        
-        if request.user.is_authenticated:
-            cart_item = get_object_or_404(CartItem, id=item_id, cart__user=request.user)
-            cart_item.quantity = quantity
-            cart_item.save()
-        else:
-            # Update session cart
-            cart = request.session.get('cart', {})
-            item_id_str = str(item_id)
-            if item_id_str in cart:
-                cart[item_id_str]['quantity'] = quantity
-                request.session['cart'] = cart
-                request.session.modified = True
-        
-        messages.success(request, 'Cart updated successfully')
+        try:
+            quantity = int(request.POST.get('quantity', 1))
+            
+            if request.user.is_authenticated:
+                cart_item = get_object_or_404(CartItem, id=item_id, cart__user=request.user)
+                cart_item.quantity = quantity
+                cart_item.save()
+                
+                # Get updated cart data
+                cart = cart_item.cart
+                item_subtotal = cart_item.product.selling_price * quantity
+                cart_summary = {
+                    'total_items': cart.total_items(),
+                    'total_price': cart.total_price(),
+                }
+                
+                response_data = {
+                    'success': True,
+                    'message': 'Cart updated successfully',
+                    'item_id': item_id,
+                    'item_quantity': quantity,
+                    'item_price': cart_item.product.selling_price,
+                    'item_subtotal': item_subtotal,
+                    'cart_summary': cart_summary,
+                }
+            else:
+                # Update session cart
+                cart = request.session.get('cart', {})
+                item_id_str = str(item_id)
+                if item_id_str in cart:
+                    cart[item_id_str]['quantity'] = quantity
+                    request.session['cart'] = cart
+                    request.session.modified = True
+                    
+                    # Calculate cart summary for session
+                    total_items = sum(item['quantity'] for item in cart.values())
+                    total_price = 0
+                    for product_id, item_data in cart.items():
+                        try:
+                            product = Product.objects.get(id=product_id)
+                            total_price += product.selling_price * item_data['quantity']
+                        except Product.DoesNotExist:
+                            continue
+                    
+                    response_data = {
+                        'success': True,
+                        'message': 'Cart updated successfully',
+                        'item_id': item_id,
+                        'item_quantity': quantity,
+                        'item_price': cart[item_id_str].get('price', 0),
+                        'item_subtotal': cart[item_id_str].get('price', 0) * quantity,
+                        'cart_summary': {
+                            'total_items': total_items,
+                            'total_price': total_price,
+                        },
+                    }
+                else:
+                    response_data = {
+                        'success': False,
+                        'message': 'Item not found in cart',
+                    }
+            
+            return JsonResponse(response_data)
+            
+        except Exception as e:
+            return JsonResponse({
+                'success': False,
+                'message': f'Error: {str(e)}'
+            })
     
-    return redirect('cart_detail')
-
+    return JsonResponse({
+        'success': False,
+        'message': 'Invalid request method'
+    })
 def get_cart_count(request):
     if request.user.is_authenticated:
         cart, created = Cart.objects.get_or_create(user=request.user)
@@ -528,19 +607,35 @@ def order_success(request, order_id):
 
 
 
-@login_required
 def order_history(request):
-    orders = (
-        Order.objects
-        .filter(customer=request.user)
-        .order_by('-created_at')
-    )
-
-    return render(request, 'order_history.html', {
-        'orders': orders,
-        'total_orders': orders.count(),
-    })
-
+    if not request.user.is_authenticated:
+        return redirect('login')
+    
+    # Check what field name your Order model has
+    # If it has 'customer' field, use that
+    orders = Order.objects.filter(customer=request.user).order_by('-created_at')
+    
+    # Calculate counts
+    total_orders = orders.count()
+    active_orders = orders.filter(status__in=['pending', 'processing', 'shipped']).count()
+    delivered_orders = orders.filter(status='delivered').count()
+    cancelled_orders = orders.filter(status='cancelled').count()
+    
+    # Pagination
+    from django.core.paginator import Paginator
+    paginator = Paginator(orders, 10)
+    page = request.GET.get('page')
+    orders_page = paginator.get_page(page)
+    
+    context = {
+        'orders': orders_page,
+        'total_orders': total_orders,
+        'active_orders': active_orders,
+        'delivered_orders': delivered_orders,
+        'cancelled_orders': cancelled_orders,
+    }
+    
+    return render(request, 'order_history.html', context)
 
 @login_required
 def order_detail(request, order_id):
