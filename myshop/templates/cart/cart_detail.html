@@ -20,7 +20,7 @@ Your Shopping Cart | MobileShop
                 <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden mb-6">
                     <div class="px-6 py-5 border-b border-gray-100">
                         <div class="flex justify-between items-center">
-                            <h2 class="text-lg font-semibold text-gray-900">Items ({{ total_items }})</h2>
+                            <h2 class="text-lg font-semibold text-gray-900">Items (<span id="total-items-count">{{ total_items }}</span>)</h2>
                             {% if cart_items %}
                             <a href="{% url 'clear_cart' %}" 
                                class="text-sm text-red-600 hover:text-red-700 font-medium"
@@ -33,23 +33,23 @@ Your Shopping Cart | MobileShop
 
                     <div class="divide-y divide-gray-100">
                         {% for item in cart_items %}
-                        <div class="p-6 hover:bg-gray-50 transition-colors duration-200">
+                        <div class="p-6 hover:bg-gray-50 transition-colors duration-200 cart-item" data-item-id="{{ item.id }}">
                             <div class="flex flex-col sm:flex-row gap-5">
                                 <!-- Product Image -->
                                 <div class="flex-shrink-0">
                                     <div class="relative w-28 h-28 bg-gray-100 rounded-xl overflow-hidden">
                                         {% if item.image %}
-    <!-- guest cart -->
-    <img src="{{ item.image }}" class="w-full h-full object-contain p-2">
-{% elif item.product and item.product.image %}
-    <!-- logged-in cart -->
-    <img src="{{ item.product.image.url }}" class="w-full h-full object-contain p-2">
-{% else %}
-    <!-- fallback -->
-    <div class="w-full h-full flex items-center justify-center text-gray-400">
-        <i class="fas fa-image text-3xl"></i>
-    </div>
-{% endif %}
+                                        <!-- guest cart -->
+                                        <img src="{{ item.image }}" class="w-full h-full object-contain p-2">
+                                        {% elif item.product and item.product.image %}
+                                        <!-- logged-in cart -->
+                                        <img src="{{ item.product.image.url }}" class="w-full h-full object-contain p-2">
+                                        {% else %}
+                                        <!-- fallback -->
+                                        <div class="w-full h-full flex items-center justify-center text-gray-400">
+                                            <i class="fas fa-image text-3xl"></i>
+                                        </div>
+                                        {% endif %}
                                     </div>
                                 </div>
 
@@ -117,11 +117,11 @@ Your Shopping Cart | MobileShop
 
                                         <!-- Price -->
                                         <div class="text-right">
-                                            <p class="text-2xl font-bold text-gray-900">
+                                            <p class="text-2xl font-bold text-gray-900 item-subtotal" id="subtotal-{{ item.id }}">
                                                 ৳{{ item.subtotal }}
                                             </p>
                                             <p class="text-sm text-gray-500">
-                                                ৳{{ item.price }} each
+                                                ৳<span class="item-price" id="price-{{ item.id }}">{{ item.price }}</span> each
                                             </p>
                                         </div>
                                     </div>
@@ -176,18 +176,20 @@ Your Shopping Cart | MobileShop
                     <div class="p-6 space-y-4">
                         <!-- Subtotal -->
                         <div class="flex justify-between">
-                            <span class="text-gray-600">Subtotal ({{ total_items }} items)</span>
-                            <span class="font-medium">৳{{ total_price }}</span>
+                            <span class="text-gray-600">Subtotal (<span id="summary-items-count">{{ total_items }}</span> items)</span>
+                            <span class="font-medium">৳<span id="subtotal-amount">{{ total_price }}</span></span>
                         </div>
 
                         <!-- Shipping -->
                         <div class="flex justify-between">
                             <span class="text-gray-600">Shipping</span>
-                            {% if total_price >= 5000 %}
-                            <span class="text-green-600 font-medium">FREE</span>
-                            {% else %}
-                            <span class="font-medium">৳60</span>
-                            {% endif %}
+                            <span id="shipping-amount" class="font-medium">
+                                {% if total_price >= 5000 %}
+                                <span class="text-green-600">FREE</span>
+                                {% else %}
+                                ৳60
+                                {% endif %}
+                            </span>
                         </div>
 
                         <!-- Tax (Optional) -->
@@ -204,36 +206,34 @@ Your Shopping Cart | MobileShop
                             <span class="text-lg font-semibold text-gray-900">Total</span>
                             <div class="text-right">
                                 {% if total_price < 5000 %}
-                                <div class="text-sm text-gray-500 line-through mb-1">৳{{ total_price }}</div>
-                                <div class="text-2xl font-bold text-blue-600">৳{{ total_price|add:60 }}</div>
+                                <div class="text-sm text-gray-500 line-through mb-1 original-total" id="original-total">৳{{ total_price }}</div>
+                                <div class="text-2xl font-bold text-blue-600" id="total-amount">৳{{ total_price|add:60 }}</div>
                                 {% else %}
-                                <div class="text-2xl font-bold text-blue-600">৳{{ total_price }}</div>
+                                <div class="text-2xl font-bold text-blue-600" id="total-amount">৳{{ total_price }}</div>
                                 {% endif %}
                             </div>
                         </div>
 
                         <!-- Free Shipping Notice -->
-                        {% if total_price < 5000 %}
-                        <div class="mt-4 p-3 bg-blue-50 rounded-lg">
+                        <div id="shipping-notice" class="mt-4 p-3 rounded-lg {% if total_price >= 5000 %}bg-green-50{% else %}bg-blue-50{% endif %}">
+                            {% if total_price < 5000 %}
                             <div class="flex items-center text-blue-700">
                                 <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
                                 </svg>
-                                <span class="text-sm font-medium">
+                                <span class="text-sm font-medium" id="free-shipping-text">
                                     Spend ৳{{ 5000|add:"-"|add:total_price }} more for FREE shipping!
                                 </span>
                             </div>
-                        </div>
-                        {% else %}
-                        <div class="mt-4 p-3 bg-green-50 rounded-lg">
+                            {% else %}
                             <div class="flex items-center text-green-700">
                                 <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
                                 </svg>
                                 <span class="text-sm font-medium">FREE shipping applied!</span>
                             </div>
+                            {% endif %}
                         </div>
-                        {% endif %}
                     </div>
 
                     <!-- Checkout Button -->
@@ -290,7 +290,51 @@ Your Shopping Cart | MobileShop
     </div>
 </div>
 
+<!-- Notification Toast -->
+<div id="notification-toast" class="fixed top-4 right-4 z-50 hidden">
+    <div class="bg-green-500 text-white px-6 py-4 rounded-lg shadow-lg max-w-sm">
+        <div class="flex items-center">
+            <svg class="w-6 h-6 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+            </svg>
+            <span id="notification-message"></span>
+        </div>
+    </div>
+</div>
+
 <script>
+// Get CSRF Token
+function getCSRFToken() {
+    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]');
+    return csrfToken ? csrfToken.value : '';
+}
+
+// Show notification
+function showNotification(message, type = 'success') {
+    const toast = document.getElementById('notification-toast');
+    const messageElement = document.getElementById('notification-message');
+    
+    messageElement.textContent = message;
+    
+    // Set color based on type
+    toast.className = `fixed top-4 right-4 z-50`;
+    if (type === 'success') {
+        toast.classList.add('bg-green-500', 'text-white');
+    } else if (type === 'error') {
+        toast.classList.add('bg-red-500', 'text-white');
+    } else if (type === 'warning') {
+        toast.classList.add('bg-yellow-500', 'text-white');
+    }
+    
+    toast.classList.remove('hidden');
+    
+    // Auto hide after 3 seconds
+    setTimeout(() => {
+        toast.classList.add('hidden');
+    }, 3000);
+}
+
+// Update quantity with +/- buttons
 function updateQuantity(itemId, change) {
     const input = document.getElementById(`quantity-${itemId}`);
     let newQuantity = parseInt(input.value) + change;
@@ -303,61 +347,183 @@ function updateQuantity(itemId, change) {
     }
 }
 
+// Update quantity directly via input field
 function updateQuantityDirect(itemId, quantity) {
-    const max = document.getElementById(`quantity-${itemId}`).getAttribute('max');
-    const min = document.getElementById(`quantity-${itemId}`).getAttribute('min');
+    const input = document.getElementById(`quantity-${itemId}`);
+    const max = parseInt(input.getAttribute('max'));
+    const min = parseInt(input.getAttribute('min'));
     
     let newQuantity = parseInt(quantity);
     if (isNaN(newQuantity) || newQuantity < min) newQuantity = min;
     if (newQuantity > max) newQuantity = max;
     
-    document.getElementById(`quantity-${itemId}`).value = newQuantity;
+    input.value = newQuantity;
     updateCartQuantity(itemId, newQuantity);
 }
 
-function updateCartQuantity(itemId, quantity) {
-    fetch(`/cart/update/${itemId}/`, {
-        method: 'POST',
-        headers: {
-            'X-CSRFToken': getCSRFToken(),
-            'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        body: `quantity=${quantity}`
-    })
-    .then(response => {
-        if (response.ok) {
-            location.reload(); // Reload page to update totals
+// Update cart quantity via AJAX
+async function updateCartQuantity(itemId, quantity) {
+    try {
+        const response = await fetch(`/cart/update/${itemId}/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': getCSRFToken(),
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: `quantity=${quantity}`
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            // Update item subtotal
+            const itemSubtotalElement = document.getElementById(`subtotal-${itemId}`);
+            if (itemSubtotalElement) {
+                itemSubtotalElement.textContent = `৳${data.item_subtotal}`;
+            }
+            
+            // Update item price if needed
+            const itemPriceElement = document.getElementById(`price-${itemId}`);
+            if (itemPriceElement && data.item_price) {
+                itemPriceElement.textContent = data.item_price;
+            }
+            
+            // Update cart summary with new data
+            updateCartSummary(data.cart_summary);
+            
+            // Show success message
+            showNotification(data.message || 'Cart updated successfully', 'success');
+        } else {
+            showNotification(data.message || 'Failed to update cart', 'error');
         }
-    })
-    .catch(error => {
+    } catch (error) {
         console.error('Error:', error);
-        alert('Failed to update cart');
-    });
+        showNotification('An error occurred while updating the cart', 'error');
+    }
 }
 
-function removeItem(itemId) {
-    if (confirm('Remove this item from cart?')) {
-        fetch(`/cart/remove/${itemId}/`, {
+// Remove item from cart
+async function removeItem(itemId) {
+    if (!confirm('Remove this item from cart?')) return;
+    
+    try {
+        const response = await fetch(`/cart/remove/${itemId}/`, {
             method: 'POST',
             headers: {
                 'X-CSRFToken': getCSRFToken(),
             }
-        })
-        .then(response => {
-            if (response.ok) {
-                location.reload(); // Reload page
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('Failed to remove item');
         });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            // Remove the item from DOM
+            const itemElement = document.querySelector(`.cart-item[data-item-id="${itemId}"]`);
+            if (itemElement) {
+                itemElement.remove();
+            }
+            
+            // Update cart summary
+            updateCartSummary(data.cart_summary);
+            
+            // Show success message
+            showNotification('Item removed from cart', 'success');
+            
+            // If cart is empty, reload page to show empty cart message
+            if (data.cart_summary.total_items === 0) {
+                setTimeout(() => {
+                    location.reload();
+                }, 1500);
+            }
+        } else {
+            showNotification(data.message || 'Failed to remove item', 'error');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        showNotification('An error occurred while removing the item', 'error');
     }
 }
 
-function getCSRFToken() {
-    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]');
-    return csrfToken ? csrfToken.value : '';
+// Update cart summary (total items, subtotal, shipping, total)
+function updateCartSummary(cartSummary) {
+    if (!cartSummary) return;
+    
+    const { total_items, total_price } = cartSummary;
+    
+    // Update total items count
+    const totalItemsElements = document.querySelectorAll('#total-items-count, #summary-items-count');
+    totalItemsElements.forEach(el => {
+        el.textContent = total_items;
+    });
+    
+    // Update subtotal amount
+    const subtotalElement = document.getElementById('subtotal-amount');
+    if (subtotalElement) {
+        subtotalElement.textContent = total_price;
+    }
+    
+    // Calculate shipping
+    const shipping = total_price >= 5000 ? 0 : 60;
+    const totalAmount = total_price + shipping;
+    
+    // Update shipping display
+    const shippingElement = document.getElementById('shipping-amount');
+    const shippingNotice = document.getElementById('shipping-notice');
+    
+    if (shippingElement && shippingNotice) {
+        if (total_price >= 5000) {
+            shippingElement.innerHTML = '<span class="text-green-600">FREE</span>';
+            shippingNotice.className = 'mt-4 p-3 bg-green-50 rounded-lg';
+            shippingNotice.innerHTML = `
+                <div class="flex items-center text-green-700">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                    </svg>
+                    <span class="text-sm font-medium">FREE shipping applied!</span>
+                </div>
+            `;
+        } else {
+            shippingElement.textContent = '৳60';
+            shippingNotice.className = 'mt-4 p-3 bg-blue-50 rounded-lg';
+            const needed = 5000 - total_price;
+            shippingNotice.innerHTML = `
+                <div class="flex items-center text-blue-700">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                    </svg>
+                    <span class="text-sm font-medium">
+                        Spend ৳${needed} more for FREE shipping!
+                    </span>
+                </div>
+            `;
+        }
+    }
+    
+    // Update total amount
+    const totalAmountElement = document.getElementById('total-amount');
+    const originalTotalElement = document.getElementById('original-total');
+    
+    if (totalAmountElement) {
+        if (total_price < 5000) {
+            // Show discounted total with original price strikethrough
+            if (originalTotalElement) {
+                originalTotalElement.textContent = `৳${total_price}`;
+                originalTotalElement.style.display = 'block';
+            }
+            totalAmountElement.textContent = `৳${totalAmount}`;
+        } else {
+            // Hide original total if exists
+            if (originalTotalElement) {
+                originalTotalElement.style.display = 'none';
+            }
+            totalAmountElement.textContent = `৳${totalAmount}`;
+        }
+    }
 }
+
+// Initialize cart summary on page load
+document.addEventListener('DOMContentLoaded', function() {
+    // You can add any initialization code here if needed
+});
 </script>
 {% endblock %}
