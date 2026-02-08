@@ -5,18 +5,15 @@ from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
 from django.utils import timezone
 from django.core.validators import MinValueValidator
-from django.db.models import Sum, F  # ✅ FIXED
+from django.db.models import Sum, F
 import os
 from django.core.cache import cache
-<<<<<<< HEAD
 from django.conf import settings
-from django.db import models
+from django.urls import reverse
 import random
 import string
-
-=======
 from decimal import Decimal
->>>>>>> 0df83f8121a1e35b066fb1e694931f552883af37
+import time  # ✅ time module যোগ করুন
 
 
 class Category(models.Model):
@@ -78,14 +75,15 @@ class SubCategory(models.Model):
     
     def save(self, *args, **kwargs):
         if not self.slug:
-            self.slug = slugify(self.name)
-        
-        # Ensure slug is unique
-        original_slug = self.slug
-        counter = 1
-        while SubCategory.objects.filter(slug=self.slug).exclude(id=self.id).exists():
-            self.slug = f"{original_slug}-{counter}"
-            counter += 1
+            base_slug = slugify(self.name)
+            slug = base_slug
+            counter = 1
+            
+            while SubCategory.objects.filter(slug=slug).exclude(id=self.id).exists():
+                slug = f"{base_slug}-{counter}"
+                counter += 1
+            
+            self.slug = slug
         
         super().save(*args, **kwargs)
         
@@ -96,6 +94,7 @@ class SubCategory(models.Model):
     def product_count(self):
         return self.products.filter(is_active=True).count()
 
+
 class Brand(models.Model):
     TIER_CHOICES = [
         ('premium', 'Premium'),
@@ -105,7 +104,6 @@ class Brand(models.Model):
     
     name = models.CharField(max_length=100)
     slug = models.SlugField(max_length=100, unique=True, blank=True)
-    #description = models.TextField(blank=True, null=True)
     logo = models.ImageField(upload_to='brands/logos/', blank=True, null=True)
     tier = models.CharField(max_length=20, choices=TIER_CHOICES, default='standard')
     website = models.URLField(blank=True, null=True)
@@ -118,9 +116,6 @@ class Brand(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     
-    # Remove logo_initials if you don't have it in your model
-    # logo_initials = models.CharField(max_length=10, blank=True, null=True)
-    
     class Meta:
         ordering = ['name']
         verbose_name = 'Brand'
@@ -131,13 +126,15 @@ class Brand(models.Model):
     
     def save(self, *args, **kwargs):
         if not self.slug:
-            self.slug = slugify(self.name)
+            base_slug = slugify(self.name)
+            slug = base_slug
             counter = 1
-            original_slug = self.slug
             
-            while Brand.objects.filter(slug=self.slug).exists():
-                self.slug = f'{original_slug}-{counter}'
+            while Brand.objects.filter(slug=slug).exclude(id=self.id).exists():
+                slug = f"{base_slug}-{counter}"
                 counter += 1
+            
+            self.slug = slug
         
         super().save(*args, **kwargs)
     
@@ -369,13 +366,6 @@ class Product(models.Model):
         verbose_name="Main Product Image"
     )
     
-    # You can create a separate ProductImage model for gallery
-    # class ProductImage(models.Model):
-    #     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='images')
-    #     image = models.ImageField(upload_to='products/gallery/')
-    #     is_default = models.BooleanField(default=False)
-    #     created_at = models.DateTimeField(auto_now_add=True)
-    
     # ==================== INVENTORY ====================
     stock_quantity = models.PositiveIntegerField(
         default=0,
@@ -518,7 +508,7 @@ class Product(models.Model):
             slug = base_slug
             counter = 1
             
-            while Product.objects.filter(slug=slug).exists():
+            while Product.objects.filter(slug=slug).exclude(id=self.id).exists():
                 slug = f"{base_slug}-{counter}"
                 counter += 1
             
@@ -529,8 +519,16 @@ class Product(models.Model):
             # Generate SKU from brand, category, and timestamp
             brand_code = self.brand.name[:3].upper() if self.brand else "PRO"
             category_code = self.category.name[:3].upper() if self.category else "GEN"
-            timestamp = str(int(time.time()))[-6:]
-            self.sku = f"{brand_code}-{category_code}-{timestamp}"
+            timestamp = str(int(time.time()))[-6:]  # ✅ time module ব্যবহার
+            sku_value = f"{brand_code}-{category_code}-{timestamp}"
+            
+            # Ensure SKU is unique
+            counter = 1
+            while Product.objects.filter(sku=sku_value).exclude(id=self.id).exists():
+                sku_value = f"{brand_code}-{category_code}-{timestamp}-{counter}"
+                counter += 1
+            
+            self.sku = sku_value
         
         # Set published_at if product is being activated
         if self.is_active and not self.published_at:
@@ -592,7 +590,10 @@ class Product(models.Model):
     def get_absolute_url(self):
         """Get absolute URL for product"""
         from django.urls import reverse
-        return reverse('product_detail', kwargs={'slug': self.slug})
+        try:
+            return reverse('product_detail', kwargs={'slug': self.slug})
+        except:
+            return '#'
     
     @property
     def display_price(self):
@@ -609,9 +610,10 @@ class Product(models.Model):
     @property
     def thumbnail_url(self):
         """Get thumbnail URL"""
-        if self.image:
+        if self.image and hasattr(self.image, 'url'):
             return self.image.url
         return "/static/images/product-placeholder.jpg"
+
 
 class ProductImage(models.Model):
     product = models.ForeignKey(
@@ -628,15 +630,17 @@ class ProductImage(models.Model):
 
 class Customer(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
+    phone = models.CharField(max_length=15, blank=True, null=True)
+    address = models.TextField(blank=True, null=True)
+    date_of_birth = models.DateField(blank=True, null=True)
+    profile_picture = models.ImageField(upload_to='customers/', blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return self.user.username
 
 
-
-# =========================
-# ORDER
-# =========================
 class Order(models.Model):
     ORDER_STATUS = [
         ('pending', 'Pending'),
@@ -644,11 +648,15 @@ class Order(models.Model):
         ('shipped', 'Shipped'),
         ('delivered', 'Delivered'),
         ('cancelled', 'Cancelled'),
+        ('refunded', 'Refunded'),
     ]
 
     PAYMENT_METHODS = [
         ('cod', 'Cash on Delivery'),
-        ('online', 'Online Payment'),
+        ('bkash', 'bKash'),
+        ('nagad', 'Nagad'),
+        ('card', 'Credit/Debit Card'),
+        ('bank', 'Bank Transfer'),
     ]
 
     order_number = models.CharField(
@@ -680,6 +688,18 @@ class Order(models.Model):
         default=0
     )
 
+    shipping_charge = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        default=0
+    )
+
+    discount = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        default=0
+    )
+
     total_amount = models.DecimalField(
         max_digits=10,
         decimal_places=2,
@@ -687,14 +707,21 @@ class Order(models.Model):
     )
 
     shipping_address = models.TextField()
-    phone_number = models.CharField(max_length=20, blank=True)
+    billing_address = models.TextField(blank=True, null=True)
+    phone_number = models.CharField(max_length=20)
+    email = models.EmailField(blank=True, null=True)
+    customer_note = models.TextField(blank=True, null=True)
 
     is_paid = models.BooleanField(default=False)
+    payment_date = models.DateTimeField(blank=True, null=True)
+    transaction_id = models.CharField(max_length=100, blank=True, null=True)
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
-    # ---------- utils ----------
+    class Meta:
+        ordering = ['-created_at']
+
     def __str__(self):
         return self.order_number
 
@@ -704,25 +731,32 @@ class Order(models.Model):
         super().save(*args, **kwargs)
 
     def generate_order_number(self):
-        return "ORD-" + ''.join(random.choices(string.digits, k=8))
+        timestamp = int(time.time())
+        random_str = ''.join(random.choices(string.digits, k=6))
+        return f"ORD-{timestamp}-{random_str}"
 
     def update_totals(self):
         items = self.items.all()
         subtotal = sum(item.total_price for item in items)
         self.subtotal = subtotal
-        self.total_amount = subtotal
+        self.total_amount = subtotal + self.shipping_charge - self.discount
         self.save(update_fields=['subtotal', 'total_amount'])
 
 
 class OrderItem(models.Model):
     order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='items')
-    product = models.ForeignKey(Product, on_delete=models.CASCADE)
-
+    product = models.ForeignKey(Product, on_delete=models.SET_NULL, null=True)
+    
     product_name = models.CharField(max_length=200)
+    sku = models.CharField(max_length=100, blank=True, null=True)
     unit_price = models.DecimalField(max_digits=10, decimal_places=2)
     quantity = models.PositiveIntegerField(default=1)
-
     total_price = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']
 
     def save(self, *args, **kwargs):
         self.total_price = self.unit_price * self.quantity
@@ -741,15 +775,19 @@ class Cart(models.Model):
     def __str__(self):
         return f"Cart ({self.user.username})"
     
+    @property
     def total_items(self):
-        return self.items.aggregate(total=Sum('quantity'))['total'] or 0
+        total = self.items.aggregate(total=models.Sum('quantity'))['total']
+        return total or 0
     
+    @property
     def total_price(self):
-        total = self.items.aggregate(
-            total=Sum(F('product__price') * F('quantity'))
-        )['total'] or 0
+        total = 0
+        for item in self.items.all():
+            total += item.subtotal()
         return total
     
+    @property
     def is_empty(self):
         return not self.items.exists()
 
@@ -769,6 +807,21 @@ class CartItem(models.Model):
     
     def subtotal(self):
         return self.product.price * self.quantity
+
+
+class Wishlist(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='wishlist')
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    added_at = models.DateTimeField(auto_now_add=True)
+    
+    class Meta:
+        unique_together = ['user', 'product']
+        ordering = ['-added_at']
+        verbose_name = "Wishlist"
+        verbose_name_plural = "Wishlists"
+    
+    def __str__(self):
+        return f"{self.user.username} - {self.product.name}"
 
 
 # =============== SIGNALS ===============
@@ -792,12 +845,24 @@ def update_cart_on_item_delete(sender, instance, **kwargs):
     if instance.cart:
         instance.cart.updated_at = timezone.now()
         instance.cart.save(update_fields=['updated_at'])
-        
-class Wishlist(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    product = models.ForeignKey(Product, on_delete=models.CASCADE)
-    added_at = models.DateTimeField(auto_now_add=True)
-    
-    class Meta:
-        unique_together = ['user', 'product']
-        ordering = ['-added_at']
+
+
+@receiver(post_save, sender=OrderItem)
+def update_product_stock_on_order(sender, instance, created, **kwargs):
+    """Update product stock when order item is created"""
+    if created and instance.product:
+        product = instance.product
+        if product.stock_quantity >= instance.quantity:
+            product.stock_quantity -= instance.quantity
+            product.total_sold += instance.quantity
+            product.save()
+
+
+@receiver(post_delete, sender=OrderItem)
+def restore_product_stock_on_delete(sender, instance, **kwargs):
+    """Restore product stock when order item is deleted"""
+    if instance.product:
+        product = instance.product
+        product.stock_quantity += instance.quantity
+        product.total_sold = max(0, product.total_sold - instance.quantity)
+        product.save()
