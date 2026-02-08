@@ -106,7 +106,7 @@ Checkout | Mobile Shop
                 {% empty %}
                 <div class="text-center py-8">
                     <p class="text-gray-500">Your cart is empty.</p>
-                    <a href="{% url 'shop' %}" class="text-primary hover:underline mt-2 inline-block">
+                    <a href="{% url 'home' %}" class="text-primary hover:underline mt-2 inline-block">
                         Continue Shopping
                     </a>
                 </div>
@@ -197,7 +197,7 @@ Checkout | Mobile Shop
         
         <!-- Continue Shopping -->
         <div class="mt-4 text-center">
-            <a href="{% url 'shop' %}" 
+            <a href="{% url 'home' %}" 
                class="inline-flex items-center gap-2 text-primary hover:text-blue-700">
                 <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>

@@ -8,6 +8,11 @@ from django.core.validators import MinValueValidator
 from django.db.models import Sum, F  # ✅ FIXED
 import os
 from django.core.cache import cache
+from django.conf import settings
+from django.db import models
+import random
+import string
+
 
 
 class Category(models.Model):
@@ -207,9 +212,10 @@ class Customer(models.Model):
         return self.user.username
 
 
-from django.conf import settings
-from django.db import models
 
+# =========================
+# ORDER
+# =========================
 class Order(models.Model):
     ORDER_STATUS = [
         ('pending', 'Pending'),
@@ -224,26 +230,50 @@ class Order(models.Model):
         ('online', 'Online Payment'),
     ]
 
-    order_number = models.CharField(max_length=20, unique=True, editable=False)
+    order_number = models.CharField(
+        max_length=20,
+        unique=True,
+        editable=False
+    )
 
-    # ✅ FIX HERE
     customer = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
         related_name='orders'
     )
 
-    status = models.CharField(max_length=20, choices=ORDER_STATUS, default='pending')
-    payment_method = models.CharField(max_length=20, choices=PAYMENT_METHODS)
+    status = models.CharField(
+        max_length=20,
+        choices=ORDER_STATUS,
+        default='pending'
+    )
 
-    subtotal = models.DecimalField(max_digits=10, decimal_places=2, default=0)
-    total_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    payment_method = models.CharField(
+        max_length=20,
+        choices=PAYMENT_METHODS
+    )
+
+    subtotal = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        default=0
+    )
+
+    total_amount = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        default=0
+    )
 
     shipping_address = models.TextField()
+    phone_number = models.CharField(max_length=20, blank=True)
+
+    is_paid = models.BooleanField(default=False)
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+    # ---------- utils ----------
     def __str__(self):
         return self.order_number
 
@@ -253,15 +283,14 @@ class Order(models.Model):
         super().save(*args, **kwargs)
 
     def generate_order_number(self):
-        import random, string
         return "ORD-" + ''.join(random.choices(string.digits, k=8))
 
     def update_totals(self):
         items = self.items.all()
-        self.subtotal = sum(item.total_price for item in items)
-        self.total_amount = self.subtotal
+        subtotal = sum(item.total_price for item in items)
+        self.subtotal = subtotal
+        self.total_amount = subtotal
         self.save(update_fields=['subtotal', 'total_amount'])
-
 
 
 class OrderItem(models.Model):
