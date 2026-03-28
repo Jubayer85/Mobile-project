@@ -25,7 +25,17 @@ from .models import ( Product, Brand, Category,SubCategory,ProductImage,Cart, Ca
 from .forms import ProductForm, ProductImageFormSet
 from .models import Order, OrderItem
 from django.views.decorators.http import require_POST
+from django.db import models
 
+from django.forms import inlineformset_factory
+
+ProductImageFormSet = inlineformset_factory(
+    Product,
+    ProductImage,
+    fields=('image',),
+    extra=4,
+    can_delete=True
+)
 
 
 # ====================== HOME ======================
@@ -105,7 +115,6 @@ def admin_product_list(request):
     products = Product.objects.select_related('brand', 'category').order_by('-created_at')
     return render(request, 'admin_product_list.html', {'products': products})
 
-
 @staff_member_required
 def add_product(request):
     categories = Category.objects.filter(is_active=True)
@@ -114,22 +123,47 @@ def add_product(request):
 
     if request.method == 'POST':
         form = ProductForm(request.POST, request.FILES)
+
+        # 🔥 ALWAYS define formset
+        formset = ProductImageFormSet(request.POST, request.FILES)
+
         if form.is_valid():
-            form.save()
-            messages.success(request, 'Product added successfully!')
-            return redirect('admin_product_list')
+            product = form.save(commit=False)
+
+            # 🔥 attach instance
+            formset = ProductImageFormSet(
+                request.POST,
+                request.FILES,
+                instance=product
+            )
+
+            if formset.is_valid():
+                product.save()
+                formset.save()
+
+                messages.success(request, '✅ Product added successfully!')
+                return redirect('admin_product_list')
+
+            else:
+                print("FORMSET ERRORS:", formset.errors)
+
+        else:
+            print("FORM ERRORS:", form.errors)
+
+        messages.error(request, '❌ Please fix the errors below.')
+
     else:
         form = ProductForm()
+        formset = ProductImageFormSet()
 
-    context = {
+    return render(request, 'admin/add_product.html', {
         'form': form,
+        'formset': formset,  # এখন safe ✔
         'categories': categories,
         'subcategories': subcategories,
         'brands': brands,
-    }
+    })
 
-    return render(request, 'admin/add_product.html', context)
-@staff_member_required
 def edit_product(request, pk):
     product = get_object_or_404(Product, pk=pk)
     
@@ -1789,3 +1823,312 @@ def wishlist_count(request):
     if request.user.is_authenticated:
         return {'wishlist_count': Wishlist.objects.filter(user=request.user).count()}
     return {'wishlist_count': 0}
+
+
+
+
+# আপনার views.py ফাইলের শেষে বা admin functions এর অংশে যোগ করুন
+
+# ====================== PRODUCT STATUS TOGGLE ======================
+@login_required
+@staff_member_required
+def toggle_product_status(request, product_id):
+    """Toggle product active/inactive status"""
+    product = get_object_or_404(Product, id=product_id)
+    
+    # Toggle the status
+    product.is_active = not product.is_active
+    product.save()
+    
+    status = "activated" if product.is_active else "deactivated"
+    messages.success(request, f'Product "{product.name}" has been {status}.')
+    
+    # Redirect back to the referring page
+    return redirect(request.META.get('HTTP_REFERER', 'admin_product_list'))
+
+# ====================== DUPLICATE PRODUCT ======================
+@login_required
+@staff_member_required
+def duplicate_product(request, product_id):
+    """Duplicate an existing product"""
+    original = get_object_or_404(Product, id=product_id)
+    
+    # Create duplicate product
+    duplicate = Product.objects.create(
+        name=f"{original.name} (Copy)",
+        slug=f"{original.slug}-copy-{original.id}" if original.slug else slugify(f"{original.name}-copy-{original.id}"),
+        description=original.description,
+        price=original.price,
+        compare_price=original.compare_price,
+        stock_quantity=original.stock_quantity,
+        sku=f"{original.sku}-COPY" if original.sku else None,
+        category=original.category,
+        subcategory=original.subcategory,
+        brand=original.brand,
+        is_active=False,  # Set as inactive by default
+        is_featured=False,
+    )
+    
+    # Copy image if exists
+    if original.image:
+        duplicate.image = original.image
+        duplicate.save()
+    
+    messages.success(request, f'Product "{original.name}" has been duplicated successfully.')
+    return redirect('edit_product', pk=duplicate.id)
+
+# ====================== UPDATE ORDER STATUS ======================
+@login_required
+@staff_member_required
+def update_order_status(request, order_id):
+    """Update order status"""
+    if request.method == 'POST':
+        order = get_object_or_404(Order, id=order_id)
+        new_status = request.POST.get('status')
+        
+        if new_status:
+            old_status = order.status
+            order.status = new_status
+            order.save()
+            
+            # Optional: Send email notification to customer
+            # send_order_status_email(order)
+            
+            messages.success(request, f'Order #{order.id} status updated from {old_status} to {new_status}')
+    
+    return redirect('admin_order_detail', order_id=order_id)
+
+# ====================== ADMIN CATEGORY LIST ======================
+@login_required
+@staff_member_required
+def admin_category_list(request):
+    """Admin category list view"""
+    categories = Category.objects.all().order_by('name')
+    
+    # Add counts
+    from django.db.models import Count
+    categories = categories.annotate(
+        product_count=Count('products', filter=models.Q(products__is_active=True))
+    )
+    
+    context = {
+        'categories': categories,
+        'total_categories': categories.count(),
+    }
+    return render(request, 'admin/category_list.html', context)
+
+# ====================== ADMIN SUBCATEGORY LIST ======================
+@login_required
+@staff_member_required
+def admin_subcategory_list(request):
+    """Admin subcategory list view"""
+    from django.db.models import Count
+    subcategories = SubCategory.objects.select_related('category').all().order_by('category__name', 'name')
+    subcategories = subcategories.annotate(
+        product_count=Count('products', filter=models.Q(products__is_active=True))
+    )
+    
+    categories = Category.objects.filter(is_active=True)
+    
+    context = {
+        'subcategories': subcategories,
+        'categories': categories,
+        'total_subcategories': subcategories.count(),
+    }
+    return render(request, 'admin/subcategory_list.html', context)
+
+# ====================== ADMIN BRAND LIST ======================
+@login_required
+@staff_member_required
+def admin_brand_list(request):
+    """Admin brand list view"""
+    from django.db.models import Count
+    brands = Brand.objects.all().order_by('name')
+    brands = brands.annotate(
+        product_count=Count('products', filter=models.Q(products__is_active=True))
+    )
+    
+    context = {
+        'brands': brands,
+        'total_brands': brands.count(),
+    }
+    return render(request, 'admin/brand_list.html', context)
+
+# ====================== EDIT CATEGORY ======================
+@login_required
+@staff_member_required
+def edit_category(request, pk):
+    """Edit category"""
+    category = get_object_or_404(Category, id=pk)
+    
+    if request.method == 'POST':
+        name = request.POST.get('name')
+        description = request.POST.get('description')
+        is_active = request.POST.get('is_active') == 'true'
+        icon = request.POST.get('icon', 'fas fa-boxes')
+        
+        if name:
+            category.name = name
+            category.description = description
+            category.is_active = is_active
+            category.icon = icon
+            
+            # Update slug if name changed
+            if category.name != name:
+                category.slug = slugify(name)
+            
+            category.save()
+            messages.success(request, f'Category "{name}" updated successfully.')
+            return redirect('admin_category_list')
+    
+    return render(request, 'admin/edit_category.html', {'category': category})
+
+# ====================== DELETE CATEGORY ======================
+@login_required
+@staff_member_required
+def delete_category(request, pk):
+    """Delete category"""
+    category = get_object_or_404(Category, id=pk)
+    
+    if request.method == 'POST':
+        name = category.name
+        category.delete()
+        messages.success(request, f'Category "{name}" deleted successfully.')
+    
+    return redirect('admin_category_list')
+
+# ====================== EDIT SUBCATEGORY ======================
+@login_required
+@staff_member_required
+def edit_subcategory(request, pk):
+    """Edit subcategory"""
+    subcategory = get_object_or_404(SubCategory, id=pk)
+    categories = Category.objects.filter(is_active=True)
+    
+    if request.method == 'POST':
+        name = request.POST.get('name')
+        description = request.POST.get('description')
+        category_id = request.POST.get('category')
+        is_active = request.POST.get('is_active') == 'true'
+        
+        if name and category_id:
+            subcategory.name = name
+            subcategory.description = description
+            subcategory.category_id = category_id
+            subcategory.is_active = is_active
+            subcategory.slug = slugify(name)
+            subcategory.save()
+            
+            messages.success(request, f'Subcategory "{name}" updated successfully.')
+            return redirect('admin_subcategory_list')
+    
+    return render(request, 'admin/edit_subcategory.html', {
+        'subcategory': subcategory,
+        'categories': categories
+    })
+
+# ====================== DELETE SUBCATEGORY ======================
+@login_required
+@staff_member_required
+def delete_subcategory(request, pk):
+    """Delete subcategory"""
+    subcategory = get_object_or_404(SubCategory, id=pk)
+    
+    if request.method == 'POST':
+        name = subcategory.name
+        subcategory.delete()
+        messages.success(request, f'Subcategory "{name}" deleted successfully.')
+    
+    return redirect('admin_subcategory_list')
+
+# ====================== EDIT BRAND ======================
+@login_required
+@staff_member_required
+def edit_brand(request, pk):
+    """Edit brand"""
+    brand = get_object_or_404(Brand, id=pk)
+    
+    if request.method == 'POST':
+        name = request.POST.get('name')
+        description = request.POST.get('description')
+        website = request.POST.get('website')
+        country = request.POST.get('country')
+        is_active = request.POST.get('is_active') == 'true'
+        is_featured = request.POST.get('is_featured') == 'true'
+        
+        if name:
+            brand.name = name
+            brand.description = description
+            brand.website = website or None
+            brand.country = country or None
+            brand.is_active = is_active
+            brand.is_featured = is_featured
+            brand.slug = slugify(name)
+            brand.save()
+            
+            messages.success(request, f'Brand "{name}" updated successfully.')
+            return redirect('admin_brand_list')
+    
+    return render(request, 'admin/edit_brand.html', {'brand': brand})
+
+# ====================== DELETE BRAND ======================
+@login_required
+@staff_member_required
+def delete_brand(request, pk):
+    """Delete brand"""
+    brand = get_object_or_404(Brand, id=pk)
+    
+    if request.method == 'POST':
+        name = brand.name
+        brand.delete()
+        messages.success(request, f'Brand "{name}" deleted successfully.')
+    
+    return redirect('admin_brand_list')
+
+# ====================== PRODUCT DETAIL BY ID (FALLBACK) ======================
+def product_detail_by_id(request, id):
+    """Product detail view using ID (fallback when slug is missing)"""
+    product = get_object_or_404(Product, id=id, is_active=True)
+    return render(request, 'product_detail.html', {'product': product})
+
+# ====================== UPDATE CART ITEM ======================
+@login_required
+def update_cart_item(request, item_id):
+    """Update cart item quantity"""
+    if request.method == 'POST':
+        try:
+            quantity = int(request.POST.get('quantity', 1))
+            
+            if request.user.is_authenticated:
+                cart_item = get_object_or_404(CartItem, id=item_id, cart__user=request.user)
+                
+                if quantity > 0 and quantity <= cart_item.product.stock_quantity:
+                    cart_item.quantity = quantity
+                    cart_item.save()
+                    messages.success(request, 'Cart updated successfully.')
+                elif quantity <= 0:
+                    cart_item.delete()
+                    messages.success(request, 'Item removed from cart.')
+                else:
+                    messages.error(request, f'Only {cart_item.product.stock_quantity} items available.')
+            
+            else:
+                # Session cart
+                cart = request.session.get('cart', {})
+                item_id_str = str(item_id)
+                if item_id_str in cart:
+                    if quantity > 0:
+                        cart[item_id_str]['quantity'] = quantity
+                        messages.success(request, 'Cart updated successfully.')
+                    else:
+                        del cart[item_id_str]
+                        messages.success(request, 'Item removed from cart.')
+                    request.session['cart'] = cart
+                    request.session.modified = True
+            
+            return redirect('cart_detail')
+            
+        except Exception as e:
+            messages.error(request, f'Error updating cart: {str(e)}')
+    
+    return redirect('cart_detail')

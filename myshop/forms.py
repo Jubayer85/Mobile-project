@@ -2,6 +2,10 @@ from django import forms
 from .models import Product
 from django.forms import modelformset_factory
 from .models import Product, ProductImage, Brand, Category, SubCategory
+# myshop/forms.py
+from django import forms
+from .models import Product, ProductImage, Category, SubCategory, Brand
+
 
 class ProductForm(forms.ModelForm):
     class Meta:
@@ -16,6 +20,104 @@ ProductImageFormSet = modelformset_factory(
     can_delete=True
 )
 
+class ProductImageForm(forms.ModelForm):
+    """Form for individual product gallery images"""
+    
+    class Meta:
+        model = ProductImage
+        fields = ('image',)
+        widgets = {
+            'image': forms.ClearableFileInput(attrs={
+                'class': 'block w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100',
+                'accept': 'image/*'
+            })
+        }
+
+
+# Create formset for gallery images
+ProductImageFormSet = forms.inlineformset_factory(
+    Product,                    # Parent model
+    ProductImage,               # Child model
+    form=ProductImageForm,
+    fields=('image',),
+    extra=4,                    # Number of empty forms
+    can_delete=True,            # Allow deletion
+    max_num=10,                 # Maximum number of images
+    validate_min=False,
+    validate_max=True,
+)
+
+
+# Optional: Category, SubCategory, Brand forms for quick add
+class QuickCategoryForm(forms.ModelForm):
+    """Quick add category form"""
+    class Meta:
+        model = Category
+        fields = ('name', 'description', 'icon')
+        widgets = {
+            'name': forms.TextInput(attrs={
+                'class': 'w-full rounded-lg border border-slate-300 px-3 py-2 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200',
+                'placeholder': 'Enter category name'
+            }),
+            'description': forms.Textarea(attrs={
+                'class': 'w-full rounded-lg border border-slate-300 px-3 py-2 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200',
+                'rows': 2,
+                'placeholder': 'Optional description'
+            }),
+            'icon': forms.TextInput(attrs={
+                'class': 'w-full rounded-lg border border-slate-300 px-3 py-2 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200',
+                'placeholder': 'fas fa-box'
+            })
+        }
+
+
+class QuickSubCategoryForm(forms.ModelForm):
+    """Quick add subcategory form"""
+    class Meta:
+        model = SubCategory
+        fields = ('name', 'category', 'description', 'icon')
+        widgets = {
+            'name': forms.TextInput(attrs={
+                'class': 'w-full rounded-lg border border-slate-300 px-3 py-2 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200',
+                'placeholder': 'Enter subcategory name'
+            }),
+            'category': forms.Select(attrs={
+                'class': 'w-full rounded-lg border border-slate-300 px-3 py-2 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200'
+            }),
+            'description': forms.Textarea(attrs={
+                'class': 'w-full rounded-lg border border-slate-300 px-3 py-2 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200',
+                'rows': 2,
+                'placeholder': 'Optional description'
+            }),
+            'icon': forms.TextInput(attrs={
+                'class': 'w-full rounded-lg border border-slate-300 px-3 py-2 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200',
+                'placeholder': 'fas fa-folder'
+            })
+        }
+
+
+class QuickBrandForm(forms.ModelForm):
+    """Quick add brand form"""
+    class Meta:
+        model = Brand
+        fields = ('name', 'tier', 'country', 'website')
+        widgets = {
+            'name': forms.TextInput(attrs={
+                'class': 'w-full rounded-lg border border-slate-300 px-3 py-2 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200',
+                'placeholder': 'Enter brand name'
+            }),
+            'tier': forms.Select(attrs={
+                'class': 'w-full rounded-lg border border-slate-300 px-3 py-2 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200'
+            }),
+            'country': forms.TextInput(attrs={
+                'class': 'w-full rounded-lg border border-slate-300 px-3 py-2 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200',
+                'placeholder': 'e.g., USA'
+            }),
+            'website': forms.URLInput(attrs={
+                'class': 'w-full rounded-lg border border-slate-300 px-3 py-2 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200',
+                'placeholder': 'https://example.com'
+            })
+        }
 
 class CategoryForm(forms.ModelForm):
     class Meta:
