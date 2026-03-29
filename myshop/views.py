@@ -85,11 +85,28 @@ def profile(request):
 # ====================== DASHBOARDS ======================
 @staff_member_required
 def admin_dashboard(request):
-    return render(request, 'admin_dashboard.html')
+    total_products = Product.objects.count()
+    total_orders = Order.objects.count()
+    total_users = User.objects.count()
 
-from django.contrib.auth.decorators import login_required
-from django.conf import settings
+    total_revenue = Order.objects.aggregate(
+        total=Sum('total_amount')
+    )['total'] or 0
 
+    pending_orders = Order.objects.filter(status='pending').count()
+
+    products = Product.objects.order_by('-id')[:5]
+
+    context = {
+        'total_products': total_products,
+        'total_orders': total_orders,
+        'total_users': total_users,
+        'total_revenue': total_revenue,
+        'pending_orders': pending_orders,
+        'products': products,
+    }
+
+    return render(request, 'admin_dashboard.html', context)
 @login_required
 def user_dashboard(request):
     user = request.user
