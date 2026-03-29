@@ -26,6 +26,8 @@ from .forms import ProductForm, ProductImageFormSet
 from .models import Order, OrderItem
 from django.views.decorators.http import require_POST
 from django.db import models
+from django.db.models.functions import TruncDate
+from django.utils.timezone import now, timedelta
 
 from django.forms import inlineformset_factory
 
@@ -97,6 +99,21 @@ def admin_dashboard(request):
 
     products = Product.objects.order_by('-id')[:5]
 
+    # 🔥 NEW: Sales data (last 7 days)
+    last_7_days = now() - timedelta(days=7)
+
+    sales = (
+        Order.objects
+        .filter(created_at__gte=last_7_days)
+        .annotate(date=TruncDate('created_at'))
+        .values('date')
+        .annotate(total=Sum('total_amount'))
+        .order_by('date')
+    )
+
+    labels = [str(item['date']) for item in sales]
+    data = [float(item['total'] or 0) for item in sales]
+
     context = {
         'total_products': total_products,
         'total_orders': total_orders,
@@ -104,6 +121,10 @@ def admin_dashboard(request):
         'total_revenue': total_revenue,
         'pending_orders': pending_orders,
         'products': products,
+
+        # 🔥 chart data
+        'labels': labels,
+        'data': data,
     }
 
     return render(request, 'admin_dashboard.html', context)
