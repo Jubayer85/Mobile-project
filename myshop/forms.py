@@ -34,6 +34,10 @@ class ProductImageForm(forms.ModelForm):
         }
 
 
+ProductImageFormSet = forms.inlineformset_factory(
+    Product, ProductImage, form=ProductImageForm,
+    extra=4, max_num=10, can_delete=True
+)
 # Create formset for gallery images
 ProductImageFormSet = forms.inlineformset_factory(
     Product,                    # Parent model

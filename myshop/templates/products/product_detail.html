@@ -562,56 +562,281 @@
                         </div>
                     </div>
                 </div>
-
-                <!-- Specifications Tab -->
-                <div id="content-specifications" class="tab-content hidden">
-                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                        <!-- Technical Specifications -->
-                        <div>
-                            <h3 class="text-2xl font-bold text-slate-900 mb-6">Technical Specifications</h3>
-                            <div class="space-y-6">
-                                <div class="flex justify-between items-center py-3 border-b border-slate-100">
-                                    <span class="text-slate-600">Display Size</span>
-                                    <span class="font-semibold text-slate-900">{{ specifications.display }}</span>
-                                </div>
-                                
-                                <div class="flex justify-between items-center py-3 border-b border-slate-100">
-                                    <span class="text-slate-600">RAM</span>
-                                    <span class="font-semibold text-slate-900">{{ specifications.ram }}</span>
-                                </div>
-                                
-                                <div class="flex justify-between items-center py-3 border-b border-slate-100">
-                                    <span class="text-slate-600">Storage</span>
-                                    <span class="font-semibold text-slate-900">{{ specifications.storage }}</span>
-                                </div>
-                                
-                                <div class="flex justify-between items-center py-3 border-b border-slate-100">
-                                    <span class="text-slate-600">Processor</span>
-                                    <span class="font-semibold text-slate-900">{{ specifications.processor }}</span>
-                                </div>
-                                
-                                <div class="flex justify-between items-center py-3 border-b border-slate-100">
-                                    <span class="text-slate-600">Camera</span>
-                                    <span class="font-semibold text-slate-900">{{ specifications.camera }}</span>
-                                </div>
-                                
-                                <div class="flex justify-between items-center py-3 border-b border-slate-100">
-                                    <span class="text-slate-600">Battery</span>
-                                    <span class="font-semibold text-slate-900">{{ specifications.battery }}</span>
-                                </div>
-                                
-                                <div class="flex justify-between items-center py-3 border-b border-slate-100">
-                                    <span class="text-slate-600">Operating System</span>
-                                    <span class="font-semibold text-slate-900">{{ specifications.os }}</span>
-                                </div>
-                                
-                                <div class="flex justify-between items-center py-3 border-b border-slate-100">
-                                    <span class="text-slate-600">Connectivity</span>
-                                    <span class="font-semibold text-slate-900">{{ specifications.connectivity }}</span>
-                                </div>
-                            </div>
-                        </div>
-                        
+<!-- Specifications Tab -->
+<div id="content-specifications" class="tab-content hidden">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <!-- Technical Specifications -->
+        <div>
+            <h3 class="text-2xl font-bold text-slate-900 mb-6">Technical Specifications</h3>
+            <div class="space-y-4">
+                <!-- Display Size -->
+                {% if product.display_size %}
+                <div class="flex justify-between items-center py-3 border-b border-slate-100">
+                    <span class="text-slate-600 font-medium">Display Size</span>
+                    <span class="font-semibold text-slate-900">{{ product.display_size }}"</span>
+                </div>
+                {% endif %}
+                
+                <!-- Display Resolution -->
+                {% if product.display_resolution %}
+                <div class="flex justify-between items-center py-3 border-b border-slate-100">
+                    <span class="text-slate-600 font-medium">Display Resolution</span>
+                    <span class="font-semibold text-slate-900">{{ product.display_resolution }}</span>
+                </div>
+                {% endif %}
+                
+                <!-- RAM -->
+                {% if product.ram %}
+                <div class="flex justify-between items-center py-3 border-b border-slate-100">
+                    <span class="text-slate-600 font-medium">RAM</span>
+                    <span class="font-semibold text-slate-900">{{ product.ram }}</span>
+                </div>
+                {% endif %}
+                
+                <!-- Storage -->
+                {% if product.storage %}
+                <div class="flex justify-between items-center py-3 border-b border-slate-100">
+                    <span class="text-slate-600 font-medium">Storage</span>
+                    <span class="font-semibold text-slate-900">{{ product.storage }}</span>
+                </div>
+                {% endif %}
+                
+                <!-- Processor -->
+                {% if product.processor %}
+                <div class="flex justify-between items-center py-3 border-b border-slate-100">
+                    <span class="text-slate-600 font-medium">Processor</span>
+                    <span class="font-semibold text-slate-900">{{ product.processor }}</span>
+                </div>
+                {% endif %}
+                
+                <!-- Camera -->
+                {% if product.camera %}
+                <div class="flex justify-between items-center py-3 border-b border-slate-100">
+                    <span class="text-slate-600 font-medium">Camera</span>
+                    <span class="font-semibold text-slate-900">{{ product.camera }}</span>
+                </div>
+                {% endif %}
+                
+                <!-- Battery -->
+                {% if product.battery_capacity %}
+                <div class="flex justify-between items-center py-3 border-b border-slate-100">
+                    <span class="text-slate-600 font-medium">Battery</span>
+                    <span class="font-semibold text-slate-900">{{ product.battery_capacity }}</span>
+                </div>
+                {% endif %}
+                
+                <!-- Operating System -->
+                {% if product.operating_system %}
+                <div class="flex justify-between items-center py-3 border-b border-slate-100">
+                    <span class="text-slate-600 font-medium">Operating System</span>
+                    <span class="font-semibold text-slate-900">{{ product.operating_system }}</span>
+                </div>
+                {% endif %}
+                
+                <!-- Connectivity -->
+                {% if product.connectivity %}
+                <div class="flex justify-between items-center py-3 border-b border-slate-100">
+                    <span class="text-slate-600 font-medium">Connectivity</span>
+                    <span class="font-semibold text-slate-900">{{ product.connectivity|truncatechars:50 }}</span>
+                </div>
+                {% endif %}
+                
+                <!-- SIM Type -->
+                {% if product.sim_type %}
+                <div class="flex justify-between items-center py-3 border-b border-slate-100">
+                    <span class="text-slate-600 font-medium">SIM Type</span>
+                    <span class="font-semibold text-slate-900">{{ product.sim_type }}</span>
+                </div>
+                {% endif %}
+                
+                <!-- Water Resistance -->
+                {% if product.water_resistance %}
+                <div class="flex justify-between items-center py-3 border-b border-slate-100">
+                    <span class="text-slate-600 font-medium">Water Resistance</span>
+                    <span class="font-semibold text-slate-900">{{ product.water_resistance }}</span>
+                </div>
+                {% endif %}
+                
+                <!-- Fingerprint Sensor -->
+                {% if product.fingerprint_sensor %}
+                <div class="flex justify-between items-center py-3 border-b border-slate-100">
+                    <span class="text-slate-600 font-medium">Fingerprint Sensor</span>
+                    <span class="font-semibold text-slate-900">{{ product.fingerprint_sensor }}</span>
+                </div>
+                {% endif %}
+                
+                <!-- Colors -->
+                {% if colors_list %}
+                <div class="flex justify-between items-center py-3 border-b border-slate-100">
+                    <span class="text-slate-600 font-medium">Available Colors</span>
+                    <div class="flex space-x-2">
+                        {% for color in colors_list %}
+                        <div class="w-6 h-6 rounded-full border border-slate-200 
+                            {% if color|lower == 'black' %}bg-gray-900
+                            {% elif color|lower == 'white' %}bg-white
+                            {% elif color|lower == 'blue' %}bg-blue-500
+                            {% elif color|lower == 'red' %}bg-red-500
+                            {% elif color|lower == 'green' %}bg-green-500
+                            {% elif color|lower == 'gold' %}bg-yellow-500
+                            {% elif color|lower == 'silver' %}bg-gray-400
+                            {% elif color|lower == 'purple' %}bg-purple-500
+                            {% else %}bg-slate-400{% endif %}"
+                             title="{{ color }}"></div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+                
+                <!-- Warranty -->
+                {% if product.warranty %}
+                <div class="flex justify-between items-center py-3 border-b border-slate-100">
+                    <span class="text-slate-600 font-medium">Warranty</span>
+                    <span class="font-semibold text-slate-900">{{ product.warranty }}</span>
+                </div>
+                {% endif %}
+                
+                <!-- SKU -->
+                {% if product.sku %}
+                <div class="flex justify-between items-center py-3 border-b border-slate-100">
+                    <span class="text-slate-600 font-medium">SKU</span>
+                    <span class="font-semibold text-slate-900">{{ product.sku }}</span>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- Performance Metrics Section -->
+        <div>
+            <h3 class="text-2xl font-bold text-slate-900 mb-6">Performance Metrics</h3>
+            <div class="space-y-6">
+                <!-- Performance Score -->
+                <div>
+                    <div class="flex justify-between mb-2">
+                        <span class="text-slate-700 font-medium">Overall Rating</span>
+                        <span class="text-slate-900 font-bold">{{ product.average_rating|default:"4.8" }}/5</span>
+                    </div>
+                    <div class="h-2 bg-slate-200 rounded-full overflow-hidden">
+                        <div class="h-full bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full" 
+                             style="width: {% widthratio product.average_rating|default:4.8 5 100 %}%"></div>
+                    </div>
+                </div>
+                
+                <!-- Performance Score -->
+                <div>
+                    <div class="flex justify-between mb-2">
+                        <span class="text-slate-700 font-medium">Performance Score</span>
+                        <span class="text-slate-900 font-bold">9.2/10</span>
+                    </div>
+                    <div class="h-2 bg-slate-200 rounded-full overflow-hidden">
+                        <div class="h-full bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full" style="width: 92%"></div>
+                    </div>
+                </div>
+                
+                <!-- Battery Life -->
+                <div>
+                    <div class="flex justify-between mb-2">
+                        <span class="text-slate-700 font-medium">Battery Life</span>
+                        <span class="text-slate-900 font-bold">8.5/10</span>
+                    </div>
+                    <div class="h-2 bg-slate-200 rounded-full overflow-hidden">
+                        <div class="h-full bg-gradient-to-r from-green-500 to-emerald-500 rounded-full" style="width: 85%"></div>
+                    </div>
+                </div>
+                
+                <!-- Camera Quality -->
+                <div>
+                    <div class="flex justify-between mb-2">
+                        <span class="text-slate-700 font-medium">Camera Quality</span>
+                        <span class="text-slate-900 font-bold">9.0/10</span>
+                    </div>
+                    <div class="h-2 bg-slate-200 rounded-full overflow-hidden">
+                        <div class="h-full bg-gradient-to-r from-blue-500 to-cyan-500 rounded-full" style="width: 90%"></div>
+                    </div>
+                </div>
+                
+                <!-- Display Quality -->
+                <div>
+                    <div class="flex justify-between mb-2">
+                        <span class="text-slate-700 font-medium">Display Quality</span>
+                        <span class="text-slate-900 font-bold">9.5/10</span>
+                    </div>
+                    <div class="h-2 bg-slate-200 rounded-full overflow-hidden">
+                        <div class="h-full bg-gradient-to-r from-purple-500 to-pink-500 rounded-full" style="width: 95%"></div>
+                    </div>
+                </div>
+                
+                <!-- Value for Money -->
+                <div>
+                    <div class="flex justify-between mb-2">
+                        <span class="text-slate-700 font-medium">Value for Money</span>
+                        <span class="text-slate-900 font-bold">8.8/10</span>
+                    </div>
+                    <div class="h-2 bg-slate-200 rounded-full overflow-hidden">
+                        <div class="h-full bg-gradient-to-r from-amber-500 to-orange-500 rounded-full" style="width: 88%"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Technical Highlights -->
+            <div class="mt-8 p-6 bg-gradient-to-r from-indigo-50 to-blue-50 rounded-2xl border border-indigo-100">
+                <h4 class="text-lg font-semibold text-slate-900 mb-3">Technical Highlights</h4>
+                <ul class="space-y-2 text-slate-700">
+                    {% if product.processor %}
+                    <li class="flex items-start">
+                        <i class="fas fa-microchip text-indigo-500 mt-1 mr-3"></i>
+                        <span>Powered by <strong>{{ product.processor }}</strong> processor</span>
+                    </li>
+                    {% endif %}
+                    
+                    {% if product.display_size %}
+                    <li class="flex items-start">
+                        <i class="fas fa-mobile-alt text-indigo-500 mt-1 mr-3"></i>
+                        <span>{{ product.display_size }}" {{ product.display_resolution|default:"High-resolution" }} display</span>
+                    </li>
+                    {% endif %}
+                    
+                    {% if product.ram and product.storage %}
+                    <li class="flex items-start">
+                        <i class="fas fa-memory text-indigo-500 mt-1 mr-3"></i>
+                        <span>{{ product.ram }} RAM with {{ product.storage }} storage</span>
+                    </li>
+                    {% endif %}
+                    
+                    {% if product.camera %}
+                    <li class="flex items-start">
+                        <i class="fas fa-camera text-indigo-500 mt-1 mr-3"></i>
+                        <span>{{ product.camera }} camera system</span>
+                    </li>
+                    {% endif %}
+                    
+                    {% if product.battery_capacity %}
+                    <li class="flex items-start">
+                        <i class="fas fa-battery-full text-indigo-500 mt-1 mr-3"></i>
+                        <span>{{ product.battery_capacity }} battery with fast charging</span>
+                    </li>
+                    {% endif %}
+                    
+                    {% if product.water_resistance %}
+                    <li class="flex items-start">
+                        <i class="fas fa-tint text-indigo-500 mt-1 mr-3"></i>
+                        <span>{{ product.water_resistance }} water and dust resistance</span>
+                    </li>
+                    {% endif %}
+                </ul>
+            </div>
+            
+            <!-- Connectivity Details -->
+            {% if product.connectivity %}
+            <div class="mt-6">
+                <h4 class="text-lg font-semibold text-slate-900 mb-3">Connectivity Details</h4>
+                <div class="bg-slate-50 rounded-xl p-4 border border-slate-200">
+                    <p class="text-slate-700 whitespace-pre-line">{{ product.connectivity }}</p>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
                         <!-- Performance Metrics Section -->
 <div>
     <h3 class="text-2xl font-bold text-slate-900 mb-6">Performance Metrics</h3>

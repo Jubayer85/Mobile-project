@@ -33,84 +33,129 @@
         </div>
     </div>
 
+    <!-- Error Display Section - Enhanced -->
+    {% if form.errors or formset.errors %}
+    <div class="max-w-7xl mx-auto px-6 pt-6">
+        <div class="bg-rose-50 border-l-4 border-rose-500 rounded-xl p-6 mb-6 shadow-sm">
+            <div class="flex items-start">
+                <div class="flex-shrink-0">
+                    <i class="fas fa-exclamation-triangle text-rose-500 text-xl"></i>
+                </div>
+                <div class="ml-4 flex-1">
+                    <h3 class="text-lg font-semibold text-rose-800 mb-2">
+                        Please fix the errors below
+                    </h3>
+                    <div class="space-y-3">
+                        {% if form.non_field_errors %}
+                            {% for error in form.non_field_errors %}
+                                <p class="text-rose-700 text-sm">{{ error }}</p>
+                            {% endfor %}
+                        {% endif %}
+                        
+                        {% for field in form %}
+                            {% if field.errors %}
+                                <div class="flex items-start space-x-2">
+                                    <i class="fas fa-times-circle text-rose-500 text-sm mt-0.5"></i>
+                                    <div>
+                                        <span class="font-medium text-rose-800">{{ field.label }}:</span>
+                                        {% for error in field.errors %}
+                                            <p class="text-rose-700 text-sm">{{ error }}</p>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            {% endif %}
+                        {% endfor %}
+                        
+                        {% if formset.errors %}
+                            <div class="flex items-start space-x-2">
+                                <i class="fas fa-images text-rose-500 text-sm mt-0.5"></i>
+                                <div>
+                                    <span class="font-medium text-rose-800">Gallery Images:</span>
+                                    <p class="text-rose-700 text-sm">Please check your image uploads (max 5MB each, JPG/PNG/WebP only)</p>
+                                </div>
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Scroll to first error button -->
+                    <div class="mt-4">
+                        <button onclick="scrollToFirstError()" 
+                                class="inline-flex items-center px-4 py-2 bg-rose-100 text-rose-700 rounded-lg hover:bg-rose-200 transition-colors text-sm font-medium">
+                            <i class="fas fa-arrow-down mr-2"></i>
+                            Scroll to first error
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
     <!-- Main Content -->
     <div class="max-w-7xl mx-auto px-6 py-8">
-        {% if messages %}
-            <div class="mb-8 space-y-3">
-                {% for message in messages %}
-                <div class="flex items-center justify-between p-4 rounded-xl {% if message.tags == 'success' %}bg-emerald-50 border border-emerald-200 text-emerald-700{% elif message.tags == 'error' %}bg-rose-50 border border-rose-200 text-rose-700{% else %}bg-indigo-50 border border-indigo-200 text-indigo-700{% endif %}">
-                    <div class="flex items-center">
-                        {% if message.tags == 'success' %}
-                        <i class="fas fa-check-circle text-emerald-500 mr-3 text-lg"></i>
-                        {% elif message.tags == 'error' %}
-                        <i class="fas fa-exclamation-circle text-rose-500 mr-3 text-lg"></i>
-                        {% else %}
-                        <i class="fas fa-info-circle text-indigo-500 mr-3 text-lg"></i>
-                        {% endif %}
-                        <span class="font-medium">{{ message }}</span>
-                    </div>
-                    <button onclick="this.parentElement.remove()" class="text-slate-400 hover:text-slate-600">
-                        <i class="fas fa-times"></i>
-                    </button>
-                </div>
-                {% endfor %}
-            </div>
-        {% endif %}
-
-        <!-- Debug Info (Remove in production) -->
-        <div class="hidden bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
-            <p class="text-sm font-medium text-yellow-800">
-                <i class="fas fa-bug mr-2"></i>
-                Debug Info: 
-                Categories: {{ categories|length }}, 
-                Subcategories: {{ subcategories|length }}, 
-                Brands: {{ brands|length }}
-            </p>
-        </div>
-
         <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
             <!-- Left Sidebar - Progress Steps -->
             <div class="lg:col-span-1">
                 <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 sticky top-8">
                     <h3 class="font-semibold text-slate-900 mb-6 text-lg">Creation Steps</h3>
                     <div class="space-y-6">
-                        <div class="flex items-center space-x-3">
-                            <div class="w-8 h-8 rounded-full bg-indigo-600 text-white flex items-center justify-center font-semibold">1</div>
+                        <!-- Step 1: Basic Info -->
+                        <div class="flex items-center space-x-3" id="step1-indicator">
+                            <div class="w-8 h-8 rounded-full {% if form.name.errors or form.category.errors or form.brand.errors %}bg-rose-500 text-white{% else %}bg-indigo-600 text-white{% endif %} flex items-center justify-center font-semibold">1</div>
                             <div>
                                 <p class="font-medium text-slate-900">Basic Info</p>
                                 <p class="text-sm text-slate-500">Name, Category, Brand</p>
+                                {% if form.name.errors or form.category.errors or form.brand.errors %}
+                                    <p class="text-xs text-rose-500 mt-1">Has errors</p>
+                                {% endif %}
                             </div>
                         </div>
-                        <div class="flex items-center space-x-3">
-                            <div class="w-8 h-8 rounded-full bg-slate-200 text-slate-500 flex items-center justify-center font-semibold">2</div>
+                        
+                        <!-- Step 2: Pricing & Stock -->
+                        <div class="flex items-center space-x-3" id="step2-indicator">
+                            <div class="w-8 h-8 rounded-full {% if form.price.errors %}bg-rose-500 text-white{% else %}bg-slate-200 text-slate-500{% endif %} flex items-center justify-center font-semibold">2</div>
                             <div>
                                 <p class="font-medium text-slate-500">Pricing & Stock</p>
                                 <p class="text-sm text-slate-400">Price, quantity, status</p>
+                                {% if form.price.errors %}
+                                    <p class="text-xs text-rose-500 mt-1">Has errors</p>
+                                {% endif %}
                             </div>
                         </div>
-                        <div class="flex items-center space-x-3">
-                            <div class="w-8 h-8 rounded-full bg-slate-200 text-slate-500 flex items-center justify-center font-semibold">3</div>
+                        
+                        <!-- Step 3: Description -->
+                        <div class="flex items-center space-x-3" id="step3-indicator">
+                            <div class="w-8 h-8 rounded-full {% if form.description.errors %}bg-rose-500 text-white{% else %}bg-slate-200 text-slate-500{% endif %} flex items-center justify-center font-semibold">3</div>
                             <div>
                                 <p class="font-medium text-slate-500">Description</p>
                                 <p class="text-sm text-slate-400">Product details</p>
+                                {% if form.description.errors %}
+                                    <p class="text-xs text-rose-500 mt-1">Has errors</p>
+                                {% endif %}
                             </div>
                         </div>
-                        <div class="flex items-center space-x-3">
-                            <div class="w-8 h-8 rounded-full bg-slate-200 text-slate-500 flex items-center justify-center font-semibold">4</div>
+                        
+                        <!-- Step 4: Media -->
+                        <div class="flex items-center space-x-3" id="step4-indicator">
+                            <div class="w-8 h-8 rounded-full {% if form.image.errors or formset.errors %}bg-rose-500 text-white{% else %}bg-slate-200 text-slate-500{% endif %} flex items-center justify-center font-semibold">4</div>
                             <div>
                                 <p class="font-medium text-slate-500">Media</p>
                                 <p class="text-sm text-slate-400">Images & gallery</p>
+                                {% if form.image.errors or formset.errors %}
+                                    <p class="text-xs text-rose-500 mt-1">Has errors</p>
+                                {% endif %}
                             </div>
                         </div>
                     </div>
                     
+                    <!-- Progress Bar -->
                     <div class="mt-8 pt-6 border-t border-slate-200">
                         <div class="flex items-center justify-between text-sm">
                             <span class="text-slate-500">Progress</span>
-                            <span class="font-semibold text-indigo-600" id="progressText">25%</span>
+                            <span class="font-semibold text-indigo-600" id="progressText">0%</span>
                         </div>
                         <div class="mt-2 h-2 bg-slate-200 rounded-full overflow-hidden">
-                            <div class="h-full bg-indigo-600 rounded-full" id="progressBar" style="width: 25%"></div>
+                            <div class="h-full bg-indigo-600 rounded-full" id="progressBar" style="width: 0%"></div>
                         </div>
                     </div>
                 </div>
@@ -122,7 +167,7 @@
                     {% csrf_token %}
                     
                     <!-- Card 1: Basic Information -->
-                    <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                    <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden" id="basic-info-section">
                         <div class="px-8 py-6 border-b border-slate-200 bg-gradient-to-r from-slate-50 to-white">
                             <div class="flex items-center justify-between">
                                 <div class="flex items-center space-x-3">
@@ -149,16 +194,28 @@
                                         <input type="text" 
                                                name="name" 
                                                id="id_name"
+                                               value="{{ form.name.value|default:'' }}"
                                                required
                                                placeholder="e.g., iPhone 16 Pro Max 256GB"
-                                               class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 pl-10 text-slate-800 shadow-sm focus:border-indigo-500 focus:ring-3 focus:ring-indigo-500/20 transition-all duration-300 placeholder:text-slate-400 hover:border-slate-400">
+                                               class="w-full rounded-xl border {% if form.name.errors %}border-rose-500 bg-rose-50 focus:border-rose-500 focus:ring-rose-500/20{% else %}border-slate-300 hover:border-slate-400{% endif %} bg-white px-4 py-3.5 pl-10 text-slate-800 shadow-sm focus:border-indigo-500 focus:ring-3 focus:ring-indigo-500/20 transition-all duration-300 placeholder:text-slate-400">
                                         <div class="absolute left-3 top-3.5 text-slate-400">
                                             <i class="fas fa-tag"></i>
                                         </div>
                                     </div>
-                                    <p class="text-xs text-slate-400 mt-2">
-                                        <i class="fas fa-lightbulb mr-1"></i> Use descriptive and SEO-friendly names
-                                    </p>
+                                    {% if form.name.errors %}
+                                        <div class="mt-2 flex items-start space-x-2 text-rose-500">
+                                            <i class="fas fa-exclamation-circle text-sm mt-0.5"></i>
+                                            <div class="text-sm">
+                                                {% for error in form.name.errors %}
+                                                    <p>{{ error }}</p>
+                                                {% endfor %}
+                                            </div>
+                                        </div>
+                                    {% else %}
+                                        <p class="text-xs text-slate-400 mt-2">
+                                            <i class="fas fa-lightbulb mr-1"></i> Use descriptive and SEO-friendly names
+                                        </p>
+                                    {% endif %}
                                 </div>
                                 
                                 <div>
@@ -169,12 +226,23 @@
                                         <input type="text" 
                                                name="slug" 
                                                id="id_slug"
+                                               value="{{ form.slug.value|default:'' }}"
                                                placeholder="e.g., iphone-16-pro-max-256gb"
-                                               class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 pl-10 text-slate-800 shadow-sm focus:border-indigo-500 focus:ring-3 focus:ring-indigo-500/20 transition-all duration-300 placeholder:text-slate-400 hover:border-slate-400">
+                                               class="w-full rounded-xl border {% if form.slug.errors %}border-rose-500 bg-rose-50{% else %}border-slate-300 hover:border-slate-400{% endif %} bg-white px-4 py-3.5 pl-10 text-slate-800 shadow-sm focus:border-indigo-500 focus:ring-3 focus:ring-indigo-500/20 transition-all duration-300 placeholder:text-slate-400">
                                         <div class="absolute left-3 top-3.5 text-slate-400">
                                             <i class="fas fa-link"></i>
                                         </div>
                                     </div>
+                                    {% if form.slug.errors %}
+                                        <div class="mt-2 flex items-start space-x-2 text-rose-500">
+                                            <i class="fas fa-exclamation-circle text-sm mt-0.5"></i>
+                                            <div class="text-sm">
+                                                {% for error in form.slug.errors %}
+                                                    <p>{{ error }}</p>
+                                                {% endfor %}
+                                            </div>
+                                        </div>
+                                    {% endif %}
                                     <button type="button" id="generateSlug" 
                                             class="mt-2 text-sm text-indigo-600 hover:text-indigo-800 font-medium inline-flex items-center">
                                         <i class="fas fa-magic mr-2"></i> Generate from name
@@ -200,12 +268,10 @@
                                         <select name="category"
                                                 id="id_category"
                                                 required
-                                                class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 pl-10 text-slate-800 shadow-sm
-                                                       focus:border-indigo-500 focus:ring-3 focus:ring-indigo-500/20 transition-all duration-300
-                                                       hover:border-slate-400 appearance-none">
+                                                class="w-full rounded-xl border {% if form.category.errors %}border-rose-500 bg-rose-50{% else %}border-slate-300 hover:border-slate-400{% endif %} bg-white px-4 py-3.5 pl-10 text-slate-800 shadow-sm focus:border-indigo-500 focus:ring-3 focus:ring-indigo-500/20 transition-all duration-300 appearance-none">
                                             <option value="">Select a category</option>
                                             {% for category in categories %}
-                                                <option value="{{ category.id }}">
+                                                <option value="{{ category.id }}" {% if form.category.value|stringformat:"s" == category.id|stringformat:"s" %}selected{% endif %}>
                                                     {{ category.name }}
                                                 </option>
                                             {% endfor %}
@@ -217,13 +283,15 @@
                                             <i class="fas fa-chevron-down"></i>
                                         </div>
                                     </div>
-                                    {% if categories|length == 0 %}
-                                    <div class="mt-2 p-3 bg-amber-50 border border-amber-200 rounded-lg">
-                                        <p class="text-sm text-amber-700">
-                                            <i class="fas fa-exclamation-triangle mr-2"></i>
-                                            No categories found. Please add a category first.
-                                        </p>
-                                    </div>
+                                    {% if form.category.errors %}
+                                        <div class="mt-2 flex items-start space-x-2 text-rose-500">
+                                            <i class="fas fa-exclamation-circle text-sm mt-0.5"></i>
+                                            <div class="text-sm">
+                                                {% for error in form.category.errors %}
+                                                    <p>{{ error }}</p>
+                                                {% endfor %}
+                                            </div>
+                                        </div>
                                     {% endif %}
                                 </div>
                                 
@@ -242,12 +310,10 @@
                                     <div class="relative">
                                         <select name="subcategory" 
                                                 id="id_subcategory" 
-                                                class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 pl-10 text-slate-800 shadow-sm 
-                                                       focus:border-indigo-500 focus:ring-3 focus:ring-indigo-500/20 transition-all duration-300 
-                                                       hover:border-slate-400 appearance-none">
+                                                class="w-full rounded-xl border {% if form.subcategory.errors %}border-rose-500 bg-rose-50{% else %}border-slate-300 hover:border-slate-400{% endif %} bg-white px-4 py-3.5 pl-10 text-slate-800 shadow-sm focus:border-indigo-500 focus:ring-3 focus:ring-indigo-500/20 transition-all duration-300 appearance-none">
                                             <option value="">Select a subcategory</option>
                                             {% for subcategory in subcategories %}
-                                                <option value="{{ subcategory.id }}">
+                                                <option value="{{ subcategory.id }}" {% if form.subcategory.value|stringformat:"s" == subcategory.id|stringformat:"s" %}selected{% endif %}>
                                                     {{ subcategory.name }}
                                                 </option>
                                             {% endfor %}
@@ -259,13 +325,15 @@
                                             <i class="fas fa-chevron-down"></i>
                                         </div>
                                     </div>
-                                    {% if subcategories|length == 0 %}
-                                    <div class="mt-2 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-                                        <p class="text-sm text-blue-700">
-                                            <i class="fas fa-info-circle mr-2"></i>
-                                            No subcategories found. Optional field.
-                                        </p>
-                                    </div>
+                                    {% if form.subcategory.errors %}
+                                        <div class="mt-2 flex items-start space-x-2 text-rose-500">
+                                            <i class="fas fa-exclamation-circle text-sm mt-0.5"></i>
+                                            <div class="text-sm">
+                                                {% for error in form.subcategory.errors %}
+                                                    <p>{{ error }}</p>
+                                                {% endfor %}
+                                            </div>
+                                        </div>
                                     {% endif %}
                                 </div>
                                 
@@ -285,12 +353,10 @@
                                         <select name="brand" 
                                                 id="id_brand" 
                                                 required
-                                                class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 pl-10 text-slate-800 shadow-sm 
-                                                       focus:border-indigo-500 focus:ring-3 focus:ring-indigo-500/20 transition-all duration-300 
-                                                       hover:border-slate-400 appearance-none">
+                                                class="w-full rounded-xl border {% if form.brand.errors %}border-rose-500 bg-rose-50{% else %}border-slate-300 hover:border-slate-400{% endif %} bg-white px-4 py-3.5 pl-10 text-slate-800 shadow-sm focus:border-indigo-500 focus:ring-3 focus:ring-indigo-500/20 transition-all duration-300 appearance-none">
                                             <option value="">Select a brand</option>
                                             {% for brand in brands %}
-                                                <option value="{{ brand.id }}">
+                                                <option value="{{ brand.id }}" {% if form.brand.value|stringformat:"s" == brand.id|stringformat:"s" %}selected{% endif %}>
                                                     {{ brand.name }}
                                                 </option>
                                             {% endfor %}
@@ -302,21 +368,23 @@
                                             <i class="fas fa-chevron-down"></i>
                                         </div>
                                     </div>
-                                    {% if brands|length == 0 %}
-                                    <div class="mt-2 p-3 bg-amber-50 border border-amber-200 rounded-lg">
-                                        <p class="text-sm text-amber-700">
-                                            <i class="fas fa-exclamation-triangle mr-2"></i>
-                                            No brands found. Please add a brand first.
-                                        </p>
-                                    </div>
+                                    {% if form.brand.errors %}
+                                        <div class="mt-2 flex items-start space-x-2 text-rose-500">
+                                            <i class="fas fa-exclamation-circle text-sm mt-0.5"></i>
+                                            <div class="text-sm">
+                                                {% for error in form.brand.errors %}
+                                                    <p>{{ error }}</p>
+                                                {% endfor %}
+                                            </div>
+                                        </div>
                                     {% endif %}
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Card 2: Pricing & Stock -->
-                    <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                    <!-- Card 2: Pricing & Stock (Similar pattern with error highlighting) -->
+                    <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden" id="pricing-section">
                         <div class="px-8 py-6 border-b border-slate-200 bg-gradient-to-r from-slate-50 to-white">
                             <div class="flex items-center space-x-3">
                                 <div class="w-10 h-10 rounded-lg bg-emerald-100 text-emerald-600 flex items-center justify-center">
@@ -341,15 +409,23 @@
                                         <input type="number" 
                                                name="price" 
                                                id="id_price"
+                                               value="{{ form.price.value|default:'' }}"
                                                required
                                                min="0"
                                                step="1"
                                                placeholder="0"
-                                               class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 pl-10 text-slate-800 shadow-sm focus:border-indigo-500 focus:ring-3 focus:ring-indigo-500/20 transition-all duration-300 placeholder:text-slate-400 hover:border-slate-400">
+                                               class="w-full rounded-xl border {% if form.price.errors %}border-rose-500 bg-rose-50{% else %}border-slate-300 hover:border-slate-400{% endif %} bg-white px-4 py-3.5 pl-10 text-slate-800 shadow-sm focus:border-indigo-500 focus:ring-3 focus:ring-indigo-500/20 transition-all duration-300">
                                     </div>
-                                    <p class="text-xs text-slate-400 mt-2">
-                                        <i class="fas fa-percentage mr-1"></i> Competitive pricing recommended
-                                    </p>
+                                    {% if form.price.errors %}
+                                        <div class="mt-2 flex items-start space-x-2 text-rose-500">
+                                            <i class="fas fa-exclamation-circle text-sm mt-0.5"></i>
+                                            <div class="text-sm">
+                                                {% for error in form.price.errors %}
+                                                    <p>{{ error }}</p>
+                                                {% endfor %}
+                                            </div>
+                                        </div>
+                                    {% endif %}
                                 </div>
                                 
                                 <!-- Compare Price -->
@@ -362,14 +438,22 @@
                                         <input type="number" 
                                                name="compare_price" 
                                                id="id_compare_price"
+                                               value="{{ form.compare_price.value|default:'' }}"
                                                min="0"
                                                step="1"
                                                placeholder="0"
-                                               class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 pl-10 text-slate-800 shadow-sm focus:border-indigo-500 focus:ring-3 focus:ring-indigo-500/20 transition-all duration-300 placeholder:text-slate-400 hover:border-slate-400">
+                                               class="w-full rounded-xl border {% if form.compare_price.errors %}border-rose-500 bg-rose-50{% else %}border-slate-300 hover:border-slate-400{% endif %} bg-white px-4 py-3.5 pl-10 text-slate-800 shadow-sm focus:border-indigo-500 focus:ring-3 focus:ring-indigo-500/20 transition-all duration-300">
                                     </div>
-                                    <p class="text-xs text-slate-400 mt-2">
-                                        <i class="fas fa-tag mr-1"></i> Original price for discount display
-                                    </p>
+                                    {% if form.compare_price.errors %}
+                                        <div class="mt-2 flex items-start space-x-2 text-rose-500">
+                                            <i class="fas fa-exclamation-circle text-sm mt-0.5"></i>
+                                            <div class="text-sm">
+                                                {% for error in form.compare_price.errors %}
+                                                    <p>{{ error }}</p>
+                                                {% endfor %}
+                                            </div>
+                                        </div>
+                                    {% endif %}
                                 </div>
                                 
                                 <!-- Stock Quantity -->
@@ -381,20 +465,120 @@
                                         <input type="number" 
                                                name="stock_quantity" 
                                                id="id_stock_quantity"
+                                               value="{{ form.stock_quantity.value|default:'10' }}"
                                                min="0"
                                                step="1"
-                                               value="10"
-                                               class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 pl-10 text-slate-800 shadow-sm focus:border-indigo-500 focus:ring-3 focus:ring-indigo-500/20 transition-all duration-300 placeholder:text-slate-400 hover:border-slate-400">
+                                               class="w-full rounded-xl border {% if form.stock_quantity.errors %}border-rose-500 bg-rose-50{% else %}border-slate-300 hover:border-slate-400{% endif %} bg-white px-4 py-3.5 pl-10 text-slate-800 shadow-sm focus:border-indigo-500 focus:ring-3 focus:ring-indigo-500/20 transition-all duration-300">
                                         <div class="absolute left-3 top-3.5 text-slate-400">
                                             <i class="fas fa-boxes"></i>
                                         </div>
                                     </div>
-                                    <p class="text-xs text-slate-400 mt-2">
-                                        <i class="fas fa-exclamation-triangle mr-1"></i> Set to 0 for out of stock
-                                    </p>
+                                    {% if form.stock_quantity.errors %}
+                                        <div class="mt-2 flex items-start space-x-2 text-rose-500">
+                                            <i class="fas fa-exclamation-circle text-sm mt-0.5"></i>
+                                            <div class="text-sm">
+                                                {% for error in form.stock_quantity.errors %}
+                                                    <p>{{ error }}</p>
+                                                {% endfor %}
+                                            </div>
+                                        </div>
+                                    {% endif %}
                                 </div>
                             </div>
                             
+                            <!-- Card 2.5: Inventory & Analytics (New Section for missing fields) -->
+<div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden" id="inventory-section">
+    <div class="px-8 py-6 border-b border-slate-200 bg-gradient-to-r from-slate-50 to-white">
+        <div class="flex items-center space-x-3">
+            <div class="w-10 h-10 rounded-lg bg-teal-100 text-teal-600 flex items-center justify-center">
+                <i class="fas fa-chart-line"></i>
+            </div>
+            <div>
+                <h2 class="text-xl font-bold text-slate-900">Inventory & Analytics</h2>
+                <p class="text-slate-500 text-sm">Stock management and product performance metrics</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="p-8">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <!-- Low Stock Threshold (Hidden but included with default value) -->
+            <div>
+                <label for="id_low_stock_threshold" class="block text-sm font-semibold text-slate-700 mb-2">
+                    Low Stock Threshold <span class="text-rose-500">*</span>
+                </label>
+                <div class="relative">
+                    <input type="number" 
+                           name="low_stock_threshold" 
+                           id="id_low_stock_threshold"
+                           value="{{ form.low_stock_threshold.value|default:'10' }}"
+                           min="0"
+                           class="w-full rounded-xl border {% if form.low_stock_threshold.errors %}border-rose-500 bg-rose-50{% else %}border-slate-300 hover:border-slate-400{% endif %} bg-white px-4 py-3.5 pl-10 text-slate-800 shadow-sm focus:border-indigo-500 focus:ring-3 focus:ring-indigo-500/20 transition-all duration-300">
+                    <div class="absolute left-3 top-3.5 text-slate-400">
+                        <i class="fas fa-exclamation-triangle"></i>
+                    </div>
+                </div>
+                <p class="text-xs text-slate-400 mt-2">
+                    <i class="fas fa-info-circle mr-1"></i> Alert when stock falls below this number
+                </p>
+                {% if form.low_stock_threshold.errors %}
+                    <div class="mt-2 flex items-start space-x-2 text-rose-500">
+                        <i class="fas fa-exclamation-circle text-sm mt-0.5"></i>
+                        <div class="text-sm">
+                            {% for error in form.low_stock_threshold.errors %}
+                                <p>{{ error }}</p>
+                            {% endfor %}
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+            
+            <!-- Average Rating (Hidden - auto-calculated) -->
+            <div class="hidden">
+                <input type="number" 
+                       name="average_rating" 
+                       id="id_average_rating"
+                       value="{{ form.average_rating.value|default:'0' }}"
+                       step="0.01"
+                       min="0"
+                       max="5">
+            </div>
+            
+            <!-- Total Reviews (Hidden - auto-calculated) -->
+            <div class="hidden">
+                <input type="number" 
+                       name="total_reviews" 
+                       id="id_total_reviews"
+                       value="{{ form.total_reviews.value|default:'0' }}"
+                       min="0">
+            </div>
+            
+            <!-- Total Sold (Hidden - auto-calculated) -->
+            <div class="hidden">
+                <input type="number" 
+                       name="total_sold" 
+                       id="id_total_sold"
+                       value="{{ form.total_sold.value|default:'0' }}"
+                       min="0">
+            </div>
+        </div>
+        
+        <!-- Stock Status Indicator -->
+        <div class="mt-6 p-4 bg-slate-50 rounded-xl border border-slate-200">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm font-medium text-slate-700">Stock Status</p>
+                    <p class="text-xs text-slate-500 mt-1">Auto-calculated based on stock quantity</p>
+                </div>
+                <div class="text-right">
+                    <span id="stockStatusBadge" class="px-3 py-1 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-700">
+                        In Stock
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
                             <!-- Status Toggles -->
                             <div class="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <div>
@@ -402,27 +586,26 @@
                                         Product Status
                                     </label>
                                     <div class="space-y-4">
-                                        <!-- Is Active -->
                                         <label class="custom-checkbox flex items-center justify-between p-3 rounded-lg border border-slate-200 hover:border-indigo-300 hover:bg-indigo-50 transition-colors cursor-pointer">
                                             <div class="flex items-center">
                                                 <input type="checkbox" 
                                                        name="is_active" 
                                                        id="id_is_active"
                                                        value="true"
-                                                       checked>
+                                                       {% if form.is_active.value %}checked{% endif %}>
                                                 <span class="checkmark"></span>
                                                 <span class="ml-3 font-medium text-slate-700">Active Product</span>
                                             </div>
                                             <span class="px-2 py-1 bg-emerald-100 text-emerald-700 text-xs font-medium rounded">Live</span>
                                         </label>
                                         
-                                        <!-- Is Featured -->
                                         <label class="custom-checkbox flex items-center justify-between p-3 rounded-lg border border-slate-200 hover:border-indigo-300 hover:bg-indigo-50 transition-colors cursor-pointer">
                                             <div class="flex items-center">
                                                 <input type="checkbox" 
                                                        name="is_featured" 
                                                        id="id_is_featured"
-                                                       value="true">
+                                                       value="true"
+                                                       {% if form.is_featured.value %}checked{% endif %}>
                                                 <span class="checkmark"></span>
                                                 <span class="ml-3 font-medium text-slate-700">Featured Product</span>
                                             </div>
@@ -440,175 +623,30 @@
                                         <input type="text" 
                                                name="sku" 
                                                id="id_sku"
+                                               value="{{ form.sku.value|default:'' }}"
                                                placeholder="e.g., IPH-16-256-BLK"
-                                               class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 pl-10 text-slate-800 shadow-sm focus:border-indigo-500 focus:ring-3 focus:ring-indigo-500/20 transition-all duration-300 placeholder:text-slate-400 hover:border-slate-400">
+                                               class="w-full rounded-xl border {% if form.sku.errors %}border-rose-500 bg-rose-50{% else %}border-slate-300 hover:border-slate-400{% endif %} bg-white px-4 py-3.5 pl-10 text-slate-800 shadow-sm focus:border-indigo-500 focus:ring-3 focus:ring-indigo-500/20 transition-all duration-300 placeholder:text-slate-400">
                                         <div class="absolute left-3 top-3.5 text-slate-400">
                                             <i class="fas fa-barcode"></i>
                                         </div>
                                     </div>
-                                    <p class="text-xs text-slate-400 mt-2">
-                                        <i class="fas fa-info-circle mr-1"></i> Unique identifier for inventory
-                                    </p>
+                                    {% if form.sku.errors %}
+                                        <div class="mt-2 flex items-start space-x-2 text-rose-500">
+                                            <i class="fas fa-exclamation-circle text-sm mt-0.5"></i>
+                                            <div class="text-sm">
+                                                {% for error in form.sku.errors %}
+                                                    <p>{{ error }}</p>
+                                                {% endfor %}
+                                            </div>
+                                        </div>
+                                    {% endif %}
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Card 3: Specifications -->
-                    <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
-                        <div class="px-8 py-6 border-b border-slate-200 bg-gradient-to-r from-slate-50 to-white">
-                            <div class="flex items-center space-x-3">
-                                <div class="w-10 h-10 rounded-lg bg-blue-100 text-blue-600 flex items-center justify-center">
-                                    <i class="fas fa-microchip"></i>
-                                </div>
-                                <div>
-                                    <h2 class="text-xl font-bold text-slate-900">Specifications</h2>
-                                    <p class="text-slate-500 text-sm">Technical specifications for mobile devices</p>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="p-8">
-                            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                                <!-- RAM -->
-                                <div>
-                                    <label for="id_ram" class="block text-sm font-semibold text-slate-700 mb-2">
-                                        RAM
-                                    </label>
-                                    <div class="relative">
-                                        <select name="ram" 
-                                                id="id_ram"
-                                                class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 pl-10 text-slate-800 shadow-sm 
-                                                       focus:border-indigo-500 focus:ring-3 focus:ring-indigo-500/20 transition-all duration-300 
-                                                       hover:border-slate-400 appearance-none">
-                                            <option value="">Select RAM</option>
-                                            <option value="4GB">4GB</option>
-                                            <option value="6GB">6GB</option>
-                                            <option value="8GB" selected>8GB</option>
-                                            <option value="12GB">12GB</option>
-                                            <option value="16GB">16GB</option>
-                                            <option value="18GB">18GB</option>
-                                            <option value="24GB">24GB</option>
-                                        </select>
-                                        <div class="absolute left-3 top-3.5 text-slate-400 pointer-events-none">
-                                            <i class="fas fa-memory"></i>
-                                        </div>
-                                    </div>
-                                </div>
-                                
-                                <!-- Storage -->
-                                <div>
-                                    <label for="id_storage" class="block text-sm font-semibold text-slate-700 mb-2">
-                                        Storage
-                                    </label>
-                                    <div class="relative">
-                                        <select name="storage" 
-                                                id="id_storage"
-                                                class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 pl-10 text-slate-800 shadow-sm 
-                                                       focus:border-indigo-500 focus:ring-3 focus:ring-indigo-500/20 transition-all duration-300 
-                                                       hover:border-slate-400 appearance-none">
-                                            <option value="">Select Storage</option>
-                                            <option value="64GB">64GB</option>
-                                            <option value="128GB" selected>128GB</option>
-                                            <option value="256GB">256GB</option>
-                                            <option value="512GB">512GB</option>
-                                            <option value="1TB">1TB</option>
-                                            <option value="2TB">2TB</option>
-                                        </select>
-                                        <div class="absolute left-3 top-3.5 text-slate-400 pointer-events-none">
-                                            <i class="fas fa-hdd"></i>
-                                        </div>
-                                    </div>
-                                </div>
-                                
-                                <!-- Display Size -->
-                                <div>
-                                    <label for="id_display_size" class="block text-sm font-semibold text-slate-700 mb-2">
-                                        Display Size
-                                    </label>
-                                    <div class="relative">
-                                        <input type="text" 
-                                               name="display_size" 
-                                               id="id_display_size"
-                                               placeholder="e.g., 6.7 inches"
-                                               class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 pl-10 text-slate-800 shadow-sm focus:border-indigo-500 focus:ring-3 focus:ring-indigo-500/20 transition-all duration-300 placeholder:text-slate-400 hover:border-slate-400">
-                                        <div class="absolute left-3 top-3.5 text-slate-400">
-                                            <i class="fas fa-mobile-alt"></i>
-                                        </div>
-                                    </div>
-                                </div>
-                                
-                                <!-- Battery Capacity -->
-                                <div>
-                                    <label for="id_battery_capacity" class="block text-sm font-semibold text-slate-700 mb-2">
-                                        Battery Capacity
-                                    </label>
-                                    <div class="relative">
-                                        <input type="text" 
-                                               name="battery_capacity" 
-                                               id="id_battery_capacity"
-                                               placeholder="e.g., 5000 mAh"
-                                               class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 pl-10 text-slate-800 shadow-sm focus:border-indigo-500 focus:ring-3 focus:ring-indigo-500/20 transition-all duration-300 placeholder:text-slate-400 hover:border-slate-400">
-                                        <div class="absolute left-3 top-3.5 text-slate-400">
-                                            <i class="fas fa-battery-full"></i>
-                                        </div>
-                                    </div>
-                                </div>
-                                
-                                <!-- Camera -->
-                                <div>
-                                    <label for="id_camera" class="block text-sm font-semibold text-slate-700 mb-2">
-                                        Camera
-                                    </label>
-                                    <div class="relative">
-                                        <input type="text" 
-                                               name="camera" 
-                                               id="id_camera"
-                                               placeholder="e.g., 50MP + 12MP + 12MP"
-                                               class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 pl-10 text-slate-800 shadow-sm focus:border-indigo-500 focus:ring-3 focus:ring-indigo-500/20 transition-all duration-300 placeholder:text-slate-400 hover:border-slate-400">
-                                        <div class="absolute left-3 top-3.5 text-slate-400">
-                                            <i class="fas fa-camera"></i>
-                                        </div>
-                                    </div>
-                                </div>
-                                
-                                <!-- Processor -->
-                                <div>
-                                    <label for="id_processor" class="block text-sm font-semibold text-slate-700 mb-2">
-                                        Processor
-                                    </label>
-                                    <div class="relative">
-                                        <input type="text" 
-                                               name="processor" 
-                                               id="id_processor"
-                                               placeholder="e.g., Snapdragon 8 Gen 3"
-                                               class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 pl-10 text-slate-800 shadow-sm focus:border-indigo-500 focus:ring-3 focus:ring-indigo-500/20 transition-all duration-300 placeholder:text-slate-400 hover:border-slate-400">
-                                        <div class="absolute left-3 top-3.5 text-slate-400">
-                                            <i class="fas fa-microchip"></i>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <!-- Colors -->
-                            <div class="mt-8">
-                                <label for="id_colors" class="block text-sm font-semibold text-slate-700 mb-2">
-                                    Available Colors
-                                </label>
-                                <input type="text" 
-                                       name="colors" 
-                                       id="id_colors"
-                                       placeholder="e.g., Black, Silver, Gold, Blue"
-                                       class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 text-slate-800 shadow-sm focus:border-indigo-500 focus:ring-3 focus:ring-indigo-500/20 transition-all duration-300 placeholder:text-slate-400 hover:border-slate-400">
-                                <p class="text-xs text-slate-400 mt-2">
-                                    <i class="fas fa-palette mr-1"></i> Separate colors with commas
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Card 4: Description -->
-                    <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                    <!-- Card 3: Description (Similar pattern) -->
+                    <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden" id="description-section">
                         <div class="px-8 py-6 border-b border-slate-200 bg-gradient-to-r from-slate-50 to-white">
                             <div class="flex items-center space-x-3">
                                 <div class="w-10 h-10 rounded-lg bg-amber-100 text-amber-600 flex items-center justify-center">
@@ -631,13 +669,23 @@
                                           required
                                           rows="8"
                                           placeholder="Describe the product features, specifications, and benefits..."
-                                          class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 text-slate-800 shadow-sm focus:border-indigo-500 focus:ring-3 focus:ring-indigo-500/20 transition-all duration-300 placeholder:text-slate-400 hover:border-slate-400"></textarea>
+                                          class="w-full rounded-xl border {% if form.description.errors %}border-rose-500 bg-rose-50{% else %}border-slate-300 hover:border-slate-400{% endif %} bg-white px-4 py-3.5 text-slate-800 shadow-sm focus:border-indigo-500 focus:ring-3 focus:ring-indigo-500/20 transition-all duration-300 placeholder:text-slate-400">{{ form.description.value|default:'' }}</textarea>
+                                {% if form.description.errors %}
+                                    <div class="mt-2 flex items-start space-x-2 text-rose-500">
+                                        <i class="fas fa-exclamation-circle text-sm mt-0.5"></i>
+                                        <div class="text-sm">
+                                            {% for error in form.description.errors %}
+                                                <p>{{ error }}</p>
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+                                {% endif %}
                                 <div class="flex items-center justify-between mt-4 text-sm text-slate-500">
                                     <div class="flex items-center space-x-4">
                                         <span><i class="fas fa-keyboard mr-1"></i> Min. 100 characters</span>
                                         <span><i class="fas fa-lightbulb mr-1"></i> Include keywords</span>
                                     </div>
-                                    <span id="charCount" class="font-medium">0 characters</span>
+                                    <span id="charCount" class="font-medium">{{ form.description.value|length|default:0 }} characters</span>
                                 </div>
                             </div>
                             
@@ -654,195 +702,466 @@
 • A18 Pro chip
 • Titanium design
 • All-day battery life"
-                                          class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 text-slate-800 shadow-sm focus:border-indigo-500 focus:ring-3 focus:ring-indigo-500/20 transition-all duration-300 placeholder:text-slate-400 hover:border-slate-400"></textarea>
-                                <p class="text-xs text-slate-400 mt-2">
-                                    <i class="fas fa-star mr-1"></i> Use bullet points (•) for better readability
-                                </p>
+                                          class="w-full rounded-xl border {% if form.features.errors %}border-rose-500 bg-rose-50{% else %}border-slate-300 hover:border-slate-400{% endif %} bg-white px-4 py-3.5 text-slate-800 shadow-sm focus:border-indigo-500 focus:ring-3 focus:ring-indigo-500/20 transition-all duration-300 placeholder:text-slate-400">{{ form.features.value|default:'' }}</textarea>
+                                {% if form.features.errors %}
+                                    <div class="mt-2 flex items-start space-x-2 text-rose-500">
+                                        <i class="fas fa-exclamation-circle text-sm mt-0.5"></i>
+                                        <div class="text-sm">
+                                            {% for error in form.features.errors %}
+                                                <p>{{ error }}</p>
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+                                {% endif %}
                             </div>
                         </div>
                     </div>
-<!-- Card 5: Media -->
-<div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
-    
-    <!-- Header -->
+
+                    <!-- Card: Technical Specifications -->
+<div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden" id="specifications-section">
     <div class="px-8 py-6 border-b border-slate-200 bg-gradient-to-r from-slate-50 to-white">
         <div class="flex items-center space-x-3">
-            <div class="w-10 h-10 rounded-lg bg-purple-100 text-purple-600 flex items-center justify-center">
-                <i class="fas fa-images"></i>
+            <div class="w-10 h-10 rounded-lg bg-blue-100 text-blue-600 flex items-center justify-center">
+                <i class="fas fa-microchip"></i>
             </div>
             <div>
-                <h2 class="text-xl font-bold text-slate-900">Product Images</h2>
-                <p class="text-slate-500 text-sm">Upload main image and gallery images</p>
+                <h2 class="text-xl font-bold text-slate-900">Technical Specifications</h2>
+                <p class="text-slate-500 text-sm">Complete product specifications and features</p>
             </div>
         </div>
     </div>
-
+    
     <div class="p-8">
-
-        <!-- ================= MAIN IMAGE ================= -->
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-
-            <!-- Upload -->
+        <!-- Display Size -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
             <div>
-                <label class="block text-sm font-semibold text-slate-700 mb-2">
-                    Main Product Image <span class="text-rose-500">*</span>
+                <label for="id_display_size" class="block text-sm font-semibold text-slate-700 mb-2">
+                    <i class="fas fa-mobile-alt mr-2 text-indigo-500"></i>Display Size
                 </label>
-
-                <div onclick="document.getElementById('id_image').click()" 
-                     class="border-2 border-dashed border-slate-300 rounded-2xl p-8 text-center cursor-pointer hover:border-indigo-400 hover:bg-indigo-50 transition">
-
-                    <i class="fas fa-cloud-upload-alt text-4xl text-slate-400 mb-3"></i>
-                    <p class="text-slate-600">Click to upload</p>
-
-                    <input type="file" 
-                           name="image" 
-                           id="id_image"
-                           accept="image/*"
-                           class="hidden"
-                           required>
+                <div class="relative">
+                    <input type="text" 
+                           name="display_size" 
+                           id="id_display_size"
+                           value="{{ form.display_size.value|default:'' }}"
+                           placeholder="e.g., 6.7 inches, 6.1 inches, 6.9 inches"
+                           class="w-full rounded-xl border {% if form.display_size.errors %}border-rose-500 bg-rose-50{% else %}border-slate-300 hover:border-slate-400{% endif %} bg-white px-4 py-3.5 pl-10 text-slate-800 shadow-sm focus:border-indigo-500 focus:ring-3 focus:ring-indigo-500/20 transition-all duration-300">
+                    <div class="absolute left-3 top-3.5 text-slate-400">
+                        <i class="fas fa-arrows-alt"></i>
+                    </div>
                 </div>
-            </div>
-
-            <!-- Preview -->
-            <div>
-                <label class="block text-sm font-semibold text-slate-700 mb-2">
-                    Preview
-                </label>
-
-                <div class="border rounded-2xl p-4 text-center">
-                    <img id="imagePreview" 
-                         src="{% static 'images/placeholder.jpg' %}" 
-                         class="w-40 h-40 object-cover mx-auto rounded">
-                </div>
-            </div>
-
-        </div>
-
-        <!-- ================= GALLERY ================= -->
-        <div class="mt-10">
-            <h3 class="text-lg font-semibold text-slate-800 mb-4">Gallery Images</h3>
-
-            <!-- 🔥 MUST -->
-            {{ formset.management_form }}
-
-            <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
-
-                {% for form in formset %}
-                <div class="border rounded-xl p-3 text-center">
-
-                    <p class="text-xs text-slate-500 mb-2">Image {{ forloop.counter }}</p>
-
-                    {{ form.image }}
-
-                    {% if form.instance.image %}
-                        <img src="{{ form.instance.image.url }}" 
-                             class="mt-2 w-full h-24 object-cover rounded">
-                    {% endif %}
-
-                    {% if form.instance.pk %}
-                        <div class="mt-2 text-xs text-red-500">
-                            {{ form.DELETE }} Delete
+                <p class="text-xs text-slate-400 mt-2">
+                    <i class="fas fa-info-circle mr-1"></i> Screen size in inches
+                </p>
+                {% if form.display_size.errors %}
+                    <div class="mt-2 flex items-start space-x-2 text-rose-500">
+                        <i class="fas fa-exclamation-circle text-sm mt-0.5"></i>
+                        <div class="text-sm">
+                            {% for error in form.display_size.errors %}
+                                <p>{{ error }}</p>
+                            {% endfor %}
                         </div>
-                    {% endif %}
-
+                    </div>
+                {% endif %}
+            </div>
+            
+            <!-- Display Resolution (Optional Addition) -->
+            <div>
+                <label for="id_display_resolution" class="block text-sm font-semibold text-slate-700 mb-2">
+                    <i class="fas fa-tv mr-2 text-indigo-500"></i>Display Resolution
+                </label>
+                <div class="relative">
+                    <input type="text" 
+                           name="display_resolution" 
+                           id="id_display_resolution"
+                           value="{{ form.display_resolution.value|default:'' }}"
+                           placeholder="e.g., 2796 x 1290 pixels, FHD+, 4K"
+                           class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 pl-10 text-slate-800 shadow-sm focus:border-indigo-500 focus:ring-3 focus:ring-indigo-500/20 transition-all duration-300">
+                    <div class="absolute left-3 top-3.5 text-slate-400">
+                        <i class="fas fa-expand-alt"></i>
+                    </div>
                 </div>
-                {% endfor %}
-
             </div>
         </div>
-
+        
+        <!-- RAM & Storage -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+            <div>
+                <label for="id_ram" class="block text-sm font-semibold text-slate-700 mb-2">
+                    <i class="fas fa-memory mr-2 text-indigo-500"></i>RAM
+                </label>
+                <div class="relative">
+                    <select name="ram" 
+                            id="id_ram"
+                            class="w-full rounded-xl border {% if form.ram.errors %}border-rose-500 bg-rose-50{% else %}border-slate-300 hover:border-slate-400{% endif %} bg-white px-4 py-3.5 pl-10 text-slate-800 shadow-sm focus:border-indigo-500 focus:ring-3 focus:ring-indigo-500/20 transition-all duration-300 appearance-none">
+                        <option value="">Select RAM</option>
+                        <option value="2GB" {% if form.ram.value == '2GB' %}selected{% endif %}>2GB</option>
+                        <option value="4GB" {% if form.ram.value == '4GB' %}selected{% endif %}>4GB</option>
+                        <option value="6GB" {% if form.ram.value == '6GB' %}selected{% endif %}>6GB</option>
+                        <option value="8GB" {% if form.ram.value == '8GB' %}selected{% endif %}>8GB</option>
+                        <option value="12GB" {% if form.ram.value == '12GB' %}selected{% endif %}>12GB</option>
+                        <option value="16GB" {% if form.ram.value == '16GB' %}selected{% endif %}>16GB</option>
+                        <option value="18GB" {% if form.ram.value == '18GB' %}selected{% endif %}>18GB</option>
+                        <option value="24GB" {% if form.ram.value == '24GB' %}selected{% endif %}>24GB</option>
+                    </select>
+                    <div class="absolute left-3 top-3.5 text-slate-400 pointer-events-none">
+                        <i class="fas fa-microchip"></i>
+                    </div>
+                    <div class="absolute right-3 top-3.5 text-slate-400 pointer-events-none">
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                </div>
+                {% if form.ram.errors %}
+                    <div class="mt-2 flex items-start space-x-2 text-rose-500">
+                        <i class="fas fa-exclamation-circle text-sm mt-0.5"></i>
+                        <div class="text-sm">
+                            {% for error in form.ram.errors %}
+                                <p>{{ error }}</p>
+                            {% endfor %}
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+            
+            <div>
+                <label for="id_storage" class="block text-sm font-semibold text-slate-700 mb-2">
+                    <i class="fas fa-hdd mr-2 text-indigo-500"></i>Storage
+                </label>
+                <div class="relative">
+                    <select name="storage" 
+                            id="id_storage"
+                            class="w-full rounded-xl border {% if form.storage.errors %}border-rose-500 bg-rose-50{% else %}border-slate-300 hover:border-slate-400{% endif %} bg-white px-4 py-3.5 pl-10 text-slate-800 shadow-sm focus:border-indigo-500 focus:ring-3 focus:ring-indigo-500/20 transition-all duration-300 appearance-none">
+                        <option value="">Select Storage</option>
+                        <option value="32GB" {% if form.storage.value == '32GB' %}selected{% endif %}>32GB</option>
+                        <option value="64GB" {% if form.storage.value == '64GB' %}selected{% endif %}>64GB</option>
+                        <option value="128GB" {% if form.storage.value == '128GB' %}selected{% endif %}>128GB</option>
+                        <option value="256GB" {% if form.storage.value == '256GB' %}selected{% endif %}>256GB</option>
+                        <option value="512GB" {% if form.storage.value == '512GB' %}selected{% endif %}>512GB</option>
+                        <option value="1TB" {% if form.storage.value == '1TB' %}selected{% endif %}>1TB</option>
+                        <option value="2TB" {% if form.storage.value == '2TB' %}selected{% endif %}>2TB</option>
+                    </select>
+                    <div class="absolute left-3 top-3.5 text-slate-400 pointer-events-none">
+                        <i class="fas fa-database"></i>
+                    </div>
+                    <div class="absolute right-3 top-3.5 text-slate-400 pointer-events-none">
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                </div>
+                {% if form.storage.errors %}
+                    <div class="mt-2 flex items-start space-x-2 text-rose-500">
+                        <i class="fas fa-exclamation-circle text-sm mt-0.5"></i>
+                        <div class="text-sm">
+                            {% for error in form.storage.errors %}
+                                <p>{{ error }}</p>
+                            {% endfor %}
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- Processor & Camera -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+            <div>
+                <label for="id_processor" class="block text-sm font-semibold text-slate-700 mb-2">
+                    <i class="fas fa-microchip mr-2 text-indigo-500"></i>Processor
+                </label>
+                <div class="relative">
+                    <input type="text" 
+                           name="processor" 
+                           id="id_processor"
+                           value="{{ form.processor.value|default:'' }}"
+                           placeholder="e.g., Snapdragon 8 Gen 3, A18 Pro, Dimensity 9300"
+                           class="w-full rounded-xl border {% if form.processor.errors %}border-rose-500 bg-rose-50{% else %}border-slate-300 hover:border-slate-400{% endif %} bg-white px-4 py-3.5 pl-10 text-slate-800 shadow-sm focus:border-indigo-500 focus:ring-3 focus:ring-indigo-500/20 transition-all duration-300">
+                    <div class="absolute left-3 top-3.5 text-slate-400">
+                        <i class="fas fa-microchip"></i>
+                    </div>
+                </div>
+                <p class="text-xs text-slate-400 mt-2">
+                    <i class="fas fa-info-circle mr-1"></i> Processor model and speed
+                </p>
+                {% if form.processor.errors %}
+                    <div class="mt-2 flex items-start space-x-2 text-rose-500">
+                        <i class="fas fa-exclamation-circle text-sm mt-0.5"></i>
+                        <div class="text-sm">
+                            {% for error in form.processor.errors %}
+                                <p>{{ error }}</p>
+                            {% endfor %}
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+            
+            <div>
+                <label for="id_camera" class="block text-sm font-semibold text-slate-700 mb-2">
+                    <i class="fas fa-camera mr-2 text-indigo-500"></i>Camera
+                </label>
+                <div class="relative">
+                    <input type="text" 
+                           name="camera" 
+                           id="id_camera"
+                           value="{{ form.camera.value|default:'' }}"
+                           placeholder="e.g., 50MP Main + 12MP Ultra Wide + 12MP Telephoto"
+                           class="w-full rounded-xl border {% if form.camera.errors %}border-rose-500 bg-rose-50{% else %}border-slate-300 hover:border-slate-400{% endif %} bg-white px-4 py-3.5 pl-10 text-slate-800 shadow-sm focus:border-indigo-500 focus:ring-3 focus:ring-indigo-500/20 transition-all duration-300">
+                    <div class="absolute left-3 top-3.5 text-slate-400">
+                        <i class="fas fa-camera-retro"></i>
+                    </div>
+                </div>
+                <p class="text-xs text-slate-400 mt-2">
+                    <i class="fas fa-info-circle mr-1"></i> Main, Ultra-wide, Telephoto specs
+                </p>
+                {% if form.camera.errors %}
+                    <div class="mt-2 flex items-start space-x-2 text-rose-500">
+                        <i class="fas fa-exclamation-circle text-sm mt-0.5"></i>
+                        <div class="text-sm">
+                            {% for error in form.camera.errors %}
+                                <p>{{ error }}</p>
+                            {% endfor %}
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- Battery & Operating System -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+            <div>
+                <label for="id_battery_capacity" class="block text-sm font-semibold text-slate-700 mb-2">
+                    <i class="fas fa-battery-full mr-2 text-indigo-500"></i>Battery
+                </label>
+                <div class="relative">
+                    <input type="text" 
+                           name="battery_capacity" 
+                           id="id_battery_capacity"
+                           value="{{ form.battery_capacity.value|default:'' }}"
+                           placeholder="e.g., 5000 mAh, 4500 mAh, 6000 mAh"
+                           class="w-full rounded-xl border {% if form.battery_capacity.errors %}border-rose-500 bg-rose-50{% else %}border-slate-300 hover:border-slate-400{% endif %} bg-white px-4 py-3.5 pl-10 text-slate-800 shadow-sm focus:border-indigo-500 focus:ring-3 focus:ring-indigo-500/20 transition-all duration-300">
+                    <div class="absolute left-3 top-3.5 text-slate-400">
+                        <i class="fas fa-charging-station"></i>
+                    </div>
+                </div>
+                <p class="text-xs text-slate-400 mt-2">
+                    <i class="fas fa-info-circle mr-1"></i> Battery capacity and fast charging support
+                </p>
+                {% if form.battery_capacity.errors %}
+                    <div class="mt-2 flex items-start space-x-2 text-rose-500">
+                        <i class="fas fa-exclamation-circle text-sm mt-0.5"></i>
+                        <div class="text-sm">
+                            {% for error in form.battery_capacity.errors %}
+                                <p>{{ error }}</p>
+                            {% endfor %}
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+            
+            <div>
+                <label for="id_operating_system" class="block text-sm font-semibold text-slate-700 mb-2">
+                    <i class="fab fa-android mr-2 text-indigo-500"></i>Operating System
+                </label>
+                <div class="relative">
+                    <select name="operating_system" 
+                            id="id_operating_system"
+                            class="w-full rounded-xl border {% if form.operating_system.errors %}border-rose-500 bg-rose-50{% else %}border-slate-300 hover:border-slate-400{% endif %} bg-white px-4 py-3.5 pl-10 text-slate-800 shadow-sm focus:border-indigo-500 focus:ring-3 focus:ring-indigo-500/20 transition-all duration-300 appearance-none">
+                        <option value="">Select Operating System</option>
+                        <option value="iOS 18" {% if form.operating_system.value == 'iOS 18' %}selected{% endif %}>iOS 18</option>
+                        <option value="iOS 17" {% if form.operating_system.value == 'iOS 17' %}selected{% endif %}>iOS 17</option>
+                        <option value="Android 15" {% if form.operating_system.value == 'Android 15' %}selected{% endif %}>Android 15</option>
+                        <option value="Android 14" {% if form.operating_system.value == 'Android 14' %}selected{% endif %}>Android 14</option>
+                        <option value="Android 13" {% if form.operating_system.value == 'Android 13' %}selected{% endif %}>Android 13</option>
+                        <option value="HarmonyOS 4.0" {% if form.operating_system.value == 'HarmonyOS 4.0' %}selected{% endif %}>HarmonyOS 4.0</option>
+                        <option value="Windows 11" {% if form.operating_system.value == 'Windows 11' %}selected{% endif %}>Windows 11</option>
+                        <option value="macOS Sonoma" {% if form.operating_system.value == 'macOS Sonoma' %}selected{% endif %}>macOS Sonoma</option>
+                    </select>
+                    <div class="absolute left-3 top-3.5 text-slate-400 pointer-events-none">
+                        <i class="fab fa-android"></i>
+                    </div>
+                    <div class="absolute right-3 top-3.5 text-slate-400 pointer-events-none">
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                </div>
+                {% if form.operating_system.errors %}
+                    <div class="mt-2 flex items-start space-x-2 text-rose-500">
+                        <i class="fas fa-exclamation-circle text-sm mt-0.5"></i>
+                        <div class="text-sm">
+                            {% for error in form.operating_system.errors %}
+                                <p>{{ error }}</p>
+                            {% endfor %}
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- Connectivity -->
+        <div class="mb-6">
+            <label for="id_connectivity" class="block text-sm font-semibold text-slate-700 mb-2">
+                <i class="fas fa-wifi mr-2 text-indigo-500"></i>Connectivity
+            </label>
+            <div class="relative">
+                <textarea name="connectivity" 
+                          id="id_connectivity"
+                          rows="3"
+                          placeholder="List all connectivity options:
+• 5G (Sub-6 GHz, mmWave)
+• Wi-Fi 7 (802.11be)
+• Bluetooth 5.3
+• NFC
+• USB-C 3.2 Gen 2
+• GPS, GLONASS, Galileo, QZSS"
+                          class="w-full rounded-xl border {% if form.connectivity.errors %}border-rose-500 bg-rose-50{% else %}border-slate-300 hover:border-slate-400{% endif %} bg-white px-4 py-3.5 pl-10 text-slate-800 shadow-sm focus:border-indigo-500 focus:ring-3 focus:ring-indigo-500/20 transition-all duration-300">{{ form.connectivity.value|default:'' }}</textarea>
+                <div class="absolute left-3 top-3.5 text-slate-400">
+                    <i class="fas fa-plug"></i>
+                </div>
+            </div>
+            <p class="text-xs text-slate-400 mt-2">
+                <i class="fas fa-info-circle mr-1"></i> Network, wireless, and port connectivity options
+            </p>
+            {% if form.connectivity.errors %}
+                <div class="mt-2 flex items-start space-x-2 text-rose-500">
+                    <i class="fas fa-exclamation-circle text-sm mt-0.5"></i>
+                    <div class="text-sm">
+                        {% for error in form.connectivity.errors %}
+                            <p>{{ error }}</p>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+        
+        <!-- Additional Specifications (Optional Grid) -->
+        <div class="mt-8 pt-6 border-t border-slate-200">
+            <h3 class="text-md font-semibold text-slate-800 mb-4">Additional Specifications</h3>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                    <label class="block text-xs font-medium text-slate-500 mb-1">SIM Type</label>
+                    <input type="text" 
+                           name="sim_type" 
+                           id="id_sim_type"
+                           value="{{ form.sim_type.value|default:'' }}"
+                           placeholder="e.g., Dual SIM (Nano-SIM, eSIM)"
+                           class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm">
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-slate-500 mb-1">Water Resistance</label>
+                    <input type="text" 
+                           name="water_resistance" 
+                           id="id_water_resistance"
+                           value="{{ form.water_resistance.value|default:'' }}"
+                           placeholder="e.g., IP68 (up to 6m for 30 mins)"
+                           class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm">
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-slate-500 mb-1">Fingerprint Sensor</label>
+                    <select name="fingerprint_sensor" 
+                            id="id_fingerprint_sensor"
+                            class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm">
+                        <option value="">Select</option>
+                        <option value="Under Display" {% if form.fingerprint_sensor.value == 'Under Display' %}selected{% endif %}>Under Display</option>
+                        <option value="Side Mounted" {% if form.fingerprint_sensor.value == 'Side Mounted' %}selected{% endif %}>Side Mounted</option>
+                        <option value="Rear Mounted" {% if form.fingerprint_sensor.value == 'Rear Mounted' %}selected{% endif %}>Rear Mounted</option>
+                        <option value="Not Available" {% if form.fingerprint_sensor.value == 'Not Available' %}selected{% endif %}>Not Available</option>
+                    </select>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 
-                    <!-- Card 6: SEO & Additional Details -->
-                    <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                    <!-- Card 4: Media (Similar pattern with error highlighting) -->
+                    <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden" id="media-section">
                         <div class="px-8 py-6 border-b border-slate-200 bg-gradient-to-r from-slate-50 to-white">
                             <div class="flex items-center space-x-3">
-                                <div class="w-10 h-10 rounded-lg bg-teal-100 text-teal-600 flex items-center justify-center">
-                                    <i class="fas fa-search"></i>
+                                <div class="w-10 h-10 rounded-lg bg-purple-100 text-purple-600 flex items-center justify-center">
+                                    <i class="fas fa-images"></i>
                                 </div>
                                 <div>
-                                    <h2 class="text-xl font-bold text-slate-900">SEO & Additional Details</h2>
-                                    <p class="text-slate-500 text-sm">SEO optimization and additional product metadata</p>
+                                    <h2 class="text-xl font-bold text-slate-900">Product Images</h2>
+                                    <p class="text-slate-500 text-sm">Upload main image and gallery images</p>
                                 </div>
                             </div>
                         </div>
-                        
+
                         <div class="p-8">
-                            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                                <!-- Meta Title -->
+                            <!-- Main Image -->
+                            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
                                 <div>
-                                    <label for="id_meta_title" class="block text-sm font-semibold text-slate-700 mb-2">
-                                        Meta Title (SEO)
+                                    <label class="block text-sm font-semibold text-slate-700 mb-2">
+                                        Main Product Image <span class="text-rose-500">*</span>
                                     </label>
-                                    <input type="text" 
-                                           name="meta_title" 
-                                           id="id_meta_title"
-                                           placeholder="e.g., iPhone 16 Pro Max 256GB - Best Price in Bangladesh"
-                                           class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 text-slate-800 shadow-sm focus:border-indigo-500 focus:ring-3 focus:ring-indigo-500/20 transition-all duration-300 placeholder:text-slate-400 hover:border-slate-400">
-                                    <div class="flex items-center justify-between mt-2">
-                                        <span class="text-xs text-slate-400" id="metaTitleCount">0/60</span>
-                                        <span class="text-xs text-emerald-600 font-medium">
-                                            <i class="fas fa-search mr-1"></i> SEO Recommended
-                                        </span>
+                                    <div onclick="document.getElementById('id_image').click()" 
+                                         class="border-2 border-dashed {% if form.image.errors %}border-rose-500 bg-rose-50{% else %}border-slate-300 hover:border-indigo-400 hover:bg-indigo-50{% endif %} rounded-2xl p-8 text-center cursor-pointer transition">
+                                        <i class="fas fa-cloud-upload-alt text-4xl text-slate-400 mb-3"></i>
+                                        <p class="text-slate-600">Click to upload</p>
+                                        <input type="file" 
+                                               name="image" 
+                                               id="id_image"
+                                               accept="image/*"
+                                               class="hidden">
                                     </div>
+                                    {% if form.image.errors %}
+                                        <div class="mt-2 flex items-start space-x-2 text-rose-500">
+                                            <i class="fas fa-exclamation-circle text-sm mt-0.5"></i>
+                                            <div class="text-sm">
+                                                {% for error in form.image.errors %}
+                                                    <p>{{ error }}</p>
+                                                {% endfor %}
+                                            </div>
+                                        </div>
+                                    {% endif %}
                                 </div>
                                 
-                                <!-- Warranty -->
                                 <div>
-                                    <label for="id_warranty" class="block text-sm font-semibold text-slate-700 mb-2">
-                                        Warranty Period
+                                    <label class="block text-sm font-semibold text-slate-700 mb-2">
+                                        Preview
                                     </label>
-                                    <div class="relative">
-                                        <select name="warranty" 
-                                                id="id_warranty"
-                                                class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 pl-10 text-slate-800 shadow-sm 
-                                                       focus:border-indigo-500 focus:ring-3 focus:ring-indigo-500/20 transition-all duration-300 
-                                                       hover:border-slate-400 appearance-none">
-                                            <option value="">Select Warranty</option>
-                                            <option value="6 months">6 Months</option>
-                                            <option value="1 year" selected>1 Year</option>
-                                            <option value="2 years">2 Years</option>
-                                            <option value="3 years">3 Years</option>
-                                        </select>
-                                        <div class="absolute left-3 top-3.5 text-slate-400 pointer-events-none">
-                                            <i class="fas fa-shield-alt"></i>
-                                        </div>
+                                    <div class="border rounded-2xl p-4 text-center">
+                                        {% if form.image.value %}
+                                            <img id="imagePreview" 
+                                                 src="{{ form.image.value.url }}" 
+                                                 class="w-40 h-40 object-cover mx-auto rounded">
+                                        {% else %}
+                                            <img id="imagePreview" 
+                                                 src="{% static 'images/placeholder.jpg' %}" 
+                                                 class="w-40 h-40 object-cover mx-auto rounded">
+                                        {% endif %}
                                     </div>
                                 </div>
                             </div>
-                            
-                            <!-- Meta Description -->
-                            <div class="mt-6">
-                                <label for="id_meta_description" class="block text-sm font-semibold text-slate-700 mb-2">
-                                    Meta Description (SEO)
-                                </label>
-                                <textarea name="meta_description" 
-                                          id="id_meta_description"
-                                          rows="3"
-                                          placeholder="Brief description for search engines (max 160 characters)..."
-                                          class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 text-slate-800 shadow-sm focus:border-indigo-500 focus:ring-3 focus:ring-indigo-500/20 transition-all duration-300 placeholder:text-slate-400 hover:border-slate-400"></textarea>
-                                <div class="flex items-center justify-between mt-2">
-                                    <span class="text-xs text-slate-400" id="metaDescCount">0/160</span>
-                                    <span class="text-xs text-slate-500">
-                                        <i class="fas fa-info-circle mr-1"></i> Important for search engine visibility
-                                    </span>
+
+                            <!-- Gallery Images -->
+                            <div class="mt-10">
+                                <h3 class="text-lg font-semibold text-slate-800 mb-4">Gallery Images</h3>
+                                {{ formset.management_form }}
+                                <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                                    {% for form in formset %}
+                                    <div class="border rounded-xl p-3 text-center {% if form.errors %}border-rose-500 bg-rose-50{% endif %}">
+                                        <p class="text-xs text-slate-500 mb-2">Image {{ forloop.counter }}</p>
+                                        {{ form.image }}
+                                        {% if form.errors %}
+                                            <div class="mt-2 text-xs text-rose-500">
+                                                {% for error in form.errors %}
+                                                    <p>{{ error }}</p>
+                                                {% endfor %}
+                                            </div>
+                                        {% endif %}
+                                        {% if form.instance.image %}
+                                            <img src="{{ form.instance.image.url }}" 
+                                                 class="mt-2 w-full h-24 object-cover rounded">
+                                        {% endif %}
+                                        {% if form.instance.pk %}
+                                            <div class="mt-2 text-xs text-red-500">
+                                                {{ form.DELETE }} Delete
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                    {% endfor %}
                                 </div>
-                            </div>
-                            
-                            <!-- Tags -->
-                            <div class="mt-6">
-                                <label for="id_tags" class="block text-sm font-semibold text-slate-700 mb-2">
-                                    Product Tags
-                                </label>
-                                <input type="text" 
-                                       name="tags" 
-                                       id="id_tags"
-                                       placeholder="e.g., smartphone, 5g, gaming, flagship"
-                                       class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 text-slate-800 shadow-sm focus:border-indigo-500 focus:ring-3 focus:ring-indigo-500/20 transition-all duration-300 placeholder:text-slate-400 hover:border-slate-400">
-                                <p class="text-xs text-slate-400 mt-2">
-                                    <i class="fas fa-tags mr-1"></i> Separate tags with commas for better discoverability
-                                </p>
+                                {% if formset.errors and not formset.non_form_errors %}
+                                    <div class="mt-4 text-rose-500 text-sm">
+                                        <i class="fas fa-exclamation-circle mr-1"></i>
+                                        Please check gallery images (max 5MB each, JPG/PNG/WebP only)
+                                    </div>
+                                {% endif %}
                             </div>
                         </div>
                     </div>
@@ -862,21 +1181,11 @@
                                 </button>
                             </div>
                             <div class="flex items-center space-x-4">
-                                <button type="button"
-                                        class="px-6 py-3 rounded-xl border border-indigo-300 text-indigo-600 hover:bg-indigo-50 font-medium transition-colors">
-                                    <i class="fas fa-save mr-2"></i>Save Draft
-                                </button>
                                 <button type="submit" 
                                         class="px-8 py-3 rounded-xl bg-gradient-to-r from-indigo-600 to-indigo-700 text-white font-semibold hover:from-indigo-700 hover:to-indigo-800 shadow-md hover:shadow-lg transition-all duration-300">
                                     <i class="fas fa-rocket mr-2"></i>Publish Product
                                 </button>
                             </div>
-                        </div>
-                        
-                        <div class="mt-6 pt-6 border-t border-slate-200 text-center">
-                            <p class="text-sm text-slate-500">
-                                <i class="fas fa-shield-alt mr-1"></i> Your data is secured with 256-bit SSL encryption
-                            </p>
                         </div>
                     </div>
                 </form>
@@ -885,940 +1194,114 @@
     </div>
 </div>
 
-<!-- Quick Add Modal -->
-<div id="quickAddModal" class="fixed inset-0 z-[100] hidden overflow-y-auto p-4">
-    <div class="flex min-h-full items-center justify-center">
-        <div class="relative bg-white rounded-2xl shadow-2xl max-w-md w-full overflow-hidden">
-            <div class="px-6 py-4 bg-gradient-to-r from-indigo-50 to-blue-50 border-b">
-                <h3 class="text-xl font-bold text-slate-900" id="modalTitle">Quick Add</h3>
-            </div>
-            <div class="p-6">
-                <div id="modalContent">
-                    <!-- Content will be loaded here -->
-                </div>
-                <div class="mt-6 flex justify-end space-x-3">
-                    <button type="button" 
-                            onclick="closeQuickAddModal()"
-                            class="px-4 py-2 text-slate-600 hover:text-slate-800 font-medium">
-                        Cancel
-                    </button>
-                    <button type="button" 
-                            id="modalSubmitBtn"
-                            class="px-6 py-2 bg-indigo-600 text-white rounded-lg font-medium hover:bg-indigo-700">
-                        Add
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-<div id="modalBackdrop" 
-     class="fixed inset-0 bg-black bg-opacity-50 z-[99] hidden backdrop-blur-sm"
-     onclick="closeQuickAddModal()"></div>
-
-<!-- Hidden input for gallery images -->
-<input type="hidden" id="gallery_images" name="gallery_images">
-{% endblock %}
-
-{% block extra_js %}
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Initialize progress tracking
-    updateProgress();
-    
-    // Slug Generation
-    const generateSlugBtn = document.getElementById('generateSlug');
-    const nameField = document.getElementById('id_name');
-    const slugField = document.getElementById('id_slug');
-    
-    if (generateSlugBtn && nameField && slugField) {
-        generateSlugBtn.addEventListener('click', function(e) {
-            e.preventDefault();
-            
-            const name = nameField.value.trim();
-            if (!name) {
-                showToast('Please enter a product name first', 'warning');
-                nameField.focus();
-                return;
-            }
-            
-            // Generate slug
-            const slug = name
-                .toLowerCase()
-                .replace(/[^\w\s-]/g, '')
-                .replace(/\s+/g, '-')
-                .replace(/-+/g, '-')
-                .trim();
-            
-            slugField.value = slug;
-            showToast('Slug generated successfully', 'success');
-        });
+// Scroll to first error function
+function scrollToFirstError() {
+    const firstError = document.querySelector('.border-rose-500, .bg-rose-50');
+    if (firstError) {
+        firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        firstError.classList.add('animate-pulse');
+        setTimeout(() => {
+            firstError.classList.remove('animate-pulse');
+        }, 2000);
     }
+}
+
+// Update progress based on filled fields
+function updateProgress() {
+    const form = document.getElementById('productForm');
+    const requiredFields = form.querySelectorAll('[required]');
+    let filled = 0;
     
-    // Auto-generate slug on name change
-    if (nameField && slugField) {
-        nameField.addEventListener('blur', function() {
-            if (nameField.value && !slugField.value) {
-                const slug = nameField.value
-                    .toLowerCase()
-                    .replace(/[^\w\s-]/g, '')
-                    .replace(/\s+/g, '-')
-                    .replace(/-+/g, '-')
-                    .trim();
-                slugField.value = slug;
-            }
-        });
-    }
-    
-    // Character Counter for Description
-    const descField = document.getElementById('id_description');
-    const charCount = document.getElementById('charCount');
-    
-    if (descField && charCount) {
-        descField.addEventListener('input', function() {
-            const count = this.value.length;
-            charCount.textContent = `${count} characters`;
-            
-            // Color coding
-            if (count < 100) {
-                charCount.classList.add('text-rose-500');
-                charCount.classList.remove('text-amber-500', 'text-emerald-500');
-            } else if (count < 200) {
-                charCount.classList.remove('text-rose-500', 'text-emerald-500');
-                charCount.classList.add('text-amber-500');
-            } else {
-                charCount.classList.remove('text-rose-500', 'text-amber-500');
-                charCount.classList.add('text-emerald-500');
-            }
-        });
-        
-        // Trigger initial count
-        descField.dispatchEvent(new Event('input'));
-    }
-    
-    // SEO Character Counters
-    const metaTitleField = document.getElementById('id_meta_title');
-    const metaTitleCount = document.getElementById('metaTitleCount');
-    const metaDescField = document.getElementById('id_meta_description');
-    const metaDescCount = document.getElementById('metaDescCount');
-    
-    if (metaTitleField && metaTitleCount) {
-        metaTitleField.addEventListener('input', function() {
-            const count = this.value.length;
-            metaTitleCount.textContent = `${count}/60`;
-            metaTitleCount.className = `text-xs ${count > 60 ? 'text-rose-500' : 'text-slate-400'}`;
-        });
-        metaTitleField.dispatchEvent(new Event('input'));
-    }
-    
-    if (metaDescField && metaDescCount) {
-        metaDescField.addEventListener('input', function() {
-            const count = this.value.length;
-            metaDescCount.textContent = `${count}/160`;
-            metaDescCount.className = `text-xs ${count > 160 ? 'text-rose-500' : 'text-slate-400'}`;
-        });
-        metaDescField.dispatchEvent(new Event('input'));
-    }
-    
-    // Image Preview
-    const imageInput = document.getElementById('id_image');
-    if (imageInput) {
-        imageInput.addEventListener('change', function(e) {
-            const file = e.target.files[0];
-            const preview = document.getElementById('imagePreview');
-            const previewInfo = document.getElementById('previewInfo');
-            const fileName = document.getElementById('fileName');
-            const fileSize = document.getElementById('fileSize');
-            
-            if (file) {
-                // Validate file size (5MB limit)
-                if (file.size > 5 * 1024 * 1024) {
-                    showToast('File size must be less than 5MB', 'error');
-                    this.value = '';
-                    return;
-                }
-                
-                // Validate file type
-                const validTypes = ['image/jpeg', 'image/png', 'image/webp'];
-                if (!validTypes.includes(file.type)) {
-                    showToast('Only JPG, PNG, and WebP files are allowed', 'error');
-                    this.value = '';
-                    return;
-                }
-                
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    preview.src = e.target.result;
-                    
-                    // Show file info
-                    fileName.textContent = file.name;
-                    fileSize.textContent = `${(file.size / 1024 / 1024).toFixed(2)} MB`;
-                    previewInfo.classList.remove('hidden');
-                    
-                    showToast('Image uploaded successfully', 'success');
-                };
-                reader.readAsDataURL(file);
-            }
-        });
-    }
-    
-    // Progress Tracking
-    function updateProgress() {
-        const form = document.getElementById('productForm');
-        if (!form) return;
-        
-        const requiredFields = form.querySelectorAll('[required]');
-        let filled = 0;
-        
-        requiredFields.forEach(field => {
-            if (field.type === 'checkbox') {
-                if (field.checked) filled++;
-            } else if (field.type === 'file') {
-                if (field.files && field.files.length > 0) filled++;
-            } else {
-                if (field.value.trim() !== '') filled++;
-            }
-        });
-        
-        const progress = Math.min(100, Math.round((filled / requiredFields.length) * 100));
-        const progressBar = document.getElementById('progressBar');
-        const progressText = document.getElementById('progressText');
-        
-        if (progressBar && progressText) {
-            progressBar.style.width = `${progress}%`;
-            progressText.textContent = `${progress}%`;
-            
-            // Update progress color
-            progressBar.classList.remove('bg-amber-500', 'bg-indigo-600', 'bg-emerald-600');
-            if (progress < 30) {
-                progressBar.classList.add('bg-amber-500');
-            } else if (progress < 70) {
-                progressBar.classList.add('bg-indigo-600');
-            } else {
-                progressBar.classList.add('bg-emerald-600');
-            }
+    requiredFields.forEach(field => {
+        if (field.type === 'checkbox') {
+            if (field.checked) filled++;
+        } else if (field.type === 'file') {
+            if (field.files && field.files.length > 0) filled++;
+        } else {
+            if (field.value.trim() !== '') filled++;
         }
-    }
-    
-    // Attach progress update to all inputs
-    document.querySelectorAll('input, textarea, select').forEach(el => {
-        el.addEventListener('input', updateProgress);
-        el.addEventListener('change', updateProgress);
     });
     
-    // Form validation
-    const productForm = document.getElementById('productForm');
-    if (productForm) {
-        productForm.addEventListener('submit', function(e) {
-            // Validate required fields
-            const requiredFields = this.querySelectorAll('[required]');
-            let isValid = true;
-            
-            requiredFields.forEach(field => {
-                if (field.type === 'checkbox') {
-                    // Checkboxes are fine if they exist
-                } else if (field.type === 'file') {
-                    if (!field.files || field.files.length === 0) {
-                        isValid = false;
-                        field.closest('.file-upload-area').classList.add('border-rose-500', 'ring-2', 'ring-rose-200');
-                    }
-                } else {
-                    if (!field.value.trim()) {
-                        isValid = false;
-                        field.classList.add('border-rose-500', 'ring-2', 'ring-rose-200');
-                    }
-                }
-            });
-            
-            if (!isValid) {
-                e.preventDefault();
-                showToast('Please fill all required fields', 'error');
-                // Scroll to first error
-                const firstError = this.querySelector('.border-rose-500');
-                if (firstError) {
-                    firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                }
-                return false;
-            }
-            
-            // Add loading state
-            const submitBtn = this.querySelector('button[type="submit"]');
-            if (submitBtn) {
-                const originalText = submitBtn.innerHTML;
-                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Publishing...';
-                submitBtn.disabled = true;
-                
-                // Re-enable after 5 seconds if still processing
-                setTimeout(() => {
-                    submitBtn.innerHTML = originalText;
-                    submitBtn.disabled = false;
-                }, 5000);
-            }
-        });
-    }
+    const progress = Math.min(100, Math.round((filled / requiredFields.length) * 100));
+    const progressBar = document.getElementById('progressBar');
+    const progressText = document.getElementById('progressText');
     
-    // Remove error styling on input
-    document.querySelectorAll('input, textarea, select').forEach(el => {
-        el.addEventListener('input', function() {
-            this.classList.remove('border-rose-500', 'ring-2', 'ring-rose-200');
-            const uploadArea = this.closest('.file-upload-area');
-            if (uploadArea) {
-                uploadArea.classList.remove('border-rose-500', 'ring-2', 'ring-rose-200');
-            }
-        });
-    });
+    if (progressBar && progressText) {
+        progressBar.style.width = `${progress}%`;
+        progressText.textContent = `${progress}%`;
+    }
+}
+
+// Auto-update progress on input
+document.querySelectorAll('input, textarea, select').forEach(el => {
+    el.addEventListener('input', updateProgress);
+    el.addEventListener('change', updateProgress);
 });
 
-// Quick Add Modal Functions
-function openQuickAddModal(type) {
-    const modal = document.getElementById('quickAddModal');
-    const backdrop = document.getElementById('modalBackdrop');
-    const modalTitle = document.getElementById('modalTitle');
-    const modalContent = document.getElementById('modalContent');
-    const modalSubmitBtn = document.getElementById('modalSubmitBtn');
-    
-    if (!modal || !backdrop) return;
-    
-    let title = '';
-    let content = '';
-    let submitAction = '';
-    
-    switch(type) {
-        case 'category':
-            title = 'Add New Category';
-            content = `
-                <div class="space-y-4">
-                    <div>
-                        <label class="block text-sm font-medium text-slate-700 mb-1">Category Name</label>
-                        <input type="text" 
-                               id="newCategoryName"
-                               class="w-full rounded-lg border border-slate-300 px-3 py-2"
-                               placeholder="e.g., Smartphones">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-slate-700 mb-1">Description</label>
-                        <textarea id="newCategoryDesc"
-                                  class="w-full rounded-lg border border-slate-300 px-3 py-2"
-                                  rows="2"
-                                  placeholder="Optional description"></textarea>
-                    </div>
-                </div>
-            `;
-            submitAction = `addQuickCategory()`;
-            break;
-            
-        case 'subcategory':
-            title = 'Add New SubCategory';
-            content = `
-                <div class="space-y-4">
-                    <div>
-                        <label class="block text-sm font-medium text-slate-700 mb-1">SubCategory Name</label>
-                        <input type="text" 
-                               id="newSubCategoryName"
-                               class="w-full rounded-lg border border-slate-300 px-3 py-2"
-                               placeholder="e.g., Gaming Phones">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-slate-700 mb-1">Parent Category</label>
-                        <select id="newSubCategoryParent"
-                                class="w-full rounded-lg border border-slate-300 px-3 py-2">
-                            <option value="">Select Category</option>
-                            {% for category in categories %}
-                                <option value="{{ category.id }}">{{ category.name }}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                </div>
-            `;
-            submitAction = `addQuickSubCategory()`;
-            break;
-            
-        case 'brand':
-            title = 'Add New Brand';
-            content = `
-                <div class="space-y-4">
-                    <div>
-                        <label class="block text-sm font-medium text-slate-700 mb-1">Brand Name</label>
-                        <input type="text" 
-                               id="newBrandName"
-                               class="w-full rounded-lg border border-slate-300 px-3 py-2"
-                               placeholder="e.g., Apple">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-slate-700 mb-1">Country</label>
-                        <input type="text" 
-                               id="newBrandCountry"
-                               class="w-full rounded-lg border border-slate-300 px-3 py-2"
-                               placeholder="e.g., USA">
-                    </div>
-                </div>
-            `;
-            submitAction = `addQuickBrand()`;
-            break;
-    }
-    
-    modalTitle.textContent = title;
-    modalContent.innerHTML = content;
-    modalSubmitBtn.setAttribute('onclick', submitAction);
-    
-    modal.classList.remove('hidden');
-    backdrop.classList.remove('hidden');
-    document.body.classList.add('overflow-hidden');
-}
-
-function closeQuickAddModal() {
-    const modal = document.getElementById('quickAddModal');
-    const backdrop = document.getElementById('modalBackdrop');
-    
-    if (modal) modal.classList.add('hidden');
-    if (backdrop) backdrop.classList.add('hidden');
-    document.body.classList.remove('overflow-hidden');
-}
-
-function addQuickCategory() {
-    const name = document.getElementById('newCategoryName').value.trim();
-    const desc = document.getElementById('newCategoryDesc').value.trim();
-    
-    if (!name) {
-        showToast('Please enter category name', 'error');
-        return;
-    }
-    
-    // Simulate adding category (in real app, this would be an AJAX call)
-    showToast(`Category "${name}" added successfully!`, 'success');
-    
-    // In real implementation, you would:
-    // 1. Send AJAX request to create category
-    // 2. Update the dropdown options
-    // 3. Close modal
-    
-    setTimeout(() => {
-        closeQuickAddModal();
-    }, 1500);
-}
-
-function addQuickSubCategory() {
-    const name = document.getElementById('newSubCategoryName').value.trim();
-    const parentId = document.getElementById('newSubCategoryParent').value;
-    
-    if (!name) {
-        showToast('Please enter subcategory name', 'error');
-        return;
-    }
-    
-    if (!parentId) {
-        showToast('Please select parent category', 'error');
-        return;
-    }
-    
-    showToast(`SubCategory "${name}" added successfully!`, 'success');
-    setTimeout(() => closeQuickAddModal(), 1500);
-}
-
-function addQuickBrand() {
-    const name = document.getElementById('newBrandName').value.trim();
-    const country = document.getElementById('newBrandCountry').value.trim();
-    
-    if (!name) {
-        showToast('Please enter brand name', 'error');
-        return;
-    }
-    
-    showToast(`Brand "${name}" added successfully!`, 'success');
-    setTimeout(() => closeQuickAddModal(), 1500);
-}
-
-// Gallery Manager Functions (same as before but included for completeness)
-let galleryImages = [];
-
-function openGalleryManager() {
-    // Create modal HTML
-    const galleryModal = `
-        <div class="fixed inset-0 z-[1100] overflow-y-auto">
-            <div class="flex min-h-full items-center justify-center p-4">
-                <div class="bg-white rounded-2xl shadow-2xl max-w-4xl w-full overflow-hidden">
-                    <!-- Header -->
-                    <div class="px-8 py-6 bg-gradient-to-r from-purple-50 to-indigo-50 border-b">
-                        <div class="flex items-center justify-between">
-                            <div class="flex items-center space-x-3">
-                                <div class="w-12 h-12 rounded-lg bg-purple-100 text-purple-600 flex items-center justify-center">
-                                    <i class="fas fa-images text-xl"></i>
-                                </div>
-                                <div>
-                                    <h2 class="text-2xl font-bold text-slate-900">Image Gallery</h2>
-                                    <p class="text-slate-500">Upload multiple images for product gallery</p>
-                                </div>
-                            </div>
-                            <button onclick="closeGalleryManager()" 
-                                    class="text-slate-400 hover:text-slate-600">
-                                <i class="fas fa-times text-2xl"></i>
-                            </button>
-                        </div>
-                    </div>
-                    
-                    <!-- Content -->
-                    <div class="p-8">
-                        <!-- Upload Section -->
-                        <div class="mb-8">
-                            <h3 class="text-lg font-semibold text-slate-800 mb-4">Upload Images</h3>
-                            <div class="border-3 border-dashed border-slate-300 rounded-2xl p-8 text-center bg-slate-50 hover:border-purple-400 transition-colors"
-                                 id="galleryDropZone">
-                                <i class="fas fa-cloud-upload-alt text-5xl text-slate-400 mb-4"></i>
-                                <p class="text-lg font-semibold text-slate-700 mb-2">Drag & drop images here</p>
-                                <p class="text-slate-500 mb-6">or click to browse (max 10 images, 5MB each)</p>
-                                <input type="file" 
-                                       id="galleryUploadInput" 
-                                       multiple 
-                                       accept="image/*"
-                                       class="hidden">
-                                <button onclick="document.getElementById('galleryUploadInput').click()"
-                                        class="px-6 py-3 bg-gradient-to-r from-purple-600 to-indigo-600 
-                                               text-white rounded-xl font-semibold hover:from-purple-700 
-                                               hover:to-indigo-700 transition-all duration-300">
-                                    <i class="fas fa-upload mr-2"></i>Select Images
-                                </button>
-                            </div>
-                        </div>
-                        
-                        <!-- Gallery Preview -->
-                        <div>
-                            <h3 class="text-lg font-semibold text-slate-800 mb-4">
-                                Gallery Preview <span class="text-slate-400 text-sm font-normal">(${galleryImages.length} images)</span>
-                            </h3>
-                            <div id="galleryPreview" class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-4">
-                                ${galleryImages.length === 0 ? `
-                                    <div class="col-span-full text-center py-12 text-slate-400">
-                                        <i class="fas fa-images text-4xl mb-4"></i>
-                                        <p>No images added yet</p>
-                                    </div>
-                                ` : galleryImages.map((img, index) => `
-                                    <div class="relative group">
-                                        <div class="aspect-square rounded-xl overflow-hidden border border-slate-200 bg-white">
-                                            <img src="${img.preview}" 
-                                                 alt="Gallery ${index + 1}"
-                                                 class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300">
-                                        </div>
-                                        <button onclick="removeGalleryImage(${index})"
-                                                class="absolute -top-2 -right-2 w-6 h-6 bg-rose-500 text-white 
-                                                       rounded-full text-xs opacity-0 group-hover:opacity-100 
-                                                       transition-opacity duration-300 flex items-center justify-center">
-                                            <i class="fas fa-times"></i>
-                                        </button>
-                                    </div>
-                                `).join('')}
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Footer -->
-                    <div class="px-8 py-6 border-t bg-slate-50 flex justify-end space-x-3">
-                        <button onclick="closeGalleryManager()"
-                                class="px-6 py-3 rounded-xl border border-slate-300 text-slate-700 
-                                       hover:bg-slate-100 font-medium transition-colors">
-                            Cancel
-                        </button>
-                        <button onclick="saveGallery()"
-                                class="px-6 py-3 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 
-                                       text-white font-semibold hover:from-emerald-700 hover:to-teal-700 
-                                       transition-all duration-300">
-                            <i class="fas fa-save mr-2"></i>Save Gallery (${galleryImages.length})
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="fixed inset-0 bg-black bg-opacity-50 z-[1099] backdrop-blur-sm"></div>
-    `;
-    
-    // Add modal to body
-    const modalDiv = document.createElement('div');
-    modalDiv.id = 'galleryModal';
-    modalDiv.innerHTML = galleryModal;
-    document.body.appendChild(modalDiv);
-    document.body.classList.add('overflow-hidden');
-    
-    // Initialize upload functionality
-    initGalleryUpload();
-}
-
-function initGalleryUpload() {
-    const uploadInput = document.getElementById('galleryUploadInput');
-    const dropZone = document.getElementById('galleryDropZone');
-    
-    if (uploadInput) {
-        uploadInput.addEventListener('change', handleGalleryUpload);
-    }
-    
-    if (dropZone) {
-        ['dragover', 'dragenter'].forEach(event => {
-            dropZone.addEventListener(event, (e) => {
-                e.preventDefault();
-                dropZone.classList.add('border-purple-500', 'bg-purple-50');
-            });
-        });
-        
-        ['dragleave', 'dragend'].forEach(event => {
-            dropZone.addEventListener(event, () => {
-                dropZone.classList.remove('border-purple-500', 'bg-purple-50');
-            });
-        });
-        
-        dropZone.addEventListener('drop', (e) => {
-            e.preventDefault();
-            dropZone.classList.remove('border-purple-500', 'bg-purple-50');
-            
-            if (e.dataTransfer.files.length) {
-                handleGalleryFiles(Array.from(e.dataTransfer.files));
-            }
-        });
-        
-        dropZone.addEventListener('click', (e) => {
-            if (e.target === dropZone || e.target.closest('button')) {
-                uploadInput.click();
-            }
-        });
-    }
-}
-
-function handleGalleryUpload(e) {
-    const files = Array.from(e.target.files);
-    handleGalleryFiles(files);
-}
-
-function handleGalleryFiles(files) {
-    if (galleryImages.length + files.length > 10) {
-        showToast('Maximum 10 images allowed in gallery', 'warning');
-        files = files.slice(0, 10 - galleryImages.length);
-    }
-    
-    files.forEach((file) => {
-        if (file.size > 5 * 1024 * 1024) {
-            showToast(`Image ${file.name} is too large (max 5MB)`, 'error');
-            return;
-        }
-        
-        if (!file.type.startsWith('image/')) {
-            showToast(`${file.name} is not an image`, 'error');
-            return;
-        }
-        
+// Image preview
+document.getElementById('id_image').addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    if (file) {
         const reader = new FileReader();
         reader.onload = function(e) {
-            galleryImages.push({
-                file: file,
-                preview: e.target.result,
-                name: file.name,
-                size: file.size
-            });
-            
-            updateGalleryPreview();
-            showToast(`Added: ${file.name}`, 'success');
+            document.getElementById('imagePreview').src = e.target.result;
         };
         reader.readAsDataURL(file);
+    }
+});
+
+// Character counter
+const descField = document.getElementById('id_description');
+const charCount = document.getElementById('charCount');
+if (descField && charCount) {
+    descField.addEventListener('input', function() {
+        charCount.textContent = this.value.length + ' characters';
     });
 }
 
-function updateGalleryPreview() {
-    const previewContainer = document.getElementById('galleryPreview');
-    const saveBtn = document.querySelector('#galleryModal button[onclick="saveGallery()"]');
-    
-    if (previewContainer) {
-        previewContainer.innerHTML = galleryImages.map((img, index) => `
-            <div class="relative group">
-                <div class="aspect-square rounded-xl overflow-hidden border border-slate-200 bg-white">
-                    <img src="${img.preview}" 
-                         alt="Gallery ${index + 1}"
-                         class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300">
-                </div>
-                <button onclick="removeGalleryImage(${index})"
-                        class="absolute -top-2 -right-2 w-6 h-6 bg-rose-500 text-white 
-                               rounded-full text-xs opacity-0 group-hover:opacity-100 
-                               transition-opacity duration-300 flex items-center justify-center">
-                    <i class="fas fa-times"></i>
-                </button>
-                <div class="absolute bottom-0 left-0 right-0 bg-black bg-opacity-50 text-white text-xs p-1 text-center truncate">
-                    ${img.name}
-                </div>
-            </div>
-        `).join('');
-    }
-    
-    if (saveBtn) {
-        saveBtn.innerHTML = `<i class="fas fa-save mr-2"></i>Save Gallery (${galleryImages.length})`;
-    }
-}
+// Initial progress
+updateProgress();
 
-function removeGalleryImage(index) {
-    galleryImages.splice(index, 1);
-    updateGalleryPreview();
-    showToast('Image removed from gallery', 'info');
-}
-
-function closeGalleryManager() {
-    const modal = document.getElementById('galleryModal');
-    if (modal) {
-        modal.remove();
-        document.body.classList.remove('overflow-hidden');
-    }
-}
-
-function saveGallery() {
-    const galleryContainer = document.getElementById('galleryContainer');
-    if (galleryContainer) {
-        galleryContainer.innerHTML = galleryImages.map((img, index) => `
-            <div class="relative group">
-                <div class="aspect-square rounded-lg overflow-hidden border border-slate-200">
-                    <img src="${img.preview}" 
-                         alt="Gallery ${index + 1}"
-                         class="w-full h-full object-cover">
-                </div>
-                <button onclick="removeMainGalleryImage(${index})"
-                        class="absolute top-1 right-1 w-5 h-5 bg-rose-500 text-white 
-                               rounded-full text-xs opacity-0 group-hover:opacity-100 
-                               transition-opacity duration-300 flex items-center justify-center">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-        `).join('');
-        
-        if (galleryImages.length < 10) {
-            galleryContainer.innerHTML += `
-                <div class="border-2 border-dashed border-slate-300 rounded-lg p-4 text-center 
-                           hover:border-indigo-400 cursor-pointer flex flex-col items-center justify-center"
-                     onclick="openGalleryManager()">
-                    <i class="fas fa-plus text-slate-400 text-xl mb-2"></i>
-                    <p class="text-xs text-slate-500">Add More</p>
-                </div>
-            `;
-        }
-    }
-    
-    closeGalleryManager();
-    showToast(`Gallery saved with ${galleryImages.length} images`, 'success');
-}
-
-function removeMainGalleryImage(index) {
-    galleryImages.splice(index, 1);
-    saveGallery();
-}
-
-function resetForm() {
-    if (confirm('Are you sure you want to reset the form? All unsaved changes will be lost.')) {
-        document.getElementById('productForm').reset();
-        galleryImages = [];
-        const galleryContainer = document.getElementById('galleryContainer');
-        if (galleryContainer) {
-            galleryContainer.innerHTML = `
-                <div class="border-2 border-dashed border-slate-300 rounded-xl p-6 text-center hover:border-indigo-400 cursor-pointer"
-                     onclick="openGalleryManager()">
-                    <i class="fas fa-plus text-slate-400 text-3xl mb-2"></i>
-                    <p class="text-sm text-slate-500">Add Gallery Images</p>
-                </div>
-            `;
-        }
-        showToast('Form reset successfully', 'success');
-    }
-}
-
-// Toast Notification System
-function showToast(message, type = 'info') {
-    const colors = {
-        success: 'bg-emerald-50 border-emerald-200 text-emerald-700',
-        error: 'bg-rose-50 border-rose-200 text-rose-700',
-        warning: 'bg-amber-50 border-amber-200 text-amber-700',
-        info: 'bg-indigo-50 border-indigo-200 text-indigo-700'
-    };
-    
-    const icons = {
-        success: 'fa-check-circle',
-        error: 'fa-exclamation-circle',
-        warning: 'fa-exclamation-triangle',
-        info: 'fa-info-circle'
-    };
-    
-    // Remove existing toasts
-    document.querySelectorAll('.custom-toast').forEach(t => t.remove());
-    
-    const toast = document.createElement('div');
-    toast.className = `fixed top-6 right-6 z-[1200] px-6 py-4 rounded-xl border shadow-xl 
-                       ${colors[type]} transform translate-x-full transition-transform 
-                       duration-500 custom-toast max-w-sm`;
-    toast.innerHTML = `
-        <div class="flex items-center">
-            <i class="fas ${icons[type]} text-xl mr-3"></i>
-            <div class="flex-1 min-w-0">
-                <p class="font-semibold text-sm">${message}</p>
-            </div>
-            <button onclick="this.parentElement.parentElement.remove()" 
-                    class="ml-4 text-slate-400 hover:text-slate-600 flex-shrink-0">
-                <i class="fas fa-times"></i>
-            </button>
-        </div>
-    `;
-    
-    document.body.appendChild(toast);
-    
-    // Animate in
-    setTimeout(() => {
-        toast.classList.remove('translate-x-full');
-        toast.classList.add('translate-x-0');
-    }, 10);
-    
-    // Auto remove
-    setTimeout(() => {
-        toast.classList.remove('translate-x-0');
-        toast.classList.add('translate-x-full');
-        setTimeout(() => toast.remove(), 500);
-    }, 3000);
-}
-
-// Handle ESC key to close modals
-document.addEventListener('keydown', function(e) {
-    if (e.key === 'Escape') {
-        const modal = document.getElementById('galleryModal');
-        if (modal) {
-            closeGalleryManager();
-        }
-        closeQuickAddModal();
-    }
+// Auto-scroll to first error on page load
+{% if form.errors or formset.errors %}
+document.addEventListener('DOMContentLoaded', function() {
+    setTimeout(scrollToFirstError, 500);
 });
+{% endif %}
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Stock status calculator
+    const stockInput = document.getElementById('id_stock_quantity');
+    const thresholdInput = document.getElementById('id_low_stock_threshold');
+    const statusBadge = document.getElementById('stockStatusBadge');
+    
+    function updateStockStatus() {
+        const stock = parseInt(stockInput?.value) || 0;
+        const threshold = parseInt(thresholdInput?.value) || 10;
+        
+        if (stock <= 0) {
+            statusBadge.innerHTML = '<i class="fas fa-times-circle mr-1"></i> Out of Stock';
+            statusBadge.className = 'px-3 py-1 rounded-full text-xs font-semibold bg-rose-100 text-rose-700';
+        } else if (stock <= threshold) {
+            statusBadge.innerHTML = '<i class="fas fa-exclamation-triangle mr-1"></i> Low Stock';
+            statusBadge.className = 'px-3 py-1 rounded-full text-xs font-semibold bg-amber-100 text-amber-700';
+        } else {
+            statusBadge.innerHTML = '<i class="fas fa-check-circle mr-1"></i> In Stock';
+            statusBadge.className = 'px-3 py-1 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-700';
+        }
+    }
+    
+    if (stockInput) {
+        stockInput.addEventListener('input', updateStockStatus);
+    }
+    if (thresholdInput) {
+        thresholdInput.addEventListener('input', updateStockStatus);
+    }
+    
+    updateStockStatus();
+});
+
+
 </script>
-
-<style>
-/* Custom Styles */
-select {
-    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
-    background-position: right 0.5rem center;
-    background-repeat: no-repeat;
-    background-size: 1.5em 1.5em;
-    padding-right: 2.5rem;
-    -webkit-print-color-adjust: exact;
-    print-color-adjust: exact;
-}
-
-/* Checkbox styling */
-.custom-checkbox {
-    display: flex;
-    align-items: center;
-    cursor: pointer;
-    position: relative;
-}
-
-.custom-checkbox input[type="checkbox"] {
-    position: absolute;
-    opacity: 0;
-    width: 0;
-    height: 0;
-}
-
-.custom-checkbox .checkmark {
-    width: 20px;
-    height: 20px;
-    border: 2px solid #cbd5e1;
-    border-radius: 4px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    margin-right: 10px;
-    transition: all 0.2s;
-    flex-shrink: 0;
-}
-
-.custom-checkbox input[type="checkbox"]:checked + .checkmark {
-    background-color: #4f46e5;
-    border-color: #4f46e5;
-}
-
-.custom-checkbox input[type="checkbox"]:checked + .checkmark::after {
-    content: '✓';
-    color: white;
-    font-size: 12px;
-    font-weight: bold;
-}
-
-/* File upload area */
-.file-upload-area {
-    transition: all 0.3s ease;
-}
-
-.file-upload-area:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-}
-
-/* Hide spinner from number inputs */
-input[type="number"]::-webkit-inner-spin-button,
-input[type="number"]::-webkit-outer-spin-button {
-    -webkit-appearance: none;
-    margin: 0;
-}
-
-input[type="number"] {
-    -moz-appearance: textfield;
-}
-
-/* Custom scrollbar */
-::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
-}
-
-::-webkit-scrollbar-track {
-    background: #f1f5f9;
-    border-radius: 4px;
-}
-
-::-webkit-scrollbar-thumb {
-    background: #cbd5e1;
-    border-radius: 4px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-    background: #94a3b8;
-}
-
-/* Responsive adjustments */
-@media (max-width: 768px) {
-    .grid-cols-1, .grid-cols-2, .grid-cols-3, .grid-cols-4 {
-        grid-template-columns: 1fr !important;
-    }
-    
-    .p-8, .px-8 {
-        padding: 1.5rem !important;
-    }
-    
-    .text-4xl, .text-5xl {
-        font-size: 2rem !important;
-    }
-}
-
-/* Animation for toast */
-@keyframes slideInRight {
-    from { transform: translateX(100%); }
-    to { transform: translateX(0); }
-}
-
-@keyframes slideOutRight {
-    from { transform: translateX(0); }
-    to { transform: translateX(100%); }
-}
-
-.custom-toast {
-    animation: slideInRight 0.5s ease-out;
-}
-
-.custom-toast.slide-out {
-    animation: slideOutRight 0.5s ease-in;
-}
-
-/* Modal animations */
-#quickAddModal {
-    animation: fadeIn 0.3s ease-out;
-}
-
-@keyframes fadeIn {
-    from { opacity: 0; transform: scale(0.95); }
-    to { opacity: 1; transform: scale(1); }
-}
-</style>
 {% endblock %}
