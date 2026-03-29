@@ -586,6 +586,8 @@ def get_cart_count(request):
     else:
         cart = request.session.get('cart', {})
         return sum(item['quantity'] for item in cart.values())
+
+
 @login_required
 def checkout(request):
     cart = get_object_or_404(Cart, user=request.user)
@@ -615,7 +617,7 @@ def checkout(request):
         order = Order.objects.create(
     customer=request.user,   # ✅ User instance
     payment_method='cod',
-    shipping_address=request.POST.get('shipping_address', ''),
+    shipping_address=request.POST.get('address', ''),
     subtotal=subtotal,
     total_amount=subtotal
 )
