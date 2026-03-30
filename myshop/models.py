@@ -614,19 +614,22 @@ class Product(models.Model):
             return self.image.url
         return "/static/images/product-placeholder.jpg"
 
-
 class ProductImage(models.Model):
     product = models.ForeignKey(
         Product,
-        related_name='gallery',
+        related_name='gallery',  # gallery হিসেবে রিলেটেড নেম
         on_delete=models.CASCADE
     )
     image = models.ImageField(upload_to='products/gallery/')
+    is_main = models.BooleanField(default=False)  # প্রধান ইমেজ চিহ্নিত করতে
+    is_active = models.BooleanField(default=True)  # ← এই লাইনটি যোগ করুন
     created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-is_main', '-created_at']  # প্রধান ইমেজ আগে দেখাবে
 
     def __str__(self):
         return f"Image for {self.product.name}"
-
 
 class Customer(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)

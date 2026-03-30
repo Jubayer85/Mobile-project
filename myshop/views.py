@@ -28,6 +28,7 @@ from django.views.decorators.http import require_POST
 from django.db import models
 from django.db.models.functions import TruncDate
 from django.utils.timezone import now, timedelta
+from django.db.models import Q, Count, Prefetch
 
 from django.forms import inlineformset_factory
 
@@ -1400,8 +1401,11 @@ def category_products(request, slug):
     
     return render(request, 'products/category_products.html', context)
 
+
+
+
 def subcategory_products(request, category_slug, subcategory_slug):
-    """View products by subcategory"""
+    """View products by subcategory - সম্পূর্ণ সরলীকৃত"""
     category = get_object_or_404(Category, slug=category_slug, is_active=True)
     subcategory = get_object_or_404(
         SubCategory, 
@@ -1410,32 +1414,31 @@ def subcategory_products(request, category_slug, subcategory_slug):
         is_active=True
     )
     
-    # Get products in this subcategory
+    # Get products
     products = Product.objects.filter(
         subcategory=subcategory,
         is_active=True
-    )
+    ).select_related('brand')
     
-    # Get other subcategories in same category
+    # Get other subcategories (product_count ছাড়া)
     other_subcategories = SubCategory.objects.filter(
         category=category,
         is_active=True
     ).exclude(id=subcategory.id)
     
-    # Get brands available in this subcategory
+    # Get brands
     brands = Brand.objects.filter(
         products__subcategory=subcategory,
         is_active=True
     ).distinct()
     
-    # Filtering logic (same as category_products)
+    # Filters
     selected_brands = request.GET.getlist('brand')
     min_price = request.GET.get('min_price')
     max_price = request.GET.get('max_price')
     sort_by = request.GET.get('sort', 'newest')
     search_query = request.GET.get('q', '')
     
-    # Apply search filter
     if search_query:
         products = products.filter(
             Q(name__icontains=search_query) |
@@ -1443,11 +1446,9 @@ def subcategory_products(request, category_slug, subcategory_slug):
             Q(brand__name__icontains=search_query)
         )
     
-    # Apply brand filter
     if selected_brands:
         products = products.filter(brand__id__in=selected_brands)
     
-    # Apply price filter
     if min_price:
         try:
             products = products.filter(price__gte=float(min_price))
@@ -1460,7 +1461,6 @@ def subcategory_products(request, category_slug, subcategory_slug):
         except ValueError:
             pass
     
-    # Apply sorting
     if sort_by == 'price_low':
         products = products.order_by('price')
     elif sort_by == 'price_high':
@@ -1469,13 +1469,29 @@ def subcategory_products(request, category_slug, subcategory_slug):
         products = products.order_by('name')
     elif sort_by == 'popular':
         products = products.order_by('-created_at')
-    else:  # newest
+    else:
         products = products.order_by('-created_at')
+    
+    # Calculate discount
+    for product in products:
+        if product.compare_price and product.compare_price > product.price:
+            product.discount_percentage = int(((product.compare_price - product.price) / product.compare_price) * 100)
+            product.selling_price = product.price
+            product.original_price = product.compare_price
+        else:
+            product.discount_percentage = 0
+            product.selling_price = product.price
+            product.original_price = product.price
+    
+    # Pagination
+    paginator = Paginator(products, 12)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
     
     context = {
         'category': category,
         'subcategory': subcategory,
-        'products': products,
+        'products': page_obj,
         'other_subcategories': other_subcategories,
         'brands': brands,
         'selected_brands': selected_brands,
