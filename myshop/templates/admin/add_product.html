@@ -1067,216 +1067,531 @@
     </div>
 </div>
 
-                    <!-- Card 4: Media (Similar pattern with error highlighting) -->
-                    <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden" id="media-section">
-                        <div class="px-8 py-6 border-b border-slate-200 bg-gradient-to-r from-slate-50 to-white">
-                            <div class="flex items-center space-x-3">
-                                <div class="w-10 h-10 rounded-lg bg-purple-100 text-purple-600 flex items-center justify-center">
-                                    <i class="fas fa-images"></i>
-                                </div>
-                                <div>
-                                    <h2 class="text-xl font-bold text-slate-900">Product Images</h2>
-                                    <p class="text-slate-500 text-sm">Upload main image and gallery images</p>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="p-8">
-                            <!-- Main Image -->
-                            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                                <div>
-                                    <label class="block text-sm font-semibold text-slate-700 mb-2">
-                                        Main Product Image <span class="text-rose-500">*</span>
-                                    </label>
-                                    <div onclick="document.getElementById('id_image').click()" 
-                                         class="border-2 border-dashed {% if form.image.errors %}border-rose-500 bg-rose-50{% else %}border-slate-300 hover:border-indigo-400 hover:bg-indigo-50{% endif %} rounded-2xl p-8 text-center cursor-pointer transition">
-                                        <i class="fas fa-cloud-upload-alt text-4xl text-slate-400 mb-3"></i>
-                                        <p class="text-slate-600">Click to upload</p>
-                                        <input type="file" 
-                                               name="image" 
-                                               id="id_image"
-                                               accept="image/*"
-                                               class="hidden">
-                                    </div>
-                                    {% if form.image.errors %}
-                                        <div class="mt-2 flex items-start space-x-2 text-rose-500">
-                                            <i class="fas fa-exclamation-circle text-sm mt-0.5"></i>
-                                            <div class="text-sm">
-                                                {% for error in form.image.errors %}
-                                                    <p>{{ error }}</p>
-                                                {% endfor %}
-                                            </div>
-                                        </div>
-                                    {% endif %}
-                                </div>
-                                
-                                <div>
-                                    <label class="block text-sm font-semibold text-slate-700 mb-2">
-                                        Preview
-                                    </label>
-                                    <div class="border rounded-2xl p-4 text-center">
-                                        {% if form.image.value %}
-                                            <img id="imagePreview" 
-                                                 src="{{ form.image.value.url }}" 
-                                                 class="w-40 h-40 object-cover mx-auto rounded">
-                                        {% else %}
-                                            <img id="imagePreview" 
-                                                 src="{% static 'images/placeholder.jpg' %}" 
-                                                 class="w-40 h-40 object-cover mx-auto rounded">
-                                        {% endif %}
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Gallery Images -->
-                            <div class="mt-10">
-                                <h3 class="text-lg font-semibold text-slate-800 mb-4">Gallery Images</h3>
-                                {{ formset.management_form }}
-                                <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
-                                    {% for form in formset %}
-                                    <div class="border rounded-xl p-3 text-center {% if form.errors %}border-rose-500 bg-rose-50{% endif %}">
-                                        <p class="text-xs text-slate-500 mb-2">Image {{ forloop.counter }}</p>
-                                        {{ form.image }}
-                                        {% if form.errors %}
-                                            <div class="mt-2 text-xs text-rose-500">
-                                                {% for error in form.errors %}
-                                                    <p>{{ error }}</p>
-                                                {% endfor %}
-                                            </div>
-                                        {% endif %}
-                                        {% if form.instance.image %}
-                                            <img src="{{ form.instance.image.url }}" 
-                                                 class="mt-2 w-full h-24 object-cover rounded">
-                                        {% endif %}
-                                        {% if form.instance.pk %}
-                                            <div class="mt-2 text-xs text-red-500">
-                                                {{ form.DELETE }} Delete
-                                            </div>
-                                        {% endif %}
-                                    </div>
-                                    {% endfor %}
-                                </div>
-                                {% if formset.errors and not formset.non_form_errors %}
-                                    <div class="mt-4 text-rose-500 text-sm">
-                                        <i class="fas fa-exclamation-circle mr-1"></i>
-                                        Please check gallery images (max 5MB each, JPG/PNG/WebP only)
-                                    </div>
-                                {% endif %}
-                            </div>
-                        </div>
+<div class="p-8">
+    <!-- Main Image -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div>
+            <label class="block text-sm font-semibold text-slate-700 mb-2">
+                Main Product Image <span class="text-rose-500">*</span>
+            </label>
+            <div onclick="document.getElementById('id_image').click()" 
+                 class="border-2 border-dashed {% if form.image.errors %}border-rose-500 bg-rose-50{% else %}border-slate-300 hover:border-indigo-400 hover:bg-indigo-50{% endif %} rounded-2xl p-8 text-center cursor-pointer transition">
+                <i class="fas fa-cloud-upload-alt text-4xl text-slate-400 mb-3"></i>
+                <p class="text-slate-600">Click to upload main image</p>
+                <p class="text-slate-400 text-sm mt-1">Recommended: 800x800px, JPG/PNG/WebP</p>
+                <input type="file" 
+                       name="image" 
+                       id="id_image"
+                       accept="image/*"
+                       class="hidden"
+                       required>
+            </div>
+            {% if form.image.errors %}
+                <div class="mt-2 flex items-start space-x-2 text-rose-500">
+                    <i class="fas fa-exclamation-circle text-sm mt-0.5"></i>
+                    <div class="text-sm">
+                        {% for error in form.image.errors %}
+                            <p>{{ error }}</p>
+                        {% endfor %}
                     </div>
+                </div>
+            {% endif %}
+        </div>
+        
+        <div>
+            <label class="block text-sm font-semibold text-slate-700 mb-2">
+                Preview
+            </label>
+            <div class="border rounded-2xl p-4 text-center bg-slate-50">
+                {% if form.image.value %}
+                    <img id="imagePreview" 
+                         src="{{ form.image.value.url }}" 
+                         class="w-40 h-40 object-cover mx-auto rounded-lg shadow-md">
+                {% else %}
+                    <img id="imagePreview" 
+                         src="{% static 'images/placeholder.jpg' %}" 
+                         class="w-40 h-40 object-cover mx-auto rounded-lg shadow-md">
+                {% endif %}
+                <p class="text-xs text-slate-400 mt-2">Main product image preview</p>
+            </div>
+        </div>
+    </div>
 
-                    <!-- Form Actions -->
-                    <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-8">
-                        <div class="flex flex-col sm:flex-row items-center justify-between space-y-4 sm:space-y-0">
-                            <div class="flex items-center space-x-4">
-                                <a href="{% url 'admin_product_list' %}" 
-                                   class="px-6 py-3 rounded-xl border border-slate-300 text-slate-700 hover:bg-slate-50 hover:border-slate-400 font-medium transition-colors">
-                                    <i class="fas fa-times mr-2"></i>Cancel
-                                </a>
+    <!-- Gallery Images Section -->
+    <div class="mt-10">
+        <div class="flex items-center justify-between mb-4">
+            <div>
+                <h3 class="text-lg font-semibold text-slate-800">Gallery Images</h3>
+                <p class="text-xs text-slate-500 mt-1">Additional product images for gallery</p>
+            </div>
+            <span class="text-xs text-slate-500 bg-slate-100 px-3 py-1 rounded-full">Max 10 images, 5MB each</span>
+        </div>
+        
+        <!-- Drop Zone for Multiple Images -->
+        <div id="gallery-dropzone" 
+             class="border-2 border-dashed border-slate-300 rounded-2xl p-8 text-center cursor-pointer hover:border-indigo-400 hover:bg-indigo-50 transition-all duration-300 mb-6">
+            <input type="file" 
+                   id="gallery-input" 
+                   name="gallery_images" 
+                   multiple 
+                   accept="image/jpeg,image/png,image/webp"
+                   class="hidden">
+            <div class="flex flex-col items-center">
+                <i class="fas fa-cloud-upload-alt text-5xl text-slate-400 mb-3"></i>
+                <p class="text-slate-600 font-medium">Drag & drop images here or click to browse</p>
+                <p class="text-slate-400 text-sm mt-2">You can select up to 10 images at once</p>
+                <div class="flex gap-2 mt-4">
+                    <span class="px-3 py-1 bg-slate-100 text-slate-600 text-xs rounded-full">JPG</span>
+                    <span class="px-3 py-1 bg-slate-100 text-slate-600 text-xs rounded-full">PNG</span>
+                    <span class="px-3 py-1 bg-slate-100 text-slate-600 text-xs rounded-full">WebP</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Hidden Formset Management -->
+        {{ formset.management_form }}
+        
+        <!-- Gallery Preview Container -->
+        <div id="gallery-preview-container" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+            <!-- Existing images will be shown here -->
+            {% for form in formset %}
+                <div class="gallery-item relative group border rounded-xl overflow-hidden bg-slate-50" data-index="{{ forloop.counter0 }}">
+                    <div class="aspect-square relative">
+                        {% if form.instance.image %}
+                            <img src="{{ form.instance.image.url }}" 
+                                 alt="Gallery image {{ forloop.counter }}"
+                                 class="w-full h-full object-cover">
+                            <div class="absolute inset-0 bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
                                 <button type="button" 
-                                        onclick="resetForm()"
-                                        class="px-6 py-3 rounded-xl border border-slate-300 text-slate-700 hover:bg-slate-50 hover:border-slate-400 font-medium transition-colors">
-                                    <i class="fas fa-redo mr-2"></i>Reset Form
+                                        onclick="removeExistingImage({{ forloop.counter0 }}, {{ form.instance.id }})"
+                                        class="w-8 h-8 bg-red-500 text-white rounded-full hover:bg-red-600 transition transform hover:scale-110">
+                                    <i class="fas fa-trash-alt text-sm"></i>
+                                </button>
+                                <button type="button" 
+                                        onclick="setAsMainImage({{ forloop.counter0 }})"
+                                        class="w-8 h-8 bg-indigo-500 text-white rounded-full hover:bg-indigo-600 transition transform hover:scale-110">
+                                    <i class="fas fa-star text-sm"></i>
                                 </button>
                             </div>
-                            <div class="flex items-center space-x-4">
-                                <button type="submit" 
-                                        class="px-8 py-3 rounded-xl bg-gradient-to-r from-indigo-600 to-indigo-700 text-white font-semibold hover:from-indigo-700 hover:to-indigo-800 shadow-md hover:shadow-lg transition-all duration-300">
-                                    <i class="fas fa-rocket mr-2"></i>Publish Product
-                                </button>
+                            {% if form.instance.is_main %}
+                                <div class="absolute top-2 left-2 bg-yellow-500 text-white text-xs px-2 py-1 rounded-full">
+                                    <i class="fas fa-crown mr-1"></i> Main
+                                </div>
+                            {% endif %}
+                        {% else %}
+                            <div class="w-full h-full flex flex-col items-center justify-center bg-slate-100">
+                                <i class="fas fa-image text-3xl text-slate-300 mb-2"></i>
+                                <span class="text-xs text-slate-400">Empty slot</span>
                             </div>
-                        </div>
+                        {% endif %}
                     </div>
-                </form>
+                    <div class="p-2 text-center border-t border-slate-100">
+                        <button type="button" 
+                                onclick="toggleDelete({{ forloop.counter0 }})"
+                                class="text-red-500 hover:text-red-700 text-xs font-medium transition">
+                            <i class="far fa-trash-alt mr-1"></i> Remove
+                        </button>
+                        <input type="checkbox" name="form-{{ forloop.counter0 }}-DELETE" class="delete-checkbox hidden">
+                    </div>
+                    {{ form.id }}
+                    {{ form.image }}
+                </div>
+            {% endfor %}
+        </div>
+        
+        <!-- New Images Preview -->
+        <div id="new-images-preview" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 mt-4"></div>
+        
+        {% if formset.errors and not formset.non_form_errors %}
+            <div class="mt-4 p-3 bg-rose-50 border border-rose-200 rounded-lg text-rose-600 text-sm">
+                <i class="fas fa-exclamation-circle mr-2"></i>
+                Please check gallery images (max 5MB each, JPG/PNG/WebP only)
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- Form Actions -->
+    <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-8 mt-10">
+        <div class="flex flex-col sm:flex-row items-center justify-between space-y-4 sm:space-y-0">
+            <div class="flex items-center space-x-4">
+                <a href="{% url 'admin_product_list' %}" 
+                   class="px-6 py-3 rounded-xl border border-slate-300 text-slate-700 hover:bg-slate-50 hover:border-slate-400 font-medium transition-colors">
+                    <i class="fas fa-times mr-2"></i>Cancel
+                </a>
+                <button type="button" 
+                        onclick="resetForm()"
+                        class="px-6 py-3 rounded-xl border border-slate-300 text-slate-700 hover:bg-slate-50 hover:border-slate-400 font-medium transition-colors">
+                    <i class="fas fa-redo mr-2"></i>Reset Form
+                </button>
+            </div>
+            <div class="flex items-center space-x-4">
+                <button type="submit" 
+                        class="px-8 py-3 rounded-xl bg-gradient-to-r from-indigo-600 to-indigo-700 text-white font-semibold hover:from-indigo-700 hover:to-indigo-800 shadow-md hover:shadow-lg transition-all duration-300 transform hover:-translate-y-0.5">
+                    <i class="fas fa-rocket mr-2"></i>Publish Product
+                </button>
             </div>
         </div>
     </div>
 </div>
 
 <script>
-// Scroll to first error function
-function scrollToFirstError() {
-    const firstError = document.querySelector('.border-rose-500, .bg-rose-50');
-    if (firstError) {
-        firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        firstError.classList.add('animate-pulse');
-        setTimeout(() => {
-            firstError.classList.remove('animate-pulse');
-        }, 2000);
-    }
-}
-
-// Update progress based on filled fields
-function updateProgress() {
-    const form = document.getElementById('productForm');
-    const requiredFields = form.querySelectorAll('[required]');
-    let filled = 0;
+// Gallery Management JavaScript
+document.addEventListener('DOMContentLoaded', function() {
+    // ==================== GALLERY MANAGEMENT ====================
+    let selectedFiles = [];
+    let existingImages = [];
+    let mainImageIndex = -1;
+    let existingMainImageIndex = -1;
     
-    requiredFields.forEach(field => {
-        if (field.type === 'checkbox') {
-            if (field.checked) filled++;
-        } else if (field.type === 'file') {
-            if (field.files && field.files.length > 0) filled++;
-        } else {
-            if (field.value.trim() !== '') filled++;
+    // Get existing images info
+    document.querySelectorAll('.gallery-item').forEach((item, index) => {
+        const img = item.querySelector('img');
+        const isMain = item.querySelector('.bg-yellow-500') !== null;
+        if (img && img.src) {
+            existingImages.push({
+                id: item.querySelector('input[type="hidden"]')?.value,
+                url: img.src,
+                isMain: isMain,
+                element: item
+            });
+            if (isMain) {
+                existingMainImageIndex = index;
+                mainImageIndex = index;
+            }
         }
     });
     
-    const progress = Math.min(100, Math.round((filled / requiredFields.length) * 100));
-    const progressBar = document.getElementById('progressBar');
-    const progressText = document.getElementById('progressText');
+    // Dropzone functionality
+    const dropzone = document.getElementById('gallery-dropzone');
+    const fileInput = document.getElementById('gallery-input');
     
-    if (progressBar && progressText) {
-        progressBar.style.width = `${progress}%`;
-        progressText.textContent = `${progress}%`;
+    if (dropzone && fileInput) {
+        // Click to upload
+        dropzone.addEventListener('click', (e) => {
+            if (e.target === dropzone || e.target.closest('.flex')) {
+                fileInput.click();
+            }
+        });
+        
+        // Drag & drop events
+        dropzone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropzone.classList.add('border-indigo-500', 'bg-indigo-100', 'scale-105');
+        });
+        
+        dropzone.addEventListener('dragleave', (e) => {
+            e.preventDefault();
+            dropzone.classList.remove('border-indigo-500', 'bg-indigo-100', 'scale-105');
+        });
+        
+        dropzone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropzone.classList.remove('border-indigo-500', 'bg-indigo-100', 'scale-105');
+            const files = Array.from(e.dataTransfer.files);
+            handleFiles(files);
+        });
+        
+        // File input change
+        fileInput.addEventListener('change', (e) => {
+            const files = Array.from(e.target.files);
+            handleFiles(files);
+            fileInput.value = '';
+        });
     }
-}
-
-// Auto-update progress on input
-document.querySelectorAll('input, textarea, select').forEach(el => {
-    el.addEventListener('input', updateProgress);
-    el.addEventListener('change', updateProgress);
-});
-
-// Image preview
-document.getElementById('id_image').addEventListener('change', function(e) {
-    const file = e.target.files[0];
-    if (file) {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            document.getElementById('imagePreview').src = e.target.result;
-        };
-        reader.readAsDataURL(file);
+    
+    // Handle selected files
+    function handleFiles(files) {
+        const totalImages = existingImages.length + selectedFiles.length + files.length;
+        
+        if (totalImages > 10) {
+            showToast('You can only upload up to 10 images total', 'error');
+            return;
+        }
+        
+        let validFiles = [];
+        files.forEach(file => {
+            // Validate file type
+            if (!file.type.match(/image\/(jpeg|png|webp)/)) {
+                showToast(`${file.name} is not a valid image type`, 'error');
+                return;
+            }
+            
+            // Validate file size (max 5MB)
+            if (file.size > 5 * 1024 * 1024) {
+                showToast(`${file.name} exceeds 5MB limit`, 'error');
+                return;
+            }
+            
+            validFiles.push(file);
+        });
+        
+        validFiles.forEach(file => {
+            selectedFiles.push({
+                file: file,
+                preview: URL.createObjectURL(file),
+                name: file.name,
+                size: file.size,
+                type: file.type
+            });
+        });
+        
+        updateNewImagesPreview();
+        
+        if (validFiles.length > 0) {
+            showToast(`${validFiles.length} image(s) added successfully`, 'success');
+        }
     }
-});
-
-// Character counter
-const descField = document.getElementById('id_description');
-const charCount = document.getElementById('charCount');
-if (descField && charCount) {
-    descField.addEventListener('input', function() {
-        charCount.textContent = this.value.length + ' characters';
+    
+    // Update new images preview
+    function updateNewImagesPreview() {
+        const previewContainer = document.getElementById('new-images-preview');
+        
+        if (selectedFiles.length === 0) {
+            previewContainer.innerHTML = '';
+            return;
+        }
+        
+        previewContainer.innerHTML = selectedFiles.map((file, index) => `
+            <div class="new-gallery-item relative group border-2 border-indigo-300 rounded-xl overflow-hidden bg-slate-50 animate-fadeIn">
+                <div class="aspect-square relative">
+                    <img src="${file.preview}" 
+                         alt="Preview ${index + 1}"
+                         class="w-full h-full object-cover">
+                    <div class="absolute inset-0 bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                        <button type="button" 
+                                onclick="removeNewImage(${index})"
+                                class="w-8 h-8 bg-red-500 text-white rounded-full hover:bg-red-600 transition transform hover:scale-110">
+                            <i class="fas fa-trash-alt text-sm"></i>
+                        </button>
+                        <button type="button" 
+                                onclick="setNewAsMain(${index})"
+                                class="w-8 h-8 bg-indigo-500 text-white rounded-full hover:bg-indigo-600 transition transform hover:scale-110">
+                            <i class="fas fa-star text-sm"></i>
+                        </button>
+                    </div>
+                    ${selectedFiles.length > 0 && index === getMainNewIndex() ? `
+                        <div class="absolute top-2 left-2 bg-yellow-500 text-white text-xs px-2 py-1 rounded-full shadow-md">
+                            <i class="fas fa-crown mr-1"></i> Main
+                        </div>
+                    ` : ''}
+                </div>
+                <div class="p-2 text-center bg-white">
+                    <p class="text-xs text-slate-600 truncate font-medium">${file.name}</p>
+                    <p class="text-xs text-slate-400">${(file.size / 1024).toFixed(1)} KB</p>
+                </div>
+            </div>
+        `).join('');
+    }
+    
+    // Get main image index from new images
+    function getMainNewIndex() {
+        const newStartIndex = existingImages.length;
+        if (mainImageIndex >= newStartIndex) {
+            return mainImageIndex - newStartIndex;
+        }
+        return -1;
+    }
+    
+    // Set new image as main
+    window.setNewAsMain = function(index) {
+        const newStartIndex = existingImages.length;
+        mainImageIndex = newStartIndex + index;
+        
+        // Remove main badge from existing images
+        document.querySelectorAll('.gallery-item .bg-yellow-500').forEach(badge => {
+            badge.remove();
+        });
+        
+        updateNewImagesPreview();
+        updateExistingImagesPreview();
+        showToast('Main image updated', 'success');
+    };
+    
+    // Remove new image
+    window.removeNewImage = function(index) {
+        if (confirm('Remove this image?')) {
+            URL.revokeObjectURL(selectedFiles[index].preview);
+            selectedFiles.splice(index, 1);
+            
+            const newStartIndex = existingImages.length;
+            if (mainImageIndex >= newStartIndex + index + 1) {
+                mainImageIndex--;
+            } else if (mainImageIndex === newStartIndex + index) {
+                // Set first available image as main
+                if (existingImages.length > 0) {
+                    mainImageIndex = 0;
+                } else if (selectedFiles.length > 0) {
+                    mainImageIndex = newStartIndex;
+                } else {
+                    mainImageIndex = -1;
+                }
+            }
+            
+            updateNewImagesPreview();
+            updateExistingImagesPreview();
+            showToast('Image removed', 'info');
+        }
+    };
+    
+    // Remove existing image
+    window.removeExistingImage = function(index, imageId) {
+        if (confirm('Remove this image from gallery?')) {
+            const item = document.querySelector(`.gallery-item[data-index="${index}"]`);
+            const deleteCheckbox = item.querySelector('.delete-checkbox');
+            if (deleteCheckbox) {
+                deleteCheckbox.checked = true;
+                item.style.opacity = '0.5';
+                item.style.pointerEvents = 'none';
+                item.classList.add('opacity-50');
+                
+                // Adjust main image index
+                const wasMain = item.querySelector('.bg-yellow-500') !== null;
+                if (wasMain && existingImages.length + selectedFiles.length > 1) {
+                    // Set first available image as main
+                    if (existingImages.length > 1) {
+                        mainImageIndex = 0;
+                    } else if (selectedFiles.length > 0) {
+                        mainImageIndex = existingImages.length;
+                    } else {
+                        mainImageIndex = -1;
+                    }
+                } else if (wasMain) {
+                    mainImageIndex = -1;
+                } else if (mainImageIndex > index) {
+                    mainImageIndex--;
+                }
+                
+                existingImages = existingImages.filter((_, i) => i !== index);
+                updateExistingImagesPreview();
+                showToast('Image marked for deletion', 'success');
+            }
+        }
+    };
+    
+    // Toggle delete for existing image
+    window.toggleDelete = function(index) {
+        const item = document.querySelector(`.gallery-item[data-index="${index}"]`);
+        const deleteCheckbox = item.querySelector('.delete-checkbox');
+        if (deleteCheckbox) {
+            deleteCheckbox.checked = !deleteCheckbox.checked;
+            if (deleteCheckbox.checked) {
+                item.style.opacity = '0.5';
+                item.style.pointerEvents = 'none';
+            } else {
+                item.style.opacity = '1';
+                item.style.pointerEvents = 'auto';
+            }
+        }
+    };
+    
+    // Set existing image as main
+    window.setAsMainImage = function(index) {
+        mainImageIndex = index;
+        updateExistingImagesPreview();
+        updateNewImagesPreview();
+        showToast('Main image updated', 'success');
+    };
+    
+    // Update existing images preview
+    function updateExistingImagesPreview() {
+        document.querySelectorAll('.gallery-item').forEach((item, idx) => {
+            const mainBadge = item.querySelector('.bg-yellow-500');
+            if (mainBadge) {
+                mainBadge.remove();
+            }
+            
+            if (idx === mainImageIndex && mainImageIndex < existingImages.length) {
+                const container = item.querySelector('.aspect-square');
+                if (container) {
+                    const badge = document.createElement('div');
+                    badge.className = 'absolute top-2 left-2 bg-yellow-500 text-white text-xs px-2 py-1 rounded-full shadow-md z-10';
+                    badge.innerHTML = '<i class="fas fa-crown mr-1"></i> Main';
+                    container.appendChild(badge);
+                }
+            }
+        });
+    }
+    
+    // ==================== FORM PROGRESS & VALIDATION ====================
+    
+    // Update progress based on filled fields
+    function updateProgress() {
+        const form = document.getElementById('productForm');
+        if (!form) return;
+        
+        const requiredFields = form.querySelectorAll('[required]');
+        let filled = 0;
+        
+        requiredFields.forEach(field => {
+            if (field.type === 'checkbox') {
+                if (field.checked) filled++;
+            } else if (field.type === 'file') {
+                if (field.files && field.files.length > 0) filled++;
+            } else {
+                if (field.value && field.value.trim() !== '') filled++;
+            }
+        });
+        
+        const progress = Math.min(100, Math.round((filled / requiredFields.length) * 100));
+        const progressBar = document.getElementById('progressBar');
+        const progressText = document.getElementById('progressText');
+        
+        if (progressBar && progressText) {
+            progressBar.style.width = `${progress}%`;
+            progressText.textContent = `${progress}%`;
+        }
+    }
+    
+    // Auto-update progress on input
+    document.querySelectorAll('input, textarea, select').forEach(el => {
+        el.addEventListener('input', updateProgress);
+        el.addEventListener('change', updateProgress);
     });
-}
-
-// Initial progress
-updateProgress();
-
-// Auto-scroll to first error on page load
-{% if form.errors or formset.errors %}
-document.addEventListener('DOMContentLoaded', function() {
-    setTimeout(scrollToFirstError, 500);
-});
-{% endif %}
-
-document.addEventListener('DOMContentLoaded', function() {
+    
+    // Main image preview
+    const mainImageInput = document.getElementById('id_image');
+    if (mainImageInput) {
+        mainImageInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                if (file.size > 5 * 1024 * 1024) {
+                    showToast('Image size must be less than 5MB', 'error');
+                    this.value = '';
+                    return;
+                }
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('imagePreview').src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+    }
+    
+    // Character counter for description
+    const descField = document.getElementById('id_description');
+    const charCount = document.getElementById('charCount');
+    if (descField && charCount) {
+        descField.addEventListener('input', function() {
+            const count = this.value.length;
+            charCount.textContent = `${count} characters`;
+            if (count < 100) {
+                charCount.classList.add('text-amber-500');
+                charCount.classList.remove('text-emerald-500');
+            } else {
+                charCount.classList.remove('text-amber-500');
+                charCount.classList.add('text-emerald-500');
+            }
+        });
+    }
+    
     // Stock status calculator
     const stockInput = document.getElementById('id_stock_quantity');
     const thresholdInput = document.getElementById('id_low_stock_threshold');
     const statusBadge = document.getElementById('stockStatusBadge');
     
     function updateStockStatus() {
+        if (!statusBadge) return;
         const stock = parseInt(stockInput?.value) || 0;
         const threshold = parseInt(thresholdInput?.value) || 10;
         
@@ -1298,10 +1613,133 @@ document.addEventListener('DOMContentLoaded', function() {
     if (thresholdInput) {
         thresholdInput.addEventListener('input', updateStockStatus);
     }
-    
     updateStockStatus();
+    
+    // Initial progress
+    updateProgress();
+    
+    // Form submission handler
+    const productForm = document.getElementById('productForm');
+    if (productForm) {
+        productForm.addEventListener('submit', function(e) {
+            // Validate main image
+            const mainImage = document.getElementById('id_image');
+            if (!mainImage.files.length && !mainImage.value) {
+                showToast('Please upload a main product image', 'error');
+                e.preventDefault();
+                return;
+            }
+            
+            showToast('Publishing product...', 'info');
+        });
+    }
 });
 
+// Global helper functions
+function showToast(message, type = 'success') {
+    const toast = document.createElement('div');
+    toast.className = `fixed top-20 right-4 z-50 px-6 py-3 rounded-xl shadow-lg transform transition-all duration-300 translate-x-full ${
+        type === 'success' ? 'bg-green-500 text-white' : 
+        type === 'error' ? 'bg-red-500 text-white' : 
+        'bg-blue-500 text-white'
+    }`;
+    toast.innerHTML = `
+        <div class="flex items-center gap-2">
+            <i class="fas ${type === 'success' ? 'fa-check-circle' : type === 'error' ? 'fa-exclamation-circle' : 'fa-info-circle'}"></i>
+            <span>${message}</span>
+        </div>
+    `;
+    document.body.appendChild(toast);
+    
+    setTimeout(() => {
+        toast.classList.remove('translate-x-full');
+    }, 100);
+    
+    setTimeout(() => {
+        toast.classList.add('translate-x-full');
+        setTimeout(() => toast.remove(), 300);
+    }, 3000);
+}
 
+function scrollToFirstError() {
+    const firstError = document.querySelector('.border-rose-500, .bg-rose-50');
+    if (firstError) {
+        firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        firstError.classList.add('animate-pulse');
+        setTimeout(() => {
+            firstError.classList.remove('animate-pulse');
+        }, 2000);
+    }
+}
+
+function resetForm() {
+    if (confirm('Are you sure you want to reset the form? All unsaved changes will be lost.')) {
+        document.getElementById('productForm').reset();
+        document.getElementById('imagePreview').src = "{% static 'images/placeholder.jpg' %}";
+        
+        // Clear gallery
+        selectedFiles = [];
+        updateNewImagesPreview();
+        
+        showToast('Form reset successfully', 'success');
+        updateProgress();
+    }
+}
+
+// Auto-scroll to first error on page load
+{% if form.errors or formset.errors %}
+document.addEventListener('DOMContentLoaded', function() {
+    setTimeout(scrollToFirstError, 500);
+});
+{% endif %}
 </script>
+
+<style>
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.animate-fadeIn {
+    animation: fadeIn 0.3s ease-out;
+}
+
+.gallery-item, .new-gallery-item {
+    transition: all 0.3s ease;
+}
+
+.gallery-item:hover, .new-gallery-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+}
+
+/* Custom scrollbar for gallery */
+#gallery-preview-container::-webkit-scrollbar,
+#new-images-preview::-webkit-scrollbar {
+    height: 6px;
+}
+
+#gallery-preview-container::-webkit-scrollbar-track,
+#new-images-preview::-webkit-scrollbar-track {
+    background: #f1f5f9;
+    border-radius: 3px;
+}
+
+#gallery-preview-container::-webkit-scrollbar-thumb,
+#new-images-preview::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 3px;
+}
+
+#gallery-preview-container::-webkit-scrollbar-thumb:hover,
+#new-images-preview::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+}
+</style>
 {% endblock %}
