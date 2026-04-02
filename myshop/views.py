@@ -32,6 +32,7 @@ from django.db.models import Q, Count, Prefetch
 
 from django.forms import inlineformset_factory
 
+
 ProductImageFormSet = inlineformset_factory(
     Product,
     ProductImage,
@@ -2188,3 +2189,4 @@ def update_cart_item(request, item_id):
             messages.error(request, f'Error updating cart: {str(e)}')
     
     return redirect('cart_detail')
+

@@ -31,7 +31,7 @@
             </a>
 
             <!-- Desktop Search Bar -->
-            <form method="GET" action="#" class="hidden lg:flex flex-1 max-w-2xl mx-4 lg:mx-8 relative">
+            <form method="GET" action="{% url 'shop_all' %}" class="hidden lg:flex flex-1 max-w-2xl mx-4 lg:mx-8 relative">
                 <div class="relative w-full group">
                     <input
                         type="text"
@@ -92,7 +92,7 @@
                         <i class="fas fa-chevron-down text-xs text-gray-400 group-hover:text-gray-600 transition-colors hidden sm:block"></i>
                     </button>
 
-                    <!-- Dropdown Menu -->
+                    <!-- Desktop Dropdown Menu -->
                     <div class="absolute right-0 mt-2 lg:mt-3 w-56 lg:w-64 bg-white border border-gray-100 rounded-xl lg:rounded-2xl shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 shadow-lg z-50 hidden lg:block">
                         <div class="px-4 lg:px-5 py-3 lg:py-4 border-b border-gray-50 bg-gradient-to-r from-gray-50/50 to-white/50 rounded-t-xl">
                             <p class="font-semibold text-gray-900 truncate text-sm">
@@ -100,7 +100,6 @@
                             </p>
                             <p class="text-xs text-gray-400 truncate mt-0.5">{{ user.email }}</p>
                         </div>
-
                         <div class="py-2">
                             {% if user.is_staff %}
                             <a href="{% url 'admin_dashboard' %}" class="flex items-center gap-3 px-4 lg:px-5 py-2 lg:py-2.5 text-sm text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 transition-colors">
@@ -113,17 +112,14 @@
                                 <span>Dashboard</span>
                             </a>
                             {% endif %}
-
                             <a href="{% url 'profile' %}" class="flex items-center gap-3 px-4 lg:px-5 py-2 lg:py-2.5 text-sm text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 transition-colors">
                                 <i class="fas fa-user w-4 text-gray-400"></i>
                                 <span>Profile Settings</span>
                             </a>
-
                             <a href="{% url 'order_history' %}" class="flex items-center gap-3 px-4 lg:px-5 py-2 lg:py-2.5 text-sm text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 transition-colors">
                                 <i class="fas fa-shopping-bag w-4 text-gray-400"></i>
                                 <span>Order History</span>
                             </a>
-
                             <a href="{% url 'wishlist' %}" class="flex items-center gap-3 px-4 lg:px-5 py-2 lg:py-2.5 text-sm text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 transition-colors">
                                 <i class="far fa-heart w-4 text-gray-400"></i>
                                 <span>Wishlist</span>
@@ -131,7 +127,6 @@
                                 <span class="ml-auto px-2 py-0.5 bg-rose-100 text-rose-600 text-xs rounded-full">{{ wishlist_count }}</span>
                                 {% endif %}
                             </a>
-
                             <div class="border-t border-gray-50 mt-2 pt-2">
                                 <form method="post" action="{% url 'logout' %}">
                                     {% csrf_token %}
@@ -160,7 +155,7 @@
 
         <!-- Mobile Search Bar -->
         <div id="mobile-search-container" class="lg:hidden hidden pb-3 animate-slideDown">
-            <form method="GET" action="#" class="relative">
+            <form method="GET" action="{% url 'shop_all' %}" class="relative">
                 <input
                     type="text"
                     name="q"
@@ -180,8 +175,6 @@
     <nav class="border-t border-gray-50 bg-white/80 hidden lg:block">
         <div class="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex items-center h-12">
-
-                <!-- Category Navigation with Mega Menu -->
                 <div class="flex items-center gap-1">
                     {% for category in nav_categories %}
                     <div class="relative group">
@@ -192,7 +185,6 @@
                             <i class="fas fa-chevron-down text-xs text-gray-400 group-hover:text-indigo-600 transition-colors"></i>
                             {% endif %}
                         </a>
-
                         {% if category.subcategories.all %}
                         <div class="absolute left-0 top-full mt-1 w-64 bg-white border border-gray-100 rounded-xl shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
                             <div class="p-2 max-h-80 overflow-y-auto">
@@ -216,8 +208,6 @@
                         {% endif %}
                     </div>
                     {% endfor %}
-
-                    <!-- Offers Badge with Animation -->
                     <a href="{% url 'special_offers' %}" class="ml-2 px-4 py-2 text-sm font-medium text-white rounded-lg bg-gradient-to-r from-rose-500 to-orange-500 shadow-sm hover:shadow-md transition-all flex items-center gap-2 group relative overflow-hidden">
                         <i class="fas fa-bolt text-xs"></i>
                         <span>Hot Offers</span>
@@ -225,27 +215,24 @@
                         <span class="absolute right-2 top-1/2 transform -translate-y-1/2">🔥</span>
                     </a>
                 </div>
-
-                <!-- Right Side Nav Links -->
                 <div class="ml-auto flex items-center gap-3">
                     <a href="{% url 'new_arrivals' %}" class="text-sm text-gray-600 hover:text-indigo-600 transition-colors">New Arrivals</a>
                     <a href="{% url 'best_sellers' %}" class="text-sm text-gray-600 hover:text-indigo-600 transition-colors">Best Sellers</a>
                     <a href="{% url 'brand_list' %}" class="text-sm text-gray-600 hover:text-indigo-600 transition-colors">Brands</a>
                 </div>
-
             </div>
         </div>
     </nav>
 
 </header>
 
-<!-- ===== MODERN MOBILE SIDEBAR MENU ===== -->
+<!-- ===== MODERN MOBILE SIDEBAR MENU WITH CATEGORY ACCORDION ===== -->
 <div id="mobile-menu-overlay" class="fixed inset-0 bg-gradient-to-b from-black/60 to-black/40 backdrop-blur-sm z-40 hidden lg:hidden transition-all duration-300"></div>
 
-<div id="mobile-menu-sidebar" class="fixed left-0 top-0 h-full w-80 bg-white shadow-2xl z-50 transform -translate-x-full transition-transform duration-500 ease-out lg:hidden overflow-hidden">
+<div id="mobile-menu-sidebar" class="fixed left-0 top-0 h-full w-80 bg-white shadow-2xl z-50 transform -translate-x-full transition-transform duration-500 ease-out lg:hidden overflow-hidden flex flex-col">
     
     <!-- Sidebar Header -->
-    <div class="relative overflow-hidden">
+    <div class="relative overflow-hidden flex-shrink-0">
         <div class="absolute inset-0 bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 opacity-95"></div>
         <div class="absolute -top-20 -right-20 w-40 h-40 bg-white/10 rounded-full blur-3xl"></div>
         <div class="absolute -bottom-20 -left-20 w-40 h-40 bg-white/10 rounded-full blur-3xl"></div>
@@ -304,8 +291,8 @@
     </div>
     
     <!-- Search Bar in Menu -->
-    <div class="p-5 border-b border-gray-100 bg-gray-50/50">
-        <form method="GET" action="#" class="relative">
+    <div class="p-5 border-b border-gray-100 bg-gray-50/50 flex-shrink-0">
+        <form method="GET" action="{% url 'shop_all' %}" class="relative">
             <input type="text" 
                    name="q"
                    value="{{ request.GET.q|default:'' }}"
@@ -318,64 +305,81 @@
         </form>
     </div>
     
-    <!-- Navigation Menu -->
-    <div class="overflow-y-auto h-[calc(100%-280px)] custom-scrollbar">
-        <!-- Main Menu Items -->
-        <div class="px-4 py-4 space-y-1">
-            <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider px-3 mb-3">Main Menu</p>
+    <!-- Navigation Menu with Scroll -->
+    <div class="flex-1 overflow-y-auto custom-scrollbar">
+        
+        <!-- ===== CATEGORIES SECTION WITH ACCORDION ===== -->
+        <div class="px-4 py-4 border-b border-gray-100">
+            <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider px-3 mb-3 flex items-center gap-2">
+                <i class="fas fa-layer-group"></i>
+                <span>Shop by Category</span>
+            </p>
             
-            <a href="{% url 'home' %}" class="flex items-center gap-4 px-4 py-3 rounded-xl hover:bg-gradient-to-r hover:from-indigo-50 hover:to-transparent transition-all group">
-                <div class="w-10 h-10 rounded-xl bg-indigo-50 flex items-center justify-center group-hover:bg-indigo-100 transition">
-                    <i class="fas fa-home text-indigo-600 text-lg"></i>
+            {% for category in nav_categories %}
+            <div class="category-accordion-item mb-2">
+                <!-- Category Header (Clickable) -->
+                <button class="category-header w-full flex items-center justify-between px-4 py-3 rounded-xl hover:bg-gradient-to-r hover:from-indigo-50 hover:to-transparent transition-all group"
+                        data-category-id="cat-{{ forloop.counter }}">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-xl bg-indigo-50 flex items-center justify-center group-hover:bg-indigo-100 transition">
+                            <i class="fas {{ category.icon|default:'fa-folder' }} text-indigo-600 text-lg"></i>
+                        </div>
+                        <div class="text-left">
+                            <span class="font-medium text-gray-800 group-hover:text-indigo-600 transition">{{ category.name }}</span>
+                            <p class="text-xs text-gray-400">{{ category.active_subcategories.count }} subcategories</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span class="text-xs text-gray-400 bg-gray-100 px-2 py-0.5 rounded-full">{{ category.product_count }}</span>
+                        <i class="fas fa-chevron-down text-gray-400 text-sm transition-transform duration-300 category-arrow"></i>
+                    </div>
+                </button>
+                
+                <!-- Subcategories List (Hidden by default) -->
+                <div class="subcategory-list hidden ml-4 mt-1 space-y-1 overflow-hidden">
+                    {% if category.subcategories.all %}
+                        {% for subcategory in category.subcategories.all %}
+                        <a href="{% url 'subcategory_products' category.slug subcategory.slug %}"
+                           class="flex items-center justify-between px-4 py-2.5 rounded-lg hover:bg-indigo-50 transition-all group/sub">
+                            <div class="flex items-center gap-3">
+                                <i class="fas fa-angle-right text-gray-400 text-xs group-hover/sub:text-indigo-600 transition"></i>
+                                <span class="text-sm text-gray-600 group-hover/sub:text-indigo-600 transition">{{ subcategory.name }}</span>
+                            </div>
+                            {% if subcategory.product_count %}
+                            <span class="text-xs text-gray-400 group-hover/sub:text-indigo-400">{{ subcategory.product_count }}</span>
+                            {% endif %}
+                        </a>
+                        {% endfor %}
+                        
+                        <!-- View All Link -->
+                        <a href="{% url 'category_products' category.slug %}"
+                           class="flex items-center gap-2 px-4 py-2 mt-2 text-sm text-indigo-600 hover:bg-indigo-50 rounded-lg transition">
+                            <i class="fas fa-eye"></i>
+                            <span>View All {{ category.name }} Products</span>
+                            <i class="fas fa-arrow-right text-xs ml-auto"></i>
+                        </a>
+                    {% else %}
+                        <div class="px-4 py-2 text-sm text-gray-400 italic">
+                            No subcategories available
+                        </div>
+                    {% endif %}
                 </div>
-                <div class="flex-1">
-                    <span class="font-medium text-gray-800 group-hover:text-indigo-600 transition">Home</span>
-                    <p class="text-xs text-gray-400">Dashboard & updates</p>
-                </div>
-                <i class="fas fa-chevron-right text-gray-300 text-sm group-hover:translate-x-1 transition-transform"></i>
-            </a>
-            
-            <a href="{% url 'all_categories' %}" class="flex items-center gap-4 px-4 py-3 rounded-xl hover:bg-gradient-to-r hover:from-indigo-50 hover:to-transparent transition-all group">
-                <div class="w-10 h-10 rounded-xl bg-purple-50 flex items-center justify-center group-hover:bg-purple-100 transition">
-                    <i class="fas fa-th-large text-purple-600 text-lg"></i>
-                </div>
-                <div class="flex-1">
-                    <span class="font-medium text-gray-800 group-hover:text-purple-600 transition">Categories</span>
-                    <p class="text-xs text-gray-400">Browse all categories</p>
-                </div>
-                <i class="fas fa-chevron-right text-gray-300 text-sm group-hover:translate-x-1 transition-transform"></i>
-            </a>
-            
-            <a href="{% url 'brand_list' %}" class="flex items-center gap-4 px-4 py-3 rounded-xl hover:bg-gradient-to-r hover:from-indigo-50 hover:to-transparent transition-all group">
-                <div class="w-10 h-10 rounded-xl bg-emerald-50 flex items-center justify-center group-hover:bg-emerald-100 transition">
-                    <i class="fas fa-tag text-emerald-600 text-lg"></i>
-                </div>
-                <div class="flex-1">
-                    <span class="font-medium text-gray-800 group-hover:text-emerald-600 transition">Brands</span>
-                    <p class="text-xs text-gray-400">Shop by brand</p>
-                </div>
-                <i class="fas fa-chevron-right text-gray-300 text-sm group-hover:translate-x-1 transition-transform"></i>
-            </a>
+            </div>
+            {% empty %}
+            <div class="text-center py-8 text-gray-400">
+                <i class="fas fa-folder-open text-4xl mb-2"></i>
+                <p>No categories available</p>
+            </div>
+            {% endfor %}
         </div>
         
-        <!-- Offers Section -->
-        <div class="px-4 py-2">
-            <a href="{% url 'special_offers' %}" class="block bg-gradient-to-r from-rose-50 to-orange-50 rounded-xl p-4 border border-rose-100 hover:shadow-md transition-all">
-                <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 rounded-full bg-rose-500 flex items-center justify-center animate-pulse">
-                        <i class="fas fa-fire text-white"></i>
-                    </div>
-                    <div class="flex-1">
-                        <p class="font-bold text-rose-600 text-sm">HOT DEALS</p>
-                        <p class="text-xs text-gray-600">Up to 50% off on selected items</p>
-                    </div>
-                    <i class="fas fa-arrow-right text-rose-400"></i>
-                </div>
-            </a>
-        </div>
-        
-        <!-- Shop Links -->
-        <div class="px-4 py-2 space-y-1">
+        <!-- Quick Shop Links -->
+        <div class="px-4 py-4 border-b border-gray-100">
+            <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider px-3 mb-3 flex items-center gap-2">
+                <i class="fas fa-bolt"></i>
+                <span>Quick Shop</span>
+            </p>
+            
             <a href="{% url 'new_arrivals' %}" class="flex items-center justify-between px-4 py-3 rounded-xl hover:bg-gray-50 transition group">
                 <div class="flex items-center gap-3">
                     <div class="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center">
@@ -395,55 +399,99 @@
                 </div>
                 <span class="px-2 py-0.5 bg-emerald-100 text-emerald-600 text-xs rounded-full">Top</span>
             </a>
+            
+            <a href="{% url 'special_offers' %}" class="flex items-center justify-between px-4 py-3 rounded-xl hover:bg-gray-50 transition group">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-lg bg-rose-50 flex items-center justify-center">
+                        <i class="fas fa-fire text-rose-500 text-sm"></i>
+                    </div>
+                    <span class="text-gray-700 group-hover:text-rose-600 transition">Special Offers</span>
+                </div>
+                <span class="px-2 py-0.5 bg-rose-100 text-rose-600 text-xs rounded-full animate-pulse">🔥 Hot</span>
+            </a>
+        </div>
+        
+        <!-- Brands Section -->
+        <div class="px-4 py-4 border-b border-gray-100">
+            <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider px-3 mb-3 flex items-center gap-2">
+                <i class="fas fa-tags"></i>
+                <span>Top Brands</span>
+            </p>
+            
+            <div class="grid grid-cols-2 gap-2 px-3">
+                {% for brand in nav_brands|slice:":6" %}
+                <a href="{% url 'brand_products' brand.slug %}"
+                   class="flex items-center gap-2 px-3 py-2 rounded-lg border border-gray-100 hover:border-indigo-200 hover:bg-indigo-50 transition group">
+                    {% if brand.logo %}
+                    <img src="{{ brand.logo.url }}" alt="{{ brand.name }}" class="w-6 h-6 object-contain">
+                    {% else %}
+                    <div class="w-6 h-6 rounded-full bg-gradient-to-br from-indigo-100 to-purple-100 flex items-center justify-center">
+                        <i class="fas fa-building text-indigo-500 text-xs"></i>
+                    </div>
+                    {% endif %}
+                    <span class="text-sm text-gray-700 group-hover:text-indigo-600 transition truncate">{{ brand.name }}</span>
+                </a>
+                {% endfor %}
+            </div>
+            
+            {% if nav_brands|length > 6 %}
+            <a href="{% url 'brand_list' %}" class="flex items-center justify-center gap-2 mt-3 px-4 py-2 text-sm text-indigo-600 hover:bg-indigo-50 rounded-lg transition">
+                <i class="fas fa-plus-circle"></i>
+                <span>View All Brands</span>
+                <i class="fas fa-arrow-right text-xs"></i>
+            </a>
+            {% endif %}
         </div>
         
         <!-- Account Menu -->
-        <div class="border-t border-gray-100 px-4 py-4">
-            <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider px-3 mb-3">Account</p>
-            <div class="space-y-1">
-                {% if user.is_authenticated %}
-                <a href="{% url 'profile' %}" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-gray-50 transition group">
-                    <div class="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center">
-                        <i class="fas fa-user text-gray-600"></i>
+        <div class="px-4 py-4 border-b border-gray-100">
+            <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider px-3 mb-3 flex items-center gap-2">
+                <i class="fas fa-user-circle"></i>
+                <span>Account</span>
+            </p>
+            
+            {% if user.is_authenticated %}
+            <a href="{% url 'profile' %}" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-gray-50 transition group">
+                <div class="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center">
+                    <i class="fas fa-user text-gray-600"></i>
+                </div>
+                <span class="text-gray-700 group-hover:text-indigo-600 transition">Profile Settings</span>
+            </a>
+            
+            <a href="{% url 'order_history' %}" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-gray-50 transition group">
+                <div class="w-8 h-8 rounded-lg bg-indigo-50 flex items-center justify-center">
+                    <i class="fas fa-box text-indigo-600"></i>
+                </div>
+                <span class="text-gray-700 group-hover:text-indigo-600 transition">My Orders</span>
+            </a>
+            
+            <a href="{% url 'wishlist' %}" class="flex items-center justify-between px-4 py-3 rounded-xl hover:bg-gray-50 transition group">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-lg bg-rose-50 flex items-center justify-center">
+                        <i class="far fa-heart text-rose-500"></i>
                     </div>
-                    <span class="text-gray-700 group-hover:text-indigo-600 transition">Profile</span>
-                </a>
-                
-                <a href="{% url 'order_history' %}" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-gray-50 transition group">
-                    <div class="w-8 h-8 rounded-lg bg-indigo-50 flex items-center justify-center">
-                        <i class="fas fa-box text-indigo-600"></i>
-                    </div>
-                    <span class="text-gray-700 group-hover:text-indigo-600 transition">My Orders</span>
-                </a>
-                
-                <a href="{% url 'wishlist' %}" class="flex items-center justify-between px-4 py-3 rounded-xl hover:bg-gray-50 transition group">
-                    <div class="flex items-center gap-3">
-                        <div class="w-8 h-8 rounded-lg bg-rose-50 flex items-center justify-center">
-                            <i class="far fa-heart text-rose-500"></i>
-                        </div>
-                        <span class="text-gray-700 group-hover:text-rose-600 transition">Wishlist</span>
-                    </div>
-                    {% if wishlist_count > 0 %}
-                    <span class="px-2 py-0.5 bg-rose-100 text-rose-600 text-xs rounded-full">{{ wishlist_count }}</span>
-                    {% endif %}
-                </a>
-                
-                <form method="post" action="{% url 'logout' %}" class="mt-4">
-                    {% csrf_token %}
-                    <button type="submit" class="flex items-center justify-center gap-2 w-full px-4 py-3 text-sm font-medium text-red-600 rounded-xl border border-red-200 hover:bg-red-50 transition-colors">
-                        <i class="fas fa-sign-out-alt"></i>
-                        Sign Out
-                    </button>
-                </form>
-                {% else %}
-                <a href="{% url 'login' %}" class="block w-full text-center px-4 py-3 text-sm font-medium text-gray-700 rounded-xl border border-gray-300 hover:bg-gray-50 transition-colors">
-                    Sign In
-                </a>
-                <a href="{% url 'register' %}" class="block w-full text-center mt-3 px-4 py-3 text-sm font-medium bg-gradient-to-r from-indigo-600 to-blue-600 text-white rounded-xl shadow-sm">
-                    Create Account
-                </a>
+                    <span class="text-gray-700 group-hover:text-rose-600 transition">Wishlist</span>
+                </div>
+                {% if wishlist_count > 0 %}
+                <span class="px-2 py-0.5 bg-rose-100 text-rose-600 text-xs rounded-full">{{ wishlist_count }}</span>
                 {% endif %}
-            </div>
+            </a>
+            
+            <form method="post" action="{% url 'logout' %}" class="mt-4">
+                {% csrf_token %}
+                <button type="submit" class="flex items-center justify-center gap-2 w-full px-4 py-3 text-sm font-medium text-red-600 rounded-xl border border-red-200 hover:bg-red-50 transition-colors">
+                    <i class="fas fa-sign-out-alt"></i>
+                    Sign Out
+                </button>
+            </form>
+            {% else %}
+            <a href="{% url 'login' %}" class="block w-full text-center px-4 py-3 text-sm font-medium text-gray-700 rounded-xl border border-gray-300 hover:bg-gray-50 transition-colors">
+                Sign In
+            </a>
+            <a href="{% url 'register' %}" class="block w-full text-center mt-3 px-4 py-3 text-sm font-medium bg-gradient-to-r from-indigo-600 to-blue-600 text-white rounded-xl shadow-sm">
+                Create Account
+            </a>
+            {% endif %}
         </div>
         
         <!-- Support Section -->
@@ -468,6 +516,7 @@
                 </div>
             </div>
         </div>
+        
     </div>
 </div>
 
@@ -507,9 +556,45 @@
         animation: slideDown 0.3s ease-out;
     }
     
-    /* Menu Item Hover */
-    .menu-item {
-        transition: all 0.3s ease;
+    /* Category Accordion Styles */
+    .category-arrow {
+        transition: transform 0.3s ease;
+    }
+    
+    .rotate-180 {
+        transform: rotate(180deg);
+    }
+    
+    .subcategory-list {
+        max-height: 0;
+        opacity: 0;
+        transition: max-height 0.3s ease-out, opacity 0.3s ease;
+        overflow: hidden;
+    }
+    
+    .subcategory-list:not(.hidden) {
+        max-height: 500px;
+        opacity: 1;
+        transition: max-height 0.5s ease-in, opacity 0.3s ease;
+    }
+    
+    /* Subcategory items animation */
+    .subcategory-list a {
+        transform: translateX(-10px);
+        opacity: 0;
+        animation: slideInRight 0.3s forwards;
+    }
+    
+    @keyframes slideInRight {
+        to {
+            transform: translateX(0);
+            opacity: 1;
+        }
+    }
+    
+    /* Hover effect for category items */
+    .category-header:hover .category-arrow {
+        transform: translateX(3px);
     }
     
     /* Sidebar Animation */
@@ -531,29 +616,69 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Mobile Menu Elements
+    // ==================== CATEGORY ACCORDION ====================
+    const categoryHeaders = document.querySelectorAll('.category-header');
+    
+    categoryHeaders.forEach(header => {
+        header.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            const subcategoryList = this.nextElementSibling;
+            const arrow = this.querySelector('.category-arrow');
+            const isOpen = subcategoryList && !subcategoryList.classList.contains('hidden');
+            
+            // Close all other categories (optional - uncomment for exclusive open)
+            categoryHeaders.forEach(otherHeader => {
+                if (otherHeader !== header) {
+                    const otherList = otherHeader.nextElementSibling;
+                    const otherArrow = otherHeader.querySelector('.category-arrow');
+                    if (otherList && !otherList.classList.contains('hidden')) {
+                        otherList.classList.add('hidden');
+                        otherArrow?.classList.remove('rotate-180');
+                    }
+                }
+            });
+            
+            // Toggle current category
+            if (subcategoryList) {
+                if (isOpen) {
+                    subcategoryList.classList.add('hidden');
+                    arrow?.classList.remove('rotate-180');
+                } else {
+                    subcategoryList.classList.remove('hidden');
+                    arrow?.classList.add('rotate-180');
+                    
+                    // Smooth scroll to show content
+                    setTimeout(() => {
+                        subcategoryList.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                    }, 100);
+                }
+            }
+        });
+    });
+    
+    // ==================== MOBILE MENU FUNCTIONS ====================
     const menuButton = document.getElementById('mobile-menu-button');
     const menuClose = document.getElementById('mobile-menu-close');
     const menuSidebar = document.getElementById('mobile-menu-sidebar');
     const menuOverlay = document.getElementById('mobile-menu-overlay');
-    
-    // Mobile Search Elements
     const searchButton = document.getElementById('mobile-search-button');
     const searchContainer = document.getElementById('mobile-search-container');
     
     // Open Mobile Menu
     if (menuButton) {
         menuButton.addEventListener('click', () => {
-            menuSidebar.classList.remove('-translate-x-full');
-            menuOverlay.classList.remove('hidden');
+            menuSidebar?.classList.remove('-translate-x-full');
+            menuOverlay?.classList.remove('hidden');
             document.body.style.overflow = 'hidden';
         });
     }
     
     // Close Mobile Menu
     function closeMobileMenu() {
-        menuSidebar.classList.add('-translate-x-full');
-        menuOverlay.classList.add('hidden');
+        menuSidebar?.classList.add('-translate-x-full');
+        menuOverlay?.classList.add('hidden');
         document.body.style.overflow = '';
     }
     
@@ -571,7 +696,8 @@ document.addEventListener('DOMContentLoaded', function() {
             e.stopPropagation();
             searchContainer.classList.toggle('hidden');
             if (!searchContainer.classList.contains('hidden')) {
-                searchContainer.querySelector('input').focus();
+                const searchInput = searchContainer.querySelector('input');
+                if (searchInput) searchInput.focus();
             }
         });
     }
@@ -587,7 +713,7 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Close menu on escape key
     document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape' && !menuSidebar?.classList.contains('-translate-x-full')) {
+        if (e.key === 'Escape' && menuSidebar && !menuSidebar.classList.contains('-translate-x-full')) {
             closeMobileMenu();
         }
     });
