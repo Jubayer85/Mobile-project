@@ -1,0 +1,896 @@
+<!-- templates/shop/all_brands.html -->
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}All Brands - MobileShop{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Breadcrumb Styles */
+    .breadcrumb-section {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        padding: 60px 0 40px;
+        color: white;
+        margin-bottom: 40px;
+    }
+    
+    .breadcrumb-section h1 {
+        font-size: 42px;
+        margin-bottom: 15px;
+        font-weight: 700;
+    }
+    
+    .breadcrumb-nav {
+        display: flex;
+        justify-content: center;
+        gap: 10px;
+        color: rgba(255,255,255,0.9);
+    }
+    
+    .breadcrumb-nav a {
+        color: white;
+        text-decoration: none;
+        transition: opacity 0.3s;
+    }
+    
+    .breadcrumb-nav a:hover {
+        opacity: 0.8;
+    }
+    
+    /* Stats Bar */
+    .stats-bar {
+        background: white;
+        padding: 20px 0;
+        border-bottom: 1px solid #eee;
+        margin-bottom: 40px;
+    }
+    
+    .stats-content {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 20px;
+    }
+    
+    .brand-count {
+        font-size: 18px;
+        color: #666;
+    }
+    
+    .brand-count strong {
+        color: #ff6b35;
+        font-size: 24px;
+    }
+    
+    /* Filters Sidebar */
+    .filters-sidebar {
+        background: white;
+        border-radius: 15px;
+        padding: 25px;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+        position: sticky;
+        top: 100px;
+    }
+    
+    .filter-group {
+        margin-bottom: 30px;
+        border-bottom: 1px solid #eee;
+        padding-bottom: 20px;
+    }
+    
+    .filter-group:last-child {
+        border-bottom: none;
+        padding-bottom: 0;
+    }
+    
+    .filter-title {
+        font-size: 18px;
+        font-weight: 600;
+        margin-bottom: 15px;
+        color: #333;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    
+    .filter-title i {
+        color: #ff6b35;
+    }
+    
+    .tier-options {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+    
+    .tier-option {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        cursor: pointer;
+        padding: 8px 12px;
+        border-radius: 8px;
+        transition: all 0.3s;
+    }
+    
+    .tier-option:hover {
+        background: #f8f9fa;
+    }
+    
+    .tier-option input {
+        cursor: pointer;
+        accent-color: #ff6b35;
+    }
+    
+    .tier-option label {
+        cursor: pointer;
+        flex: 1;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .tier-badge-small {
+        padding: 4px 8px;
+        border-radius: 12px;
+        font-size: 11px;
+        font-weight: 600;
+    }
+    
+    .tier-premium-small {
+        background: linear-gradient(135deg, #ffd700, #ffed4e);
+        color: #856404;
+    }
+    
+    .tier-standard-small {
+        background: linear-gradient(135deg, #4a90e2, #6c5ce7);
+        color: white;
+    }
+    
+    .tier-budget-small {
+        background: linear-gradient(135deg, #28a745, #20c997);
+        color: white;
+    }
+    
+    .tier-count {
+        color: #999;
+        font-size: 12px;
+    }
+    
+    /* Country Filter */
+    .country-search {
+        margin-bottom: 15px;
+    }
+    
+    .country-search input {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        font-size: 14px;
+    }
+    
+    .country-list {
+        max-height: 200px;
+        overflow-y: auto;
+    }
+    
+    .country-option {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 8px 12px;
+        cursor: pointer;
+        border-radius: 8px;
+        transition: all 0.3s;
+    }
+    
+    .country-option:hover {
+        background: #f8f9fa;
+    }
+    
+    .country-option input {
+        cursor: pointer;
+    }
+    
+    .country-option label {
+        cursor: pointer;
+        flex: 1;
+    }
+    
+    .country-count {
+        color: #999;
+        font-size: 12px;
+    }
+    
+    /* Sort Options */
+    .sort-options {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+    
+    .sort-btn {
+        padding: 8px 15px;
+        border: 1px solid #ddd;
+        background: white;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.3s;
+        font-size: 14px;
+    }
+    
+    .sort-btn:hover {
+        border-color: #ff6b35;
+        color: #ff6b35;
+    }
+    
+    .sort-btn.active {
+        background: #ff6b35;
+        border-color: #ff6b35;
+        color: white;
+    }
+    
+    /* Reset Filters */
+    .reset-filters {
+        width: 100%;
+        padding: 12px;
+        background: #f8f9fa;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.3s;
+        margin-top: 20px;
+        font-weight: 500;
+    }
+    
+    .reset-filters:hover {
+        background: #e9ecef;
+        border-color: #ff6b35;
+        color: #ff6b35;
+    }
+    
+    /* Brands Grid */
+    .brands-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 30px;
+    }
+    
+    .brand-card {
+        background: white;
+        border-radius: 15px;
+        overflow: hidden;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: block;
+        position: relative;
+    }
+    
+    .brand-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 15px 40px rgba(0,0,0,0.1);
+    }
+    
+    .brand-card.featured {
+        border: 2px solid #ffd700;
+    }
+    
+    .featured-badge {
+        position: absolute;
+        top: 15px;
+        right: 15px;
+        background: linear-gradient(135deg, #ffd700, #ffed4e);
+        color: #856404;
+        padding: 5px 12px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 600;
+        z-index: 1;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+    
+    .brand-card-image {
+        height: 200px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #f8f9fa;
+        padding: 30px;
+        position: relative;
+    }
+    
+    .brand-card-image img {
+        max-width: 100%;
+        max-height: 100%;
+        object-fit: contain;
+    }
+    
+    .brand-placeholder-card {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 15px 15px 0 0;
+    }
+    
+    .brand-placeholder-card i {
+        font-size: 80px;
+        color: white;
+    }
+    
+    .tier-badge-card {
+        position: absolute;
+        bottom: 15px;
+        left: 15px;
+        padding: 5px 12px;
+        border-radius: 20px;
+        font-size: 11px;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+    
+    .brand-card-content {
+        padding: 20px;
+    }
+    
+    .brand-card-title {
+        font-size: 20px;
+        font-weight: 600;
+        color: #333;
+        margin-bottom: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+    
+    .brand-stats {
+        display: flex;
+        gap: 15px;
+        margin-bottom: 12px;
+        font-size: 14px;
+    }
+    
+    .brand-stats span {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        color: #666;
+    }
+    
+    .brand-stats i {
+        color: #ff6b35;
+    }
+    
+    .brand-description {
+        color: #999;
+        font-size: 14px;
+        line-height: 1.5;
+        margin-top: 10px;
+    }
+    
+    /* Pagination */
+    .pagination {
+        margin-top: 50px;
+        display: flex;
+        justify-content: center;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+    
+    .page-link {
+        padding: 10px 15px;
+        background: white;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        text-decoration: none;
+        color: #666;
+        transition: all 0.3s;
+    }
+    
+    .page-link:hover {
+        background: #ff6b35;
+        border-color: #ff6b35;
+        color: white;
+    }
+    
+    .page-link.active {
+        background: #ff6b35;
+        border-color: #ff6b35;
+        color: white;
+    }
+    
+    /* No Results */
+    .no-results {
+        text-align: center;
+        padding: 60px 20px;
+        background: white;
+        border-radius: 15px;
+    }
+    
+    .no-results i {
+        font-size: 80px;
+        color: #ddd;
+        margin-bottom: 20px;
+    }
+    
+    .no-results h3 {
+        font-size: 24px;
+        color: #333;
+        margin-bottom: 10px;
+    }
+    
+    .no-results p {
+        color: #999;
+        margin-bottom: 20px;
+    }
+    
+    /* Responsive */
+    @media (max-width: 768px) {
+        .breadcrumb-section h1 {
+            font-size: 32px;
+        }
+        
+        .filters-sidebar {
+            position: static;
+            margin-bottom: 30px;
+        }
+        
+        .brands-grid {
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+        }
+        
+        .stats-content {
+            flex-direction: column;
+            text-align: center;
+        }
+    }
+    
+    @media (max-width: 480px) {
+        .brands-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Breadcrumb Section -->
+<div class="breadcrumb-section">
+    <div class="container">
+        <div class="text-center">
+            <h1>All Brands</h1>
+            <div class="breadcrumb-nav">
+                <a href="{% url 'home' %}">Home</a>
+                <span>/</span>
+                <span>Brands</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Stats Bar -->
+<div class="stats-bar">
+    <div class="container">
+        <div class="stats-content">
+            <div class="brand-count">
+                <strong id="total-brands">{{ brands|length }}</strong> Brands Available
+            </div>
+            <div class="active-filters" id="activeFilters"></div>
+        </div>
+    </div>
+</div>
+
+<div class="container">
+    <div class="row">
+        <!-- Filters Sidebar -->
+        <div class="col-lg-3">
+            <div class="filters-sidebar">
+                <h4 style="margin-bottom: 20px;">Filter Brands</h4>
+                
+                <!-- Tier Filter -->
+                <div class="filter-group">
+                    <div class="filter-title">
+                        <i class="fas fa-layer-group"></i>
+                        <span>Brand Tier</span>
+                    </div>
+                    <div class="tier-options">
+                        <label class="tier-option">
+                            <input type="checkbox" value="premium" class="tier-filter">
+                            <label>
+                                <span class="tier-badge-small tier-premium-small">Premium</span>
+                                <span class="tier-count" id="premium-count">(0)</span>
+                            </label>
+                        </label>
+                        <label class="tier-option">
+                            <input type="checkbox" value="standard" class="tier-filter">
+                            <label>
+                                <span class="tier-badge-small tier-standard-small">Standard</span>
+                                <span class="tier-count" id="standard-count">(0)</span>
+                            </label>
+                        </label>
+                        <label class="tier-option">
+                            <input type="checkbox" value="budget" class="tier-filter">
+                            <label>
+                                <span class="tier-badge-small tier-budget-small">Budget</span>
+                                <span class="tier-count" id="budget-count">(0)</span>
+                            </label>
+                        </label>
+                    </div>
+                </div>
+                
+                <!-- Country Filter -->
+                <div class="filter-group">
+                    <div class="filter-title">
+                        <i class="fas fa-globe"></i>
+                        <span>Country</span>
+                    </div>
+                    <div class="country-search">
+                        <input type="text" id="countrySearch" placeholder="Search country...">
+                    </div>
+                    <div class="country-list" id="countryList"></div>
+                </div>
+                
+                <!-- Sort Options -->
+                <div class="filter-group">
+                    <div class="filter-title">
+                        <i class="fas fa-sort"></i>
+                        <span>Sort By</span>
+                    </div>
+                    <div class="sort-options">
+                        <button class="sort-btn active" data-sort="name">Name A-Z</button>
+                        <button class="sort-btn" data-sort="name-desc">Name Z-A</button>
+                        <button class="sort-btn" data-sort="products">Products Count</button>
+                        <button class="sort-btn" data-sort="featured">Featured First</button>
+                    </div>
+                </div>
+                
+                <!-- Reset Button -->
+                <button class="reset-filters" id="resetFilters">
+                    <i class="fas fa-undo-alt"></i> Reset All Filters
+                </button>
+            </div>
+        </div>
+        
+        <!-- Brands Grid -->
+        <div class="col-lg-9">
+            <div class="brands-grid" id="brandsGrid">
+                {% for brand in brands %}
+                <a href="{% url 'shop:brand_products' brand.slug %}" class="brand-card {% if brand.is_featured %}featured{% endif %}" 
+                   data-tier="{{ brand.tier }}"
+                   data-country="{{ brand.country|default:'Unspecified' }}"
+                   data-name="{{ brand.name }}"
+                   data-products="{{ brand.product_count }}">
+                    
+                    {% if brand.is_featured %}
+                    <div class="featured-badge">
+                        <i class="fas fa-crown"></i> Featured
+                    </div>
+                    {% endif %}
+                    
+                    <div class="brand-card-image">
+                        {% if brand.logo %}
+                            <img src="{{ brand.logo.url }}" alt="{{ brand.name }}">
+                        {% else %}
+                            <div class="brand-placeholder-card {% if brand.tier == 'premium' %}premium-bg{% elif brand.tier == 'budget' %}budget-bg{% else %}standard-bg{% endif %}">
+                                <i class="fas fa-store"></i>
+                            </div>
+                        {% endif %}
+                        
+                        <div class="tier-badge-card tier-{{ brand.tier }}">
+                            {% if brand.tier == 'premium' %}
+                                <i class="fas fa-crown"></i>
+                            {% elif brand.tier == 'budget' %}
+                                <i class="fas fa-tag"></i>
+                            {% else %}
+                                <i class="fas fa-star"></i>
+                            {% endif %}
+                            {{ brand.get_tier_display }}
+                        </div>
+                    </div>
+                    
+                    <div class="brand-card-content">
+                        <div class="brand-card-title">
+                            {{ brand.name }}
+                        </div>
+                        
+                        <div class="brand-stats">
+                            <span><i class="fas fa-mobile-alt"></i> {{ brand.product_count }} Products</span>
+                            {% if brand.country %}
+                            <span><i class="fas fa-map-marker-alt"></i> {{ brand.country }}</span>
+                            {% endif %}
+                        </div>
+                        
+                        {% if brand.meta_description %}
+                        <div class="brand-description">
+                            {{ brand.meta_description|truncatewords:20 }}
+                        </div>
+                        {% endif %}
+                    </div>
+                </a>
+                {% empty %}
+                <div class="no-results">
+                    <i class="fas fa-store-slash"></i>
+                    <h3>No Brands Found</h3>
+                    <p>There are no brands available at the moment.</p>
+                </div>
+                {% endfor %}
+            </div>
+            
+            <!-- Pagination -->
+            {% if is_paginated %}
+            <div class="pagination">
+                {% if page_obj.has_previous %}
+                    <a href="?page={{ page_obj.previous_page_number }}" class="page-link">&laquo; Previous</a>
+                {% endif %}
+                
+                {% for num in page_obj.paginator.page_range %}
+                    {% if page_obj.number == num %}
+                        <span class="page-link active">{{ num }}</span>
+                    {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                        <a href="?page={{ num }}" class="page-link">{{ num }}</a>
+                    {% endif %}
+                {% endfor %}
+                
+                {% if page_obj.has_next %}
+                    <a href="?page={{ page_obj.next_page_number }}" class="page-link">Next &raquo;</a>
+                {% endif %}
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script>
+// Brand filtering and sorting functionality
+document.addEventListener('DOMContentLoaded', function() {
+    const brandsGrid = document.getElementById('brandsGrid');
+    const tierFilters = document.querySelectorAll('.tier-filter');
+    const sortBtns = document.querySelectorAll('.sort-btn');
+    const resetBtn = document.getElementById('resetFilters');
+    const countrySearch = document.getElementById('countrySearch');
+    const countryList = document.getElementById('countryList');
+    const totalBrandsSpan = document.getElementById('total-brands');
+    
+    let currentTiers = new Set();
+    let currentCountries = new Set();
+    let currentSort = 'name';
+    let brands = [];
+    
+    // Initialize brands array
+    if (brandsGrid) {
+        const brandCards = document.querySelectorAll('.brand-card');
+        brands = Array.from(brandCards).map(card => ({
+            element: card,
+            tier: card.dataset.tier,
+            country: card.dataset.country,
+            name: card.dataset.name,
+            products: parseInt(card.dataset.products),
+            featured: card.classList.contains('featured')
+        }));
+        
+        // Update counts
+        updateCounts();
+        
+        // Build country list
+        buildCountryList();
+        
+        // Apply filters and sort
+        applyFilters();
+    }
+    
+    // Update tier counts
+    function updateCounts() {
+        const counts = {
+            premium: 0,
+            standard: 0,
+            budget: 0
+        };
+        
+        brands.forEach(brand => {
+            if (counts[brand.tier] !== undefined) {
+                counts[brand.tier]++;
+            }
+        });
+        
+        document.getElementById('premium-count').textContent = `(${counts.premium})`;
+        document.getElementById('standard-count').textContent = `(${counts.standard})`;
+        document.getElementById('budget-count').textContent = `(${counts.budget})`;
+    }
+    
+    // Build country filter list
+    function buildCountryList() {
+        const countryMap = new Map();
+        
+        brands.forEach(brand => {
+            const country = brand.country;
+            if (countryMap.has(country)) {
+                countryMap.set(country, countryMap.get(country) + 1);
+            } else {
+                countryMap.set(country, 1);
+            }
+        });
+        
+        const sortedCountries = Array.from(countryMap.entries()).sort((a, b) => a[0].localeCompare(b[0]));
+        
+        countryList.innerHTML = '';
+        sortedCountries.forEach(([country, count]) => {
+            const div = document.createElement('div');
+            div.className = 'country-option';
+            div.innerHTML = `
+                <input type="checkbox" value="${country}" class="country-filter">
+                <label>${country}</label>
+                <span class="country-count">(${count})</span>
+            `;
+            countryList.appendChild(div);
+        });
+        
+        // Add event listeners to country filters
+        document.querySelectorAll('.country-filter').forEach(checkbox => {
+            checkbox.addEventListener('change', function() {
+                if (this.checked) {
+                    currentCountries.add(this.value);
+                } else {
+                    currentCountries.delete(this.value);
+                }
+                applyFilters();
+                updateActiveFilters();
+            });
+        });
+    }
+    
+    // Filter countries based on search
+    if (countrySearch) {
+        countrySearch.addEventListener('input', function() {
+            const searchTerm = this.value.toLowerCase();
+            const countryOptions = document.querySelectorAll('.country-option');
+            
+            countryOptions.forEach(option => {
+                const countryName = option.querySelector('label').textContent.toLowerCase();
+                if (countryName.includes(searchTerm)) {
+                    option.style.display = 'flex';
+                } else {
+                    option.style.display = 'none';
+                }
+            });
+        });
+    }
+    
+    // Tier filter event listeners
+    tierFilters.forEach(filter => {
+        filter.addEventListener('change', function() {
+            if (this.checked) {
+                currentTiers.add(this.value);
+            } else {
+                currentTiers.delete(this.value);
+            }
+            applyFilters();
+            updateActiveFilters();
+        });
+    });
+    
+    // Sort buttons
+    sortBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+            sortBtns.forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+            currentSort = this.dataset.sort;
+            applyFilters();
+        });
+    });
+    
+    // Reset filters
+    if (resetBtn) {
+        resetBtn.addEventListener('click', function() {
+            // Reset tier filters
+            tierFilters.forEach(filter => {
+                filter.checked = false;
+            });
+            currentTiers.clear();
+            
+            // Reset country filters
+            document.querySelectorAll('.country-filter').forEach(filter => {
+                filter.checked = false;
+            });
+            currentCountries.clear();
+            
+            // Reset sort
+            document.querySelector('.sort-btn[data-sort="name"]').click();
+            
+            // Clear search
+            if (countrySearch) countrySearch.value = '';
+            
+            applyFilters();
+            updateActiveFilters();
+        });
+    }
+    
+    // Apply filters and sorting
+    function applyFilters() {
+        let visibleBrands = [...brands];
+        
+        // Apply tier filter
+        if (currentTiers.size > 0) {
+            visibleBrands = visibleBrands.filter(brand => currentTiers.has(brand.tier));
+        }
+        
+        // Apply country filter
+        if (currentCountries.size > 0) {
+            visibleBrands = visibleBrands.filter(brand => currentCountries.has(brand.country));
+        }
+        
+        // Apply sorting
+        visibleBrands.sort((a, b) => {
+            switch(currentSort) {
+                case 'name':
+                    return a.name.localeCompare(b.name);
+                case 'name-desc':
+                    return b.name.localeCompare(a.name);
+                case 'products':
+                    return b.products - a.products;
+                case 'featured':
+                    if (a.featured === b.featured) return 0;
+                    return a.featured ? -1 : 1;
+                default:
+                    return 0;
+            }
+        });
+        
+        // Update visibility
+        brands.forEach(brand => {
+            brand.element.style.display = visibleBrands.includes(brand) ? 'block' : 'none';
+        });
+        
+        // Update total count
+        totalBrandsSpan.textContent = visibleBrands.length;
+        
+        // Show/hide no results message
+        const noResults = document.querySelector('.no-results');
+        if (visibleBrands.length === 0 && !noResults) {
+            const noResultsHtml = `
+                <div class="no-results">
+                    <i class="fas fa-filter"></i>
+                    <h3>No Brands Found</h3>
+                    <p>Try adjusting your filters to see more brands.</p>
+                    <button class="reset-filters" style="width: auto; padding: 10px 20px;">Reset Filters</button>
+                </div>
+            `;
+            brandsGrid.innerHTML = noResultsHtml;
+            document.querySelector('.reset-filters').addEventListener('click', () => resetBtn.click());
+        } else if (visibleBrands.length > 0 && noResults) {
+            location.reload(); // Simple reload to restore original state
+        }
+    }
+    
+    // Update active filters display
+    function updateActiveFilters() {
+        const activeFiltersDiv = document.getElementById('activeFilters');
+        const activeFilters = [];
+        
+        if (currentTiers.size > 0) {
+            activeFilters.push(`${currentTiers.size} tier${currentTiers.size > 1 ? 's' : ''}`);
+        }
+        
+        if (currentCountries.size > 0) {
+            activeFilters.push(`${currentCountries.size} countr${currentCountries.size > 1 ? 'ies' : 'y'}`);
+        }
+        
+        if (activeFilters.length > 0) {
+            activeFiltersDiv.innerHTML = `<span>Active Filters: ${activeFilters.join(', ')}</span>`;
+        } else {
+            activeFiltersDiv.innerHTML = '';
+        }
+    }
+});
+</script>
+{% endblock %}

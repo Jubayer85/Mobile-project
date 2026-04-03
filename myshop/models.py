@@ -16,6 +16,7 @@ from decimal import Decimal
 import time  # ✅ time module যোগ করুন
 
 
+
 class Category(models.Model):
     """
     Main product categories (e.g., Phone, Laptop, Tablet)
@@ -869,3 +870,6 @@ def restore_product_stock_on_delete(sender, instance, **kwargs):
         product.stock_quantity += instance.quantity
         product.total_sold = max(0, product.total_sold - instance.quantity)
         product.save()
+
+  
+

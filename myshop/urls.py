@@ -39,18 +39,19 @@ urlpatterns = [
     # Product details
     path('products/<slug:slug>/', views.product_detail, name='product_detail'),
     path('category/<slug:slug>/', views.category_products, name='category_products'),
-    path('category/<slug:category_slug>/<slug:subcategory_slug>/', 
-     views.subcategory_products, name='subcategory_products'),
+    path('category/<slug:category_slug>/<slug:subcategory_slug>/', views.subcategory_products, name='subcategory_products'),
     #path('subcategory/<slug:slug>/', views.subcategory_products, name='subcategory_products'),
-    path('brand/<slug:slug>/', views.brand_products, name='brand_products'),
+    #path('brand/<slug:slug>/', views.brand_products, name='brand_products'),
     path('categories/', views.all_categories, name='all_categories'),
     path('admin-dashboard/toggle-product-status/<int:product_id>/', views.toggle_product_status, name='toggle_product_status'),
      path('admin-dashboard/duplicate-product/<int:product_id>/', views.duplicate_product, name='duplicate_product'),
 
-    #path('category/<slug:category_slug>/', views.category_products, name='category_products'),
-    #path('brand/<slug:brand_slug>/', views.brand_products, name='brand_products'),
-   # path('product/<slug:slug>/', views.product_detail, name='product_detail'),
-
+    path('brands/', views.all_brands, name='all_brands'),
+    path('brands/<slug:slug>/', views.brand_products, name='brand_products'),
+    path('brands/<slug:slug>/filter/', views.brand_products_filter, name='brand_products_filter'),
+    
+    # Product URLs
+    path('product/<slug:slug>/', views.product_detail, name='product_detail'),
 
     # Cart URLs
     path('cart/', views.cart_detail, name='cart_detail'),

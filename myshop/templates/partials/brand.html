@@ -1,0 +1,574 @@
+<!-- partials/brand.html -->
+{% load static %}
+
+<div class="brand-section">
+    <div class="container">
+        <div class="section-header text-center">
+            <h2 class="section-title">Shop by <span class="highlight">Brand</span></h2>
+            <p class="section-subtitle">Discover products from your favorite brands</p>
+            
+            <!-- Tier Filter Buttons -->
+            <div class="brand-filters">
+                <button class="filter-btn active" data-tier="all">All Brands</button>
+                <button class="filter-btn" data-tier="premium">Premium</button>
+                <button class="filter-btn" data-tier="standard">Standard</button>
+                <button class="filter-btn" data-tier="budget">Budget</button>
+            </div>
+        </div>
+        
+        <div class="brand-slider">
+            <div class="brand-wrapper">
+                {% if brands %}
+                    {% for brand in brands %}
+                    <div class="brand-item" data-tier="{{ brand.tier }}">
+                        <a href="{% url 'myshop:brand_products' brand.slug %}" class="brand-link">
+                            <div class="brand-logo-wrapper {% if brand.tier == 'premium' %}premium-border{% endif %}">
+                                {% if brand.logo %}
+                                    <img src="{{ brand.logo.url }}" alt="{{ brand.name }}" class="brand-logo">
+                                {% else %}
+                                    <div class="brand-placeholder {% if brand.tier == 'premium' %}premium-bg{% elif brand.tier == 'budget' %}budget-bg{% else %}standard-bg{% endif %}">
+                                        <i class="fas fa-store"></i>
+                                    </div>
+                                {% endif %}
+                                
+                                <!-- Tier Badge -->
+                                <div class="tier-badge tier-{{ brand.tier }}">
+                                    {% if brand.tier == 'premium' %}
+                                        <i class="fas fa-crown"></i>
+                                    {% elif brand.tier == 'budget' %}
+                                        <i class="fas fa-tag"></i>
+                                    {% else %}
+                                        <i class="fas fa-star"></i>
+                                    {% endif %}
+                                    {{ brand.get_tier_display }}
+                                </div>
+                            </div>
+                            
+                            <h3 class="brand-name">
+                                {{ brand.name }}
+                                {% if brand.is_featured %}
+                                    <i class="fas fa-check-circle featured-icon" title="Featured Brand"></i>
+                                {% endif %}
+                            </h3>
+                            
+                            <div class="brand-meta">
+                                <span class="product-count">{{ brand.product_count }} Products</span>
+                                {% if brand.country %}
+                                    <span class="brand-country">
+                                        <i class="fas fa-map-marker-alt"></i> {{ brand.country }}
+                                    </span>
+                                {% endif %}
+                            </div>
+                        </a>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="no-brands">
+                        <i class="fas fa-store-slash"></i>
+                        <p>No brands available at the moment.</p>
+                    </div>
+                {% endif %}
+            </div>
+            
+            <!-- Slider Navigation -->
+            <button class="slider-nav prev-btn" aria-label="Previous brands">
+                <i class="fas fa-chevron-left"></i>
+            </button>
+            <button class="slider-nav next-btn" aria-label="Next brands">
+                <i class="fas fa-chevron-right"></i>
+            </button>
+        </div>
+        
+        <!-- View All Brands Link -->
+        {% if brands and brands.count > 6 %}
+        <div class="view-all-wrapper text-center">
+            <a href="{% url 'admin:all_brands' %}" class="view-all-btn">
+                View All Brands <i class="fas fa-arrow-right"></i>
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<style>
+    /* Brand Section Styles */
+    .brand-section {
+        padding: 60px 0;
+        background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 15px;
+    }
+    
+    .section-header {
+        margin-bottom: 40px;
+    }
+    
+    .section-title {
+        font-size: 36px;
+        font-weight: 700;
+        margin-bottom: 15px;
+        color: #333;
+    }
+    
+    .section-title .highlight {
+        color: #ff6b35;
+        position: relative;
+        display: inline-block;
+    }
+    
+    .section-title .highlight::after {
+        content: '';
+        position: absolute;
+        bottom: -5px;
+        left: 0;
+        width: 100%;
+        height: 3px;
+        background: linear-gradient(90deg, #ff6b35, #ff8c42);
+        border-radius: 2px;
+    }
+    
+    .section-subtitle {
+        font-size: 16px;
+        color: #666;
+        margin-top: 10px;
+    }
+    
+    /* Brand Filters */
+    .brand-filters {
+        display: flex;
+        justify-content: center;
+        gap: 15px;
+        margin-top: 30px;
+        flex-wrap: wrap;
+    }
+    
+    .filter-btn {
+        padding: 8px 20px;
+        border: 2px solid #e0e0e0;
+        background: white;
+        border-radius: 25px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-weight: 500;
+        color: #666;
+    }
+    
+    .filter-btn:hover {
+        border-color: #ff6b35;
+        color: #ff6b35;
+    }
+    
+    .filter-btn.active {
+        background: #ff6b35;
+        border-color: #ff6b35;
+        color: white;
+    }
+    
+    /* Brand Slider */
+    .brand-slider {
+        position: relative;
+        padding: 0 40px;
+    }
+    
+    .brand-wrapper {
+        display: flex;
+        gap: 30px;
+        overflow-x: auto;
+        scroll-behavior: smooth;
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+        padding: 20px 5px;
+    }
+    
+    .brand-wrapper::-webkit-scrollbar {
+        display: none;
+    }
+    
+    .brand-item {
+        flex: 0 0 auto;
+        width: 200px;
+        transition: all 0.3s ease;
+    }
+    
+    .brand-item.hide {
+        display: none;
+    }
+    
+    .brand-link {
+        text-decoration: none;
+        display: block;
+        text-align: center;
+        transition: transform 0.3s ease;
+    }
+    
+    .brand-link:hover {
+        transform: translateY(-5px);
+    }
+    
+    .brand-logo-wrapper {
+        width: 160px;
+        height: 160px;
+        margin: 0 auto 15px;
+        background: white;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+        border: 3px solid #eee;
+    }
+    
+    .brand-logo-wrapper.premium-border {
+        border-color: #ffd700;
+        box-shadow: 0 10px 30px rgba(255, 215, 0, 0.2);
+    }
+    
+    .brand-link:hover .brand-logo-wrapper {
+        box-shadow: 0 15px 40px rgba(255, 107, 53, 0.2);
+        transform: scale(1.05);
+    }
+    
+    .brand-logo {
+        max-width: 70%;
+        max-height: 70%;
+        object-fit: contain;
+    }
+    
+    /* Tier Badge */
+    .tier-badge {
+        position: absolute;
+        bottom: -10px;
+        right: -10px;
+        padding: 5px 10px;
+        border-radius: 20px;
+        font-size: 10px;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    
+    .tier-premium {
+        background: linear-gradient(135deg, #ffd700, #ffed4e);
+        color: #856404;
+    }
+    
+    .tier-standard {
+        background: linear-gradient(135deg, #4a90e2, #6c5ce7);
+        color: white;
+    }
+    
+    .tier-budget {
+        background: linear-gradient(135deg, #28a745, #20c997);
+        color: white;
+    }
+    
+    /* Placeholder Backgrounds */
+    .brand-placeholder {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+    }
+    
+    .brand-placeholder.premium-bg {
+        background: linear-gradient(135deg, #ffd700, #ffed4e);
+    }
+    
+    .brand-placeholder.standard-bg {
+        background: linear-gradient(135deg, #667eea, #764ba2);
+    }
+    
+    .brand-placeholder.budget-bg {
+        background: linear-gradient(135deg, #28a745, #20c997);
+    }
+    
+    .brand-placeholder i {
+        font-size: 50px;
+        color: white;
+    }
+    
+    .brand-name {
+        font-size: 16px;
+        font-weight: 600;
+        margin: 15px 0 5px;
+        color: #333;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 5px;
+        flex-wrap: wrap;
+    }
+    
+    .featured-icon {
+        color: #ffd700;
+        font-size: 14px;
+    }
+    
+    .brand-meta {
+        display: flex;
+        flex-direction: column;
+        gap: 3px;
+    }
+    
+    .product-count {
+        font-size: 12px;
+        color: #ff6b35;
+        font-weight: 500;
+    }
+    
+    .brand-country {
+        font-size: 11px;
+        color: #999;
+    }
+    
+    .brand-country i {
+        font-size: 10px;
+        margin-right: 3px;
+    }
+    
+    /* Slider Navigation */
+    .slider-nav {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 40px;
+        height: 40px;
+        background: white;
+        border: none;
+        border-radius: 50%;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        cursor: pointer;
+        transition: all 0.3s ease;
+        z-index: 10;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .slider-nav:hover {
+        background: #ff6b35;
+        color: white;
+        box-shadow: 0 8px 20px rgba(255, 107, 53, 0.3);
+    }
+    
+    .prev-btn {
+        left: -10px;
+    }
+    
+    .next-btn {
+        right: -10px;
+    }
+    
+    /* View All Button */
+    .view-all-wrapper {
+        margin-top: 40px;
+    }
+    
+    .view-all-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        padding: 12px 30px;
+        background: transparent;
+        border: 2px solid #ff6b35;
+        color: #ff6b35;
+        border-radius: 30px;
+        text-decoration: none;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+    
+    .view-all-btn:hover {
+        background: #ff6b35;
+        color: white;
+        transform: translateX(5px);
+    }
+    
+    .no-brands {
+        text-align: center;
+        padding: 60px;
+        color: #999;
+    }
+    
+    .no-brands i {
+        font-size: 50px;
+        margin-bottom: 15px;
+    }
+    
+    /* Responsive Design */
+    @media (max-width: 768px) {
+        .brand-section {
+            padding: 40px 0;
+        }
+        
+        .section-title {
+            font-size: 28px;
+        }
+        
+        .brand-item {
+            width: 160px;
+        }
+        
+        .brand-logo-wrapper {
+            width: 130px;
+            height: 130px;
+        }
+        
+        .brand-name {
+            font-size: 14px;
+        }
+        
+        .filter-btn {
+            padding: 6px 15px;
+            font-size: 14px;
+        }
+        
+        .slider-nav {
+            width: 30px;
+            height: 30px;
+        }
+        
+        .brand-slider {
+            padding: 0 20px;
+        }
+        
+        .tier-badge {
+            font-size: 8px;
+            padding: 3px 8px;
+        }
+    }
+    
+    @media (max-width: 480px) {
+        .brand-item {
+            width: 140px;
+        }
+        
+        .brand-logo-wrapper {
+            width: 110px;
+            height: 110px;
+        }
+        
+        .brand-filters {
+            gap: 10px;
+        }
+        
+        .filter-btn {
+            padding: 5px 12px;
+            font-size: 12px;
+        }
+    }
+</style>
+
+<script>
+    // Brand Slider and Filter Functionality
+    document.addEventListener('DOMContentLoaded', function() {
+        const wrapper = document.querySelector('.brand-wrapper');
+        const prevBtn = document.querySelector('.prev-btn');
+        const nextBtn = document.querySelector('.next-btn');
+        const filterBtns = document.querySelectorAll('.filter-btn');
+        const brandItems = document.querySelectorAll('.brand-item');
+        
+        // Slider functionality
+        if (wrapper && prevBtn && nextBtn) {
+            const scrollAmount = 230; // Width of brand item + gap
+            
+            prevBtn.addEventListener('click', () => {
+                wrapper.scrollBy({
+                    left: -scrollAmount,
+                    behavior: 'smooth'
+                });
+            });
+            
+            nextBtn.addEventListener('click', () => {
+                wrapper.scrollBy({
+                    left: scrollAmount,
+                    behavior: 'smooth'
+                });
+            });
+            
+            // Hide/show navigation buttons based on scroll position
+            const updateButtons = () => {
+                const maxScroll = wrapper.scrollWidth - wrapper.clientWidth;
+                prevBtn.style.opacity = wrapper.scrollLeft <= 0 ? '0.5' : '1';
+                prevBtn.style.cursor = wrapper.scrollLeft <= 0 ? 'not-allowed' : 'pointer';
+                nextBtn.style.opacity = wrapper.scrollLeft >= maxScroll ? '0.5' : '1';
+                nextBtn.style.cursor = wrapper.scrollLeft >= maxScroll ? 'not-allowed' : 'pointer';
+            };
+            
+            wrapper.addEventListener('scroll', updateButtons);
+            updateButtons();
+            
+            // Touch/swipe support for mobile
+            let touchStartX = 0;
+            let touchEndX = 0;
+            
+            wrapper.addEventListener('touchstart', (e) => {
+                touchStartX = e.changedTouches[0].screenX;
+            });
+            
+            wrapper.addEventListener('touchend', (e) => {
+                touchEndX = e.changedTouches[0].screenX;
+                if (touchStartX - touchEndX > 50) {
+                    wrapper.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+                } else if (touchEndX - touchStartX > 50) {
+                    wrapper.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
+                }
+            });
+        }
+        
+        // Filter functionality
+        if (filterBtns.length > 0 && brandItems.length > 0) {
+            filterBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    // Update active button
+                    filterBtns.forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    const tier = this.getAttribute('data-tier');
+                    
+                    // Filter brands
+                    brandItems.forEach(item => {
+                        if (tier === 'all') {
+                            item.classList.remove('hide');
+                        } else {
+                            const brandTier = item.getAttribute('data-tier');
+                            if (brandTier === tier) {
+                                item.classList.remove('hide');
+                            } else {
+                                item.classList.add('hide');
+                            }
+                        }
+                    });
+                    
+                    // Reset scroll position after filtering
+                    if (wrapper) {
+                        wrapper.scrollLeft = 0;
+                    }
+                    
+                    // Show/hide navigation buttons based on visible items
+                    setTimeout(() => {
+                        if (wrapper) {
+                            const maxScroll = wrapper.scrollWidth - wrapper.clientWidth;
+                            if (prevBtn && nextBtn) {
+                                prevBtn.style.opacity = wrapper.scrollLeft <= 0 ? '0.5' : '1';
+                                nextBtn.style.opacity = wrapper.scrollLeft >= maxScroll ? '0.5' : '1';
+                            }
+                        }
+                    }, 100);
+                });
+            });
+        }
+    });
+</script>

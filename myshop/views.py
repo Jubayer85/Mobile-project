@@ -30,6 +30,7 @@ from django.db.models.functions import TruncDate
 from django.utils.timezone import now, timedelta
 from django.db.models import Q, Count, Prefetch
 
+
 from django.forms import inlineformset_factory
 
 
@@ -42,27 +43,245 @@ ProductImageFormSet = inlineformset_factory(
 )
 
 
-# ====================== HOME ======================
+# ====================== HOME VIEW ======================
 def home(request):
+    """Home page view - combines all home sections"""
+    # Get categories for home page
     categories = Category.objects.filter(is_active=True)[:6]
-
+    
+    # Get brands for brand section
+    brands = Brand.objects.filter(
+        is_active=True,
+        show_in_brands=True
+    ).annotate(
+        product_count=Count('products', filter=Q(products__is_active=True))
+    ).filter(
+        product_count__gt=0
+    ).order_by(
+        '-is_featured',  # Featured brands first
+        'name'
+    )[:12]  # Limit to 12 brands for home page
+    
+    # Get new arrivals - changed is_available to is_active
     new_arrivals = Product.objects.filter(
-        is_active=True
+        is_active=True,
+        stock_quantity__gt=0  # Use stock_quantity instead of is_available
     ).order_by('-created_at')[:8]
-
+    
+    # Get featured products - changed is_available to is_active
     featured_products = Product.objects.filter(
         is_active=True,
-        is_featured=True
+        is_featured=True,
+        stock_quantity__gt=0  # Only show products in stock
     )[:8]
-
+    
     context = {
         'categories': categories,
+        'brands': brands,
         'new_arrivals': new_arrivals,
         'featured_products': featured_products,
     }
-
+    
     return render(request, 'home.html', context)
 
+
+# ====================== ALL BRANDS VIEW ======================
+def all_brands(request):
+    """Display all brands with filtering and sorting"""
+    brands = Brand.objects.filter(
+        is_active=True,
+        show_in_brands=True
+    ).annotate(
+        product_count=Count('products', filter=Q(products__is_active=True, products__stock_quantity__gt=0))
+    ).filter(product_count__gt=0)
+    
+    # Apply tier filter
+    tier = request.GET.get('tier')
+    if tier and tier in ['premium', 'standard', 'budget']:
+        brands = brands.filter(tier=tier)
+    
+    # Apply country filter
+    country = request.GET.get('country')
+    if country:
+        brands = brands.filter(country__iexact=country)
+    
+    # Apply sorting
+    sort_by = request.GET.get('sort', 'name')
+    if sort_by == 'name':
+        brands = brands.order_by('name')
+    elif sort_by == '-name':
+        brands = brands.order_by('-name')
+    elif sort_by == 'product_count':
+        brands = brands.order_by('-product_count')
+    elif sort_by == 'featured':
+        brands = brands.order_by('-is_featured', 'name')
+    
+    # Pagination
+    paginator = Paginator(brands, 12)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    
+    # Get unique countries for filter
+    countries = Brand.objects.filter(
+        is_active=True,
+        show_in_brands=True,
+        country__isnull=False
+    ).exclude(country='').values_list('country', flat=True).distinct()
+    
+    context = {
+        'brands': page_obj,
+        'page_obj': page_obj,
+        'is_paginated': paginator.num_pages > 1,
+        'countries': sorted(set(countries)),
+        'current_tier': tier,
+        'current_country': country,
+        'current_sort': sort_by,
+    }
+    return render(request, 'admin/all_brands.html', context)
+
+
+# ====================== BRAND PRODUCTS VIEW ======================
+def brand_products(request, slug):
+    """Display all products for a specific brand"""
+    # Get the brand
+    brand = get_object_or_404(Brand, slug=slug, is_active=True)
+    
+    # Get all active products for this brand - removed is_available
+    products = Product.objects.filter(
+        brand=brand,
+        is_active=True,
+        stock_quantity__gt=0  # Only show products in stock
+    ).select_related('category').prefetch_related('gallery')
+    
+    # Annotate with rating and review count (if you have reviews model)
+    # products = products.annotate(
+    #     average_rating=Avg('reviews__rating'),
+    #     review_count=Count('reviews')
+    # )
+    
+    # Get max price for slider
+    max_price = products.aggregate(max_price=MaxDB('price'))['max_price'] or 10000
+    
+    # Get categories for filtering
+    categories = Category.objects.filter(
+        products__in=products,
+        is_active=True
+    ).distinct()
+    
+    # Create categories JSON for JavaScript
+    categories_dict = {str(cat.id): cat.name for cat in categories}
+    categories_json = json.dumps(categories_dict)
+    
+    # Get total count
+    total_products = products.count()
+    
+    # Pagination (optional)
+    paginator = Paginator(products, 12)  # Show 12 products per page
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    
+    context = {
+        'brand': brand,
+        'products': page_obj,
+        'total_products': total_products,
+        'max_price': max_price,
+        'categories': categories,
+        'categories_json': categories_json,
+        'is_paginated': paginator.num_pages > 1,
+        'page_obj': page_obj,
+    }
+    return render(request, 'products/brand_products.html', context)
+
+
+# ====================== BRAND PRODUCTS FILTER API ======================
+def brand_products_filter(request, slug):
+    """AJAX endpoint for filtering products without page reload"""
+    brand = get_object_or_404(Brand, slug=slug, is_active=True)
+    products = Product.objects.filter(
+        brand=brand, 
+        is_active=True,
+        stock_quantity__gt=0  # Only show products in stock
+    )
+    
+    # Apply filters based on request.GET
+    min_price = request.GET.get('min_price')
+    max_price = request.GET.get('max_price')
+    ratings = request.GET.getlist('ratings')
+    categories = request.GET.getlist('categories')
+    in_stock = request.GET.get('in_stock')
+    sort_by = request.GET.get('sort', 'newest')
+    
+    if min_price:
+        products = products.filter(price__gte=min_price)
+    if max_price:
+        products = products.filter(price__lte=max_price)
+    if categories:
+        products = products.filter(category__id__in=categories)
+    if in_stock == 'true':
+        products = products.filter(stock_quantity__gt=0)
+    
+    # Rating filter (if you have reviews model)
+    if ratings:
+        # min_rating = min(map(int, ratings))
+        # products = products.annotate(avg_rating=Avg('reviews__rating')).filter(avg_rating__gte=min_rating)
+        pass
+    
+    # Sorting
+    if sort_by == 'price-low':
+        products = products.order_by('price')
+    elif sort_by == 'price-high':
+        products = products.order_by('-price')
+    elif sort_by == 'rating':
+        # products = products.annotate(avg_rating=Avg('reviews__rating')).order_by('-avg_rating')
+        products = products.order_by('-total_reviews')  # Use total_reviews if available
+    elif sort_by == 'name':
+        products = products.order_by('name')
+    else:  # newest
+        products = products.order_by('-created_at')
+    
+    # Serialize products
+    products_data = []
+    for product in products[:50]:  # Limit to 50 products for performance
+        # Get primary image URL
+        primary_image = product.gallery.filter(is_primary=True).first() if hasattr(product, 'gallery') else None
+        image_url = primary_image.image.url if primary_image else product.image.url if product.image else None
+        
+        products_data.append({
+            'id': product.id,
+            'name': product.name,
+            'slug': product.slug,
+            'price': str(product.price),
+            'compare_price': str(product.compare_price) if product.compare_price else None,
+            'image': image_url,
+            'rating': product.average_rating or 0,
+            'review_count': product.total_reviews or 0,
+            'in_stock': product.stock_quantity > 0,
+            'is_new': product.is_new,
+            'is_best_seller': product.is_best_seller,
+            'category_id': str(product.category.id) if product.category else None,
+            'category_name': product.category.name if product.category else None,
+        })
+    
+    return JsonResponse({'products': products_data, 'count': len(products_data)})
+
+
+# ====================== PRODUCT DETAIL VIEW ======================
+def product_detail(request, slug):
+    """Display product detail page"""
+    product = get_object_or_404(Product, slug=slug, is_active=True)
+    
+    # Get related products (same brand or category)
+    related_products = Product.objects.filter(
+        Q(brand=product.brand) | Q(category=product.category),
+        is_active=True,
+        stock_quantity__gt=0
+    ).exclude(id=product.id)[:8]
+    
+    context = {
+        'product': product,
+        'related_products': related_products,
+    }
+    return render(request, 'products/product_detail.html', context)
 
 # ====================== AUTH ======================
 def register(request):
