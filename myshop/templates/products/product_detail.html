@@ -69,7 +69,6 @@
         overflow: hidden;
     }
 
-    /* Tab Content Animation */
     .tab-content {
         animation: fadeIn 0.5s ease;
     }
@@ -85,7 +84,6 @@
         }
     }
 
-    /* Product Gallery Scrollbar */
     .product-gallery::-webkit-scrollbar {
         height: 6px;
     }
@@ -102,6 +100,116 @@
 
     .product-gallery::-webkit-scrollbar-thumb:hover {
         background: #94a3b8;
+    }
+
+    /* Image Zoom Modal Styles */
+    .image-modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.95);
+        z-index: 9999;
+        justify-content: center;
+        align-items: center;
+        cursor: zoom-out;
+    }
+
+    .image-modal img {
+        max-width: 90%;
+        max-height: 90%;
+        object-fit: contain;
+        transition: transform 0.2s ease;
+        cursor: zoom-in;
+    }
+
+    @keyframes zoomIn {
+        from {
+            transform: scale(0.5);
+            opacity: 0;
+        }
+        to {
+            transform: scale(1);
+            opacity: 1;
+        }
+    }
+
+    .image-modal .close-modal {
+        position: absolute;
+        top: 20px;
+        right: 40px;
+        color: white;
+        font-size: 45px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: transform 0.2s;
+        z-index: 10000;
+    }
+
+    .image-modal .close-modal:hover {
+        transform: scale(1.2);
+    }
+
+    .image-modal .zoom-controls {
+        position: absolute;
+        bottom: 30px;
+        left: 50%;
+        transform: translateX(-50%);
+        display: flex;
+        gap: 15px;
+        background: rgba(0, 0, 0, 0.7);
+        padding: 12px 24px;
+        border-radius: 50px;
+        z-index: 10000;
+    }
+
+    .image-modal .zoom-controls button {
+        background: white;
+        border: none;
+        width: 45px;
+        height: 45px;
+        border-radius: 50%;
+        cursor: pointer;
+        font-size: 22px;
+        font-weight: bold;
+        transition: all 0.2s;
+    }
+
+    .image-modal .zoom-controls button:hover {
+        background: #6366f1;
+        color: white;
+        transform: scale(1.1);
+    }
+
+    /* Product Image Cursor */
+    .product-main-image {
+        cursor: zoom-in;
+        transition: transform 0.2s ease;
+    }
+
+    .product-main-image:hover {
+        transform: scale(1.02);
+    }
+
+    /* Zoom Hint */
+    .zoom-hint {
+        position: absolute;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: rgba(0, 0, 0, 0.6);
+        color: white;
+        padding: 6px 12px;
+        border-radius: 30px;
+        font-size: 12px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        backdrop-filter: blur(4px);
+        pointer-events: none;
+        z-index: 5;
     }
 </style>
 {% endblock %}
@@ -147,7 +255,7 @@
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
             <!-- Left Column - Product Images -->
             <div class="space-y-6">
-                <!-- Main Product Image -->
+                <!-- Main Product Image with Zoom -->
                 <div class="relative bg-gradient-to-br from-slate-100 to-white rounded-3xl p-8 gradient-border glow-effect">
                     {% if product.is_featured %}
                     <div class="absolute top-6 left-6 z-10">
@@ -173,31 +281,36 @@
                     </div>
                     {% endif %}
                     
-                    <div class="flex items-center justify-center min-h-[500px]">
+                    <div class="flex items-center justify-center min-h-[500px] relative">
                         {% if product.image %}
                         <img src="{{ product.image.url }}" 
                              alt="{{ product.name }}"
                              id="mainProductImage"
-                             class="max-h-[500px] w-auto object-contain drop-shadow-2xl transition-all duration-500 transform hover:scale-105">
+                             class="product-main-image max-h-[500px] w-auto object-contain drop-shadow-2xl"
+                             onclick="openImageModal(this.src)">
                         {% else %}
                         <div class="text-center">
                             <i class="fas fa-mobile-alt text-8xl text-slate-300"></i>
                             <p class="mt-4 text-slate-400">No image available</p>
                         </div>
                         {% endif %}
+                        
+                        <!-- Zoom Hint -->
+                        <div class="zoom-hint">
+                            <i class="fas fa-search-plus"></i>
+                            <span>Click to zoom</span>
+                        </div>
                     </div>
                     
-                    <!-- 360° View Button -->
                     <button class="absolute bottom-6 right-6 w-12 h-12 bg-white/80 backdrop-blur-sm rounded-full shadow-lg flex items-center justify-center hover:bg-white transition-all group">
                         <i class="fas fa-rotate text-slate-700 group-hover:rotate-180 transition-transform duration-700"></i>
                     </button>
                 </div>
 
                 <!-- Product Gallery -->
-                {% if product.images.all %}
+                {% if product.gallery.all %}
                 <div class="relative">
                     <div class="product-gallery flex space-x-4 overflow-x-auto pb-4">
-                        <!-- Main Image Thumbnail -->
                         <button onclick="changeMainImage('{{ product.image.url }}')"
                                 class="flex-shrink-0 w-24 h-24 rounded-xl border-2 border-indigo-500 bg-white p-2 hover:shadow-md transition-all">
                             <img src="{{ product.image.url }}" 
@@ -205,18 +318,18 @@
                                  class="w-full h-full object-contain">
                         </button>
                         
-                        <!-- Gallery Images -->
-                        {% for image in product.images.all %}
-                        <button onclick="changeMainImage('{{ image.image.url }}')"
-                                class="flex-shrink-0 w-24 h-24 rounded-xl border border-slate-200 bg-white p-2 hover:border-indigo-300 hover:shadow-md transition-all">
-                            <img src="{{ image.image.url }}" 
-                                 alt="{{ product.name }} - Image {{ forloop.counter }}"
-                                 class="w-full h-full object-contain">
-                        </button>
+                        {% for image in product.gallery.all %}
+                            {% if image.is_active %}
+                            <button onclick="changeMainImage('{{ image.image.url }}')"
+                                    class="flex-shrink-0 w-24 h-24 rounded-xl border border-slate-200 bg-white p-2 hover:border-indigo-300 hover:shadow-md transition-all">
+                                <img src="{{ image.image.url }}" 
+                                     alt="{{ product.name }} - Image {{ forloop.counter }}"
+                                     class="w-full h-full object-contain">
+                            </button>
+                            {% endif %}
                         {% endfor %}
                     </div>
                     
-                    <!-- Navigation Arrows -->
                     <button onclick="scrollGallery(-100)"
                             class="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-2 w-8 h-8 bg-white shadow-lg rounded-full flex items-center justify-center hover:bg-slate-50">
                         <i class="fas fa-chevron-left text-sm text-slate-600"></i>
@@ -231,7 +344,6 @@
 
             <!-- Right Column - Product Info -->
             <div class="space-y-8">
-                <!-- Product Header -->
                 <div>
                     <div class="flex items-center space-x-3 mb-4">
                         {% if product.brand.logo %}
@@ -251,7 +363,6 @@
                         {{ product.name }}
                     </h1>
                     
-                    <!-- Rating & Reviews -->
                     <div class="flex items-center space-x-4 mb-6">
                         <div class="flex items-center">
                             <div class="text-amber-400 text-lg">
@@ -269,7 +380,6 @@
                     </div>
                 </div>
 
-                <!-- Price Section -->
                 <div class="bg-gradient-to-r from-indigo-50 to-blue-50 rounded-2xl p-6">
                     <div class="flex items-end space-x-4">
                         <div>
@@ -292,7 +402,6 @@
                         {% endif %}
                     </div>
                     
-                    <!-- Stock Status -->
                     <div class="mt-4 flex items-center justify-between">
                         <div class="flex items-center space-x-3">
                             <div class="flex items-center">
@@ -318,7 +427,6 @@
                     </div>
                 </div>
 
-                <!-- Specifications Summary -->
                 <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
                     {% if product.ram %}
                     <div class="bg-white rounded-xl p-4 border border-slate-200 hover:border-indigo-300 hover:shadow-sm transition-all">
@@ -349,7 +457,6 @@
                     {% endif %}
                 </div>
 
-                <!-- Colors -->
                 {% if colors_list %}
                 <div>
                     <h3 class="text-lg font-semibold text-slate-900 mb-3">Available Colors</h3>
@@ -373,10 +480,8 @@
                 </div>
                 {% endif %}
 
-                <!-- Action Buttons -->
                 <div class="space-y-6">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <!-- Add to Cart Button -->
                         <div class="group">
                             {% if user.is_authenticated %}
                                 <form action="{% url 'add_to_cart' product.id %}" method="post" class="h-full">
@@ -403,7 +508,6 @@
                             {% endif %}
                         </div>
                         
-                        <!-- Buy Now Button -->
                         {% if product.stock_quantity > 0 %}
                         <div class="group">
                             {% if user.is_authenticated %}
@@ -436,7 +540,6 @@
                         {% endif %}
                     </div>
                     
-                    <!-- Additional Actions -->
                     <div class="flex justify-center space-x-6 pt-4 border-t border-slate-200">
                         <button onclick="addToWishlist({{ product.id }})"
                                 class="flex flex-col items-center text-slate-600 hover:text-rose-500 transition-colors group">
@@ -473,15 +576,15 @@
             <!-- Tabs Header -->
             <div class="border-b border-slate-200">
                 <nav class="flex overflow-x-auto">
-                    <button onclick="switchTab('description')"
-                            id="tab-description"
-                            class="flex-shrink-0 px-8 py-4 text-lg font-semibold border-b-2 border-indigo-500 text-indigo-600">
-                        <i class="fas fa-file-alt mr-2"></i>Description
-                    </button>
                     <button onclick="switchTab('specifications')"
                             id="tab-specifications"
-                            class="flex-shrink-0 px-8 py-4 text-lg font-semibold text-slate-600 hover:text-slate-900 border-b-2 border-transparent hover:border-slate-300">
+                            class="flex-shrink-0 px-8 py-4 text-lg font-semibold border-b-2 border-indigo-500 text-indigo-600">
                         <i class="fas fa-microchip mr-2"></i>Specifications
+                    </button>
+                    <button onclick="switchTab('description')"
+                            id="tab-description"
+                            class="flex-shrink-0 px-8 py-4 text-lg font-semibold text-slate-600 hover:text-slate-900 border-b-2 border-transparent hover:border-slate-300">
+                        <i class="fas fa-file-alt mr-2"></i>Description
                     </button>
                     <button onclick="switchTab('reviews')"
                             id="tab-reviews"
@@ -495,11 +598,431 @@
                     </button>
                 </nav>
             </div>
+<!-- Tab Content -->
+<div class="p-8">
+    <!-- Specifications Tab -->
+    <div id="content-specifications" class="tab-content">
+        <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
+            <!-- Left Column - 70% (2 parts out of 3) -->
+            <div class="lg:col-span-3">
+                <h3 class="text-2xl font-bold text-slate-900 mb-6">Technical Specifications</h3>
+                <div class="space-y-2">
+                    <!-- Display Type -->
+                    {% if product.display_type %}
+                    <div class="spec-item flex flex-col sm:flex-row sm:justify-between sm:items-start py-3 border-b border-slate-100">
+                        <span class="spec-label text-slate-600 font-semibold w-full sm:w-2/5 mb-2 sm:mb-0 px-3 py-2 bg-indigo-50 rounded-lg">
+                            <i class="fas fa-tv mr-2 text-indigo-500"></i>Display Type
+                        </span>
+                        <span class="spec-value text-slate-900 w-full sm:w-3/5 sm:pl-4 text-left">{{ product.display_type }}</span>
+                    </div>
+                    {% endif %}
+                    
+                    <!-- Display Size -->
+                    {% if product.display_size %}
+                    <div class="spec-item flex flex-col sm:flex-row sm:justify-between sm:items-start py-3 border-b border-slate-100">
+                        <span class="spec-label text-slate-600 font-semibold w-full sm:w-2/5 mb-2 sm:mb-0 px-3 py-2 bg-indigo-50 rounded-lg">
+                            <i class="fas fa-mobile-alt mr-2 text-indigo-500"></i>Display Size
+                        </span>
+                        <span class="spec-value text-slate-900 w-full sm:w-3/5 sm:pl-4 text-left">{{ product.display_size }}"</span>
+                    </div>
+                    {% endif %}
+                    
+                    <!-- Refresh Rate -->
+                    {% if product.refresh_rate %}
+                    <div class="spec-item flex flex-col sm:flex-row sm:justify-between sm:items-start py-3 border-b border-slate-100">
+                        <span class="spec-label text-slate-600 font-semibold w-full sm:w-2/5 mb-2 sm:mb-0 px-3 py-2 bg-indigo-50 rounded-lg">
+                            <i class="fas fa-tachometer-alt mr-2 text-indigo-500"></i>Refresh Rate
+                        </span>
+                        <span class="spec-value text-slate-900 w-full sm:w-3/5 sm:pl-4 text-left">{{ product.refresh_rate }}</span>
+                    </div>
+                    {% endif %}
+                    
+                    <!-- Resolution -->
+                    {% if product.resolution %}
+                    <div class="spec-item flex flex-col sm:flex-row sm:justify-between sm:items-start py-3 border-b border-slate-100">
+                        <span class="spec-label text-slate-600 font-semibold w-full sm:w-2/5 mb-2 sm:mb-0 px-3 py-2 bg-indigo-50 rounded-lg">
+                            <i class="fas fa-expand-alt mr-2 text-indigo-500"></i>Resolution
+                        </span>
+                        <span class="spec-value text-slate-900 w-full sm:w-3/5 sm:pl-4 text-left">{{ product.resolution }}</span>
+                    </div>
+                    {% endif %}
+                    
+                    <!-- Display Resolution (Detailed) -->
+                    {% if product.display_resolution %}
+                    <div class="spec-item flex flex-col sm:flex-row sm:justify-between sm:items-start py-3 border-b border-slate-100">
+                        <span class="spec-label text-slate-600 font-semibold w-full sm:w-2/5 mb-2 sm:mb-0 px-3 py-2 bg-indigo-50 rounded-lg">
+                            <i class="fas fa-tv mr-2 text-indigo-500"></i>Display Resolution
+                        </span>
+                        <span class="spec-value text-slate-900 w-full sm:w-3/5 sm:pl-4 text-left">{{ product.display_resolution }}</span>
+                    </div>
+                    {% endif %}
+                    
+                    <!-- RAM -->
+                    {% if product.ram %}
+                    <div class="spec-item flex flex-col sm:flex-row sm:justify-between sm:items-start py-3 border-b border-slate-100">
+                        <span class="spec-label text-slate-600 font-semibold w-full sm:w-2/5 mb-2 sm:mb-0 px-3 py-2 bg-indigo-50 rounded-lg">
+                            <i class="fas fa-microchip mr-2 text-indigo-500"></i>RAM
+                        </span>
+                        <span class="spec-value text-slate-900 w-full sm:w-3/5 sm:pl-4 text-left">{{ product.ram }}</span>
+                    </div>
+                    {% endif %}
+                    
+                    <!-- Storage -->
+                    {% if product.storage %}
+                    <div class="spec-item flex flex-col sm:flex-row sm:justify-between sm:items-start py-3 border-b border-slate-100">
+                        <span class="spec-label text-slate-600 font-semibold w-full sm:w-2/5 mb-2 sm:mb-0 px-3 py-2 bg-indigo-50 rounded-lg">
+                            <i class="fas fa-hdd mr-2 text-indigo-500"></i>Storage
+                        </span>
+                        <span class="spec-value text-slate-900 w-full sm:w-3/5 sm:pl-4 text-left">{{ product.storage }}</span>
+                    </div>
+                    {% endif %}
+                    
+                    <!-- Processor -->
+                    {% if product.processor %}
+                    <div class="spec-item flex flex-col sm:flex-row sm:justify-between sm:items-start py-3 border-b border-slate-100">
+                        <span class="spec-label text-slate-600 font-semibold w-full sm:w-2/5 mb-2 sm:mb-0 px-3 py-2 bg-indigo-50 rounded-lg">
+                            <i class="fas fa-microchip mr-2 text-indigo-500"></i>Processor
+                        </span>
+                        <span class="spec-value text-slate-900 w-full sm:w-3/5 sm:pl-4 text-left">{{ product.processor }}</span>
+                    </div>
+                    {% endif %}
+                    
+                    <!-- Back Camera -->
+                    {% if product.camera %}
+                    <div class="spec-item flex flex-col sm:flex-row sm:justify-between sm:items-start py-3 border-b border-slate-100">
+                        <span class="spec-label text-slate-600 font-semibold w-full sm:w-2/5 mb-2 sm:mb-0 px-3 py-2 bg-indigo-50 rounded-lg">
+                            <i class="fas fa-camera mr-2 text-indigo-500"></i>Back Camera
+                        </span>
+                        <span class="spec-value text-slate-900 w-full sm:w-3/5 sm:pl-4 text-left">{{ product.camera }}</span>
+                    </div>
+                    {% endif %}
+                    
+                    <!-- Front Camera -->
+                    {% if product.front_camera %}
+                    <div class="spec-item flex flex-col sm:flex-row sm:justify-between sm:items-start py-3 border-b border-slate-100">
+                        <span class="spec-label text-slate-600 font-semibold w-full sm:w-2/5 mb-2 sm:mb-0 px-3 py-2 bg-indigo-50 rounded-lg">
+                            <i class="fas fa-camera-retro mr-2 text-indigo-500"></i>Front Camera
+                        </span>
+                        <span class="spec-value text-slate-900 w-full sm:w-3/5 sm:pl-4 text-left">{{ product.front_camera }}</span>
+                    </div>
+                    {% endif %}
+                    
+                    <!-- Video Recording -->
+                    {% if product.video_recording %}
+                    <div class="spec-item flex flex-col sm:flex-row sm:justify-between sm:items-start py-3 border-b border-slate-100">
+                        <span class="spec-label text-slate-600 font-semibold w-full sm:w-2/5 mb-2 sm:mb-0 px-3 py-2 bg-indigo-50 rounded-lg">
+                            <i class="fas fa-video mr-2 text-indigo-500"></i>Video Recording
+                        </span>
+                        <span class="spec-value text-slate-900 w-full sm:w-3/5 sm:pl-4 text-left">{{ product.video_recording }}</span>
+                    </div>
+                    {% endif %}
+                    
+                    <!-- Battery Capacity -->
+                    {% if product.battery_capacity %}
+                    <div class="spec-item flex flex-col sm:flex-row sm:justify-between sm:items-start py-3 border-b border-slate-100">
+                        <span class="spec-label text-slate-600 font-semibold w-full sm:w-2/5 mb-2 sm:mb-0 px-3 py-2 bg-indigo-50 rounded-lg">
+                            <i class="fas fa-battery-full mr-2 text-indigo-500"></i>Battery Capacity
+                        </span>
+                        <span class="spec-value text-slate-900 w-full sm:w-3/5 sm:pl-4 text-left">{{ product.battery_capacity }}</span>
+                    </div>
+                    {% endif %}
+                    
+                    <!-- Charging Speed -->
+                    {% if product.charging_speed %}
+                    <div class="spec-item flex flex-col sm:flex-row sm:justify-between sm:items-start py-3 border-b border-slate-100">
+                        <span class="spec-label text-slate-600 font-semibold w-full sm:w-2/5 mb-2 sm:mb-0 px-3 py-2 bg-indigo-50 rounded-lg">
+                            <i class="fas fa-bolt mr-2 text-indigo-500"></i>Charging Speed
+                        </span>
+                        <span class="spec-value text-slate-900 w-full sm:w-3/5 sm:pl-4 text-left">{{ product.charging_speed }}</span>
+                    </div>
+                    {% endif %}
+                    
+                    <!-- Operating System -->
+                    {% if product.operating_system %}
+                    <div class="spec-item flex flex-col sm:flex-row sm:justify-between sm:items-start py-3 border-b border-slate-100">
+                        <span class="spec-label text-slate-600 font-semibold w-full sm:w-2/5 mb-2 sm:mb-0 px-3 py-2 bg-indigo-50 rounded-lg">
+                            <i class="fab fa-android mr-2 text-indigo-500"></i>Operating System
+                        </span>
+                        <span class="spec-value text-slate-900 w-full sm:w-3/5 sm:pl-4 text-left">{{ product.operating_system }}</span>
+                    </div>
+                    {% endif %}
+                    
+                    <!-- Network -->
+                    {% if product.network %}
+                    <div class="spec-item flex flex-col sm:flex-row sm:justify-between sm:items-start py-3 border-b border-slate-100">
+                        <span class="spec-label text-slate-600 font-semibold w-full sm:w-2/5 mb-2 sm:mb-0 px-3 py-2 bg-indigo-50 rounded-lg">
+                            <i class="fas fa-wifi mr-2 text-indigo-500"></i>Network
+                        </span>
+                        <span class="spec-value text-slate-900 w-full sm:w-3/5 sm:pl-4 text-left">{{ product.network }}</span>
+                    </div>
+                    {% endif %}
+                    
+                    <!-- Connectivity -->
+                    {% if product.connectivity %}
+                    <div class="spec-item flex flex-col sm:flex-row sm:justify-between sm:items-start py-3 border-b border-slate-100">
+                        <span class="spec-label text-slate-600 font-semibold w-full sm:w-2/5 mb-2 sm:mb-0 px-3 py-2 bg-indigo-50 rounded-lg">
+                            <i class="fas fa-plug mr-2 text-indigo-500"></i>Connectivity
+                        </span>
+                        <span class="spec-value text-slate-900 w-full sm:w-3/5 sm:pl-4 text-left">{{ product.connectivity|truncatechars:80 }}</span>
+                    </div>
+                    {% endif %}
+                    
+                    <!-- SIM Type -->
+                    {% if product.sim_type %}
+                    <div class="spec-item flex flex-col sm:flex-row sm:justify-between sm:items-start py-3 border-b border-slate-100">
+                        <span class="spec-label text-slate-600 font-semibold w-full sm:w-2/5 mb-2 sm:mb-0 px-3 py-2 bg-indigo-50 rounded-lg">
+                            <i class="fas fa-sim-card mr-2 text-indigo-500"></i>SIM Type
+                        </span>
+                        <span class="spec-value text-slate-900 w-full sm:w-3/5 sm:pl-4 text-left">{{ product.sim_type }}</span>
+                    </div>
+                    {% endif %}
+                    
+                    <!-- Water Resistance -->
+                    {% if product.water_resistance %}
+                    <div class="spec-item flex flex-col sm:flex-row sm:justify-between sm:items-start py-3 border-b border-slate-100">
+                        <span class="spec-label text-slate-600 font-semibold w-full sm:w-2/5 mb-2 sm:mb-0 px-3 py-2 bg-indigo-50 rounded-lg">
+                            <i class="fas fa-tint mr-2 text-indigo-500"></i>Water Resistance
+                        </span>
+                        <span class="spec-value text-slate-900 w-full sm:w-3/5 sm:pl-4 text-left">{{ product.water_resistance }}</span>
+                    </div>
+                    {% endif %}
+                    
+                    <!-- Fingerprint Sensor -->
+                    {% if product.fingerprint_sensor %}
+                    <div class="spec-item flex flex-col sm:flex-row sm:justify-between sm:items-start py-3 border-b border-slate-100">
+                        <span class="spec-label text-slate-600 font-semibold w-full sm:w-2/5 mb-2 sm:mb-0 px-3 py-2 bg-indigo-50 rounded-lg">
+                            <i class="fas fa-fingerprint mr-2 text-indigo-500"></i>Fingerprint Sensor
+                        </span>
+                        <span class="spec-value text-slate-900 w-full sm:w-3/5 sm:pl-4 text-left">{{ product.fingerprint_sensor }}</span>
+                    </div>
+                    {% endif %}
+                    
+                    <!-- Weight -->
+                    {% if product.weight %}
+                    <div class="spec-item flex flex-col sm:flex-row sm:justify-between sm:items-start py-3 border-b border-slate-100">
+                        <span class="spec-label text-slate-600 font-semibold w-full sm:w-2/5 mb-2 sm:mb-0 px-3 py-2 bg-indigo-50 rounded-lg">
+                            <i class="fas fa-weight-hanging mr-2 text-indigo-500"></i>Weight
+                        </span>
+                        <span class="spec-value text-slate-900 w-full sm:w-3/5 sm:pl-4 text-left">{{ product.weight }}</span>
+                    </div>
+                    {% endif %}
+                    
+                    <!-- Available Colors -->
+                    {% if colors_list %}
+                    <div class="spec-item flex flex-col sm:flex-row sm:justify-between sm:items-start py-3 border-b border-slate-100">
+                        <span class="spec-label text-slate-600 font-semibold w-full sm:w-2/5 mb-2 sm:mb-0 px-3 py-2 bg-indigo-50 rounded-lg">
+                            <i class="fas fa-palette mr-2 text-indigo-500"></i>Available Colors
+                        </span>
+                        <span class="spec-value text-slate-900 w-full sm:w-3/5 sm:pl-4 text-left">
+                            <div class="flex flex-wrap gap-2">
+                                {% for color in colors_list %}
+                                <div class="flex items-center space-x-1">
+                                    <div class="w-5 h-5 rounded-full border border-slate-200 
+                                        {% if color|lower == 'black' %}bg-gray-900
+                                        {% elif color|lower == 'white' %}bg-white
+                                        {% elif color|lower == 'blue' %}bg-blue-500
+                                        {% elif color|lower == 'red' %}bg-red-500
+                                        {% elif color|lower == 'green' %}bg-green-500
+                                        {% elif color|lower == 'gold' %}bg-yellow-500
+                                        {% elif color|lower == 'silver' %}bg-gray-400
+                                        {% elif color|lower == 'purple' %}bg-purple-500
+                                        {% else %}bg-slate-400{% endif %}"></div>
+                                    <span class="text-sm">{{ color }}</span>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </span>
+                    </div>
+                    {% endif %}
+                    
+                    <!-- Warranty -->
+                    {% if product.warranty %}
+                    <div class="spec-item flex flex-col sm:flex-row sm:justify-between sm:items-start py-3 border-b border-slate-100">
+                        <span class="spec-label text-slate-600 font-semibold w-full sm:w-2/5 mb-2 sm:mb-0 px-3 py-2 bg-indigo-50 rounded-lg">
+                            <i class="fas fa-shield-alt mr-2 text-indigo-500"></i>Warranty
+                        </span>
+                        <span class="spec-value text-slate-900 w-full sm:w-3/5 sm:pl-4 text-left">{{ product.warranty }}</span>
+                    </div>
+                    {% endif %}
+                    
+                    <!-- SKU -->
+                    {% if product.sku %}
+                    <div class="spec-item flex flex-col sm:flex-row sm:justify-between sm:items-start py-3 border-b border-slate-100">
+                        <span class="spec-label text-slate-600 font-semibold w-full sm:w-2/5 mb-2 sm:mb-0 px-3 py-2 bg-indigo-50 rounded-lg">
+                            <i class="fas fa-barcode mr-2 text-indigo-500"></i>SKU
+                        </span>
+                        <span class="spec-value text-slate-900 w-full sm:w-3/5 sm:pl-4 text-left">{{ product.sku }}</span>
+                    </div>
+                    {% endif %}
+                </div>
+                
+                <!-- What's in the Box Section -->
+                {% if product.whats_in_box %}
+                <div class="mt-8">
+                    <h3 class="text-xl font-bold text-slate-900 mb-4 flex items-center">
+                        <i class="fas fa-box-open mr-3 text-indigo-500"></i>
+                        What's in the Box
+                    </h3>
+                    <div class="bg-gradient-to-r from-slate-50 to-white rounded-xl p-5 border border-slate-200">
+                        <div class="text-slate-700 whitespace-pre-line text-left">
+                            {{ product.whats_in_box|linebreaks }}
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+            
+            <!-- Right Column - 30% (1 part out of 3) -->
+            <div class="lg:col-span-1">
+                <!-- Performance Metrics -->
+                <h3 class="text-2xl font-bold text-slate-900 mb-6">Performance Metrics</h3>
+                <div class="space-y-6">
+                    <div>
+                        <div class="flex justify-between mb-2">
+                            <span class="text-slate-700 font-medium">Overall Rating</span>
+                            <span class="text-slate-900 font-bold">{{ product.average_rating|default:"4.8" }}/5</span>
+                        </div>
+                        <div class="h-2 bg-slate-200 rounded-full overflow-hidden">
+                            <div class="h-full bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full" 
+                                 style="width: {% widthratio product.average_rating|default:4.8 5 100 %}%"></div>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <div class="flex justify-between mb-2">
+                            <span class="text-slate-700 font-medium">Performance Score</span>
+                            <span class="text-slate-900 font-bold">9.2/10</span>
+                        </div>
+                        <div class="h-2 bg-slate-200 rounded-full overflow-hidden">
+                            <div class="h-full bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full" style="width: 92%"></div>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <div class="flex justify-between mb-2">
+                            <span class="text-slate-700 font-medium">Battery Life</span>
+                            <span class="text-slate-900 font-bold">8.5/10</span>
+                        </div>
+                        <div class="h-2 bg-slate-200 rounded-full overflow-hidden">
+                            <div class="h-full bg-gradient-to-r from-green-500 to-emerald-500 rounded-full" style="width: 85%"></div>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <div class="flex justify-between mb-2">
+                            <span class="text-slate-700 font-medium">Camera Quality</span>
+                            <span class="text-slate-900 font-bold">9.0/10</span>
+                        </div>
+                        <div class="h-2 bg-slate-200 rounded-full overflow-hidden">
+                            <div class="h-full bg-gradient-to-r from-blue-500 to-cyan-500 rounded-full" style="width: 90%"></div>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <div class="flex justify-between mb-2">
+                            <span class="text-slate-700 font-medium">Display Quality</span>
+                            <span class="text-slate-900 font-bold">9.5/10</span>
+                        </div>
+                        <div class="h-2 bg-slate-200 rounded-full overflow-hidden">
+                            <div class="h-full bg-gradient-to-r from-purple-500 to-pink-500 rounded-full" style="width: 95%"></div>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <div class="flex justify-between mb-2">
+                            <span class="text-slate-700 font-medium">Value for Money</span>
+                            <span class="text-slate-900 font-bold">8.8/10</span>
+                        </div>
+                        <div class="h-2 bg-slate-200 rounded-full overflow-hidden">
+                            <div class="h-full bg-gradient-to-r from-amber-500 to-orange-500 rounded-full" style="width: 88%"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Technical Highlights Card -->
+                <div class="mt-8 p-5 bg-gradient-to-r from-indigo-50 to-blue-50 rounded-2xl border border-indigo-100">
+                    <h4 class="text-lg font-semibold text-slate-900 mb-3 flex items-center">
+                        <i class="fas fa-star-of-life mr-2 text-indigo-500"></i>
+                        Technical Highlights
+                    </h4>
+                    <ul class="space-y-2 text-slate-700">
+                        {% if product.processor %}
+                        <li class="flex items-start">
+                            <i class="fas fa-microchip text-indigo-500 mt-1 mr-3"></i>
+                            <span class="text-left">Powered by <strong>{{ product.processor }}</strong> processor</span>
+                        </li>
+                        {% endif %}
+                        
+                        {% if product.display_size %}
+                        <li class="flex items-start">
+                            <i class="fas fa-mobile-alt text-indigo-500 mt-1 mr-3"></i>
+                            <span class="text-left">{{ product.display_size }}" {{ product.display_resolution|default:"High-resolution" }} display</span>
+                        </li>
+                        {% endif %}
+                        
+                        {% if product.refresh_rate %}
+                        <li class="flex items-start">
+                            <i class="fas fa-tachometer-alt text-indigo-500 mt-1 mr-3"></i>
+                            <span class="text-left"><strong>{{ product.refresh_rate }}</strong> refresh rate</span>
+                        </li>
+                        {% endif %}
+                        
+                        {% if product.ram and product.storage %}
+                        <li class="flex items-start">
+                            <i class="fas fa-memory text-indigo-500 mt-1 mr-3"></i>
+                            <span class="text-left">{{ product.ram }} RAM with {{ product.storage }} storage</span>
+                        </li>
+                        {% endif %}
+                        
+                        {% if product.camera %}
+                        <li class="flex items-start">
+                            <i class="fas fa-camera text-indigo-500 mt-1 mr-3"></i>
+                            <span class="text-left">{{ product.camera }} camera system</span>
+                        </li>
+                        {% endif %}
+                        
+                        {% if product.charging_speed %}
+                        <li class="flex items-start">
+                            <i class="fas fa-bolt text-indigo-500 mt-1 mr-3"></i>
+                            <span class="text-left"><strong>{{ product.charging_speed }}</strong> fast charging support</span>
+                        </li>
+                        {% endif %}
+                        
+                        {% if product.battery_capacity %}
+                        <li class="flex items-start">
+                            <i class="fas fa-battery-full text-indigo-500 mt-1 mr-3"></i>
+                            <span class="text-left">{{ product.battery_capacity }} battery</span>
+                        </li>
+                        {% endif %}
+                        
+                        {% if product.water_resistance %}
+                        <li class="flex items-start">
+                            <i class="fas fa-tint text-indigo-500 mt-1 mr-3"></i>
+                            <span class="text-left">{{ product.water_resistance }} water and dust resistance</span>
+                        </li>
+                        {% endif %}
+                    </ul>
+                </div>
+                
+                <!-- Connectivity Details -->
+                {% if product.connectivity %}
+                <div class="mt-6">
+                    <h4 class="text-md font-semibold text-slate-900 mb-3 flex items-center">
+                        <i class="fas fa-plug mr-2 text-indigo-500"></i>
+                        Connectivity Details
+                    </h4>
+                    <div class="bg-slate-50 rounded-xl p-4 border border-slate-200">
+                        <p class="text-slate-700 text-sm whitespace-pre-line text-left">{{ product.connectivity }}</p>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
 
-            <!-- Tab Content -->
-            <div class="p-8">
                 <!-- Description Tab -->
-                <div id="content-description" class="tab-content">
+                <div id="content-description" class="tab-content hidden">
                     <div class="prose prose-lg max-w-none">
                         {% if product.description %}
                         <div class="mb-8">
@@ -526,7 +1049,6 @@
                         </div>
                         {% endif %}
                         
-                        <!-- What's in the Box -->
                         <div>
                             <h3 class="text-2xl font-bold text-slate-900 mb-4">What's in the Box</h3>
                             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -562,305 +1084,10 @@
                         </div>
                     </div>
                 </div>
-<!-- Specifications Tab -->
-<div id="content-specifications" class="tab-content hidden">
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        <!-- Technical Specifications -->
-        <div>
-            <h3 class="text-2xl font-bold text-slate-900 mb-6">Technical Specifications</h3>
-            <div class="space-y-4">
-                <!-- Display Size -->
-                {% if product.display_size %}
-                <div class="flex justify-between items-center py-3 border-b border-slate-100">
-                    <span class="text-slate-600 font-medium">Display Size</span>
-                    <span class="font-semibold text-slate-900">{{ product.display_size }}"</span>
-                </div>
-                {% endif %}
-                
-                <!-- Display Resolution -->
-                {% if product.display_resolution %}
-                <div class="flex justify-between items-center py-3 border-b border-slate-100">
-                    <span class="text-slate-600 font-medium">Display Resolution</span>
-                    <span class="font-semibold text-slate-900">{{ product.display_resolution }}</span>
-                </div>
-                {% endif %}
-                
-                <!-- RAM -->
-                {% if product.ram %}
-                <div class="flex justify-between items-center py-3 border-b border-slate-100">
-                    <span class="text-slate-600 font-medium">RAM</span>
-                    <span class="font-semibold text-slate-900">{{ product.ram }}</span>
-                </div>
-                {% endif %}
-                
-                <!-- Storage -->
-                {% if product.storage %}
-                <div class="flex justify-between items-center py-3 border-b border-slate-100">
-                    <span class="text-slate-600 font-medium">Storage</span>
-                    <span class="font-semibold text-slate-900">{{ product.storage }}</span>
-                </div>
-                {% endif %}
-                
-                <!-- Processor -->
-                {% if product.processor %}
-                <div class="flex justify-between items-center py-3 border-b border-slate-100">
-                    <span class="text-slate-600 font-medium">Processor</span>
-                    <span class="font-semibold text-slate-900">{{ product.processor }}</span>
-                </div>
-                {% endif %}
-                
-                <!-- Camera -->
-                {% if product.camera %}
-                <div class="flex justify-between items-center py-3 border-b border-slate-100">
-                    <span class="text-slate-600 font-medium">Camera</span>
-                    <span class="font-semibold text-slate-900">{{ product.camera }}</span>
-                </div>
-                {% endif %}
-                
-                <!-- Battery -->
-                {% if product.battery_capacity %}
-                <div class="flex justify-between items-center py-3 border-b border-slate-100">
-                    <span class="text-slate-600 font-medium">Battery</span>
-                    <span class="font-semibold text-slate-900">{{ product.battery_capacity }}</span>
-                </div>
-                {% endif %}
-                
-                <!-- Operating System -->
-                {% if product.operating_system %}
-                <div class="flex justify-between items-center py-3 border-b border-slate-100">
-                    <span class="text-slate-600 font-medium">Operating System</span>
-                    <span class="font-semibold text-slate-900">{{ product.operating_system }}</span>
-                </div>
-                {% endif %}
-                
-                <!-- Connectivity -->
-                {% if product.connectivity %}
-                <div class="flex justify-between items-center py-3 border-b border-slate-100">
-                    <span class="text-slate-600 font-medium">Connectivity</span>
-                    <span class="font-semibold text-slate-900">{{ product.connectivity|truncatechars:50 }}</span>
-                </div>
-                {% endif %}
-                
-                <!-- SIM Type -->
-                {% if product.sim_type %}
-                <div class="flex justify-between items-center py-3 border-b border-slate-100">
-                    <span class="text-slate-600 font-medium">SIM Type</span>
-                    <span class="font-semibold text-slate-900">{{ product.sim_type }}</span>
-                </div>
-                {% endif %}
-                
-                <!-- Water Resistance -->
-                {% if product.water_resistance %}
-                <div class="flex justify-between items-center py-3 border-b border-slate-100">
-                    <span class="text-slate-600 font-medium">Water Resistance</span>
-                    <span class="font-semibold text-slate-900">{{ product.water_resistance }}</span>
-                </div>
-                {% endif %}
-                
-                <!-- Fingerprint Sensor -->
-                {% if product.fingerprint_sensor %}
-                <div class="flex justify-between items-center py-3 border-b border-slate-100">
-                    <span class="text-slate-600 font-medium">Fingerprint Sensor</span>
-                    <span class="font-semibold text-slate-900">{{ product.fingerprint_sensor }}</span>
-                </div>
-                {% endif %}
-                
-                <!-- Colors -->
-                {% if colors_list %}
-                <div class="flex justify-between items-center py-3 border-b border-slate-100">
-                    <span class="text-slate-600 font-medium">Available Colors</span>
-                    <div class="flex space-x-2">
-                        {% for color in colors_list %}
-                        <div class="w-6 h-6 rounded-full border border-slate-200 
-                            {% if color|lower == 'black' %}bg-gray-900
-                            {% elif color|lower == 'white' %}bg-white
-                            {% elif color|lower == 'blue' %}bg-blue-500
-                            {% elif color|lower == 'red' %}bg-red-500
-                            {% elif color|lower == 'green' %}bg-green-500
-                            {% elif color|lower == 'gold' %}bg-yellow-500
-                            {% elif color|lower == 'silver' %}bg-gray-400
-                            {% elif color|lower == 'purple' %}bg-purple-500
-                            {% else %}bg-slate-400{% endif %}"
-                             title="{{ color }}"></div>
-                        {% endfor %}
-                    </div>
-                </div>
-                {% endif %}
-                
-                <!-- Warranty -->
-                {% if product.warranty %}
-                <div class="flex justify-between items-center py-3 border-b border-slate-100">
-                    <span class="text-slate-600 font-medium">Warranty</span>
-                    <span class="font-semibold text-slate-900">{{ product.warranty }}</span>
-                </div>
-                {% endif %}
-                
-                <!-- SKU -->
-                {% if product.sku %}
-                <div class="flex justify-between items-center py-3 border-b border-slate-100">
-                    <span class="text-slate-600 font-medium">SKU</span>
-                    <span class="font-semibold text-slate-900">{{ product.sku }}</span>
-                </div>
-                {% endif %}
-            </div>
-        </div>
-        
-        <!-- Performance Metrics Section -->
-        <div>
-            <h3 class="text-2xl font-bold text-slate-900 mb-6">Performance Metrics</h3>
-            <div class="space-y-6">
-                <!-- Performance Score -->
-                <div>
-                    <div class="flex justify-between mb-2">
-                        <span class="text-slate-700 font-medium">Overall Rating</span>
-                        <span class="text-slate-900 font-bold">{{ product.average_rating|default:"4.8" }}/5</span>
-                    </div>
-                    <div class="h-2 bg-slate-200 rounded-full overflow-hidden">
-                        <div class="h-full bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full" 
-                             style="width: {% widthratio product.average_rating|default:4.8 5 100 %}%"></div>
-                    </div>
-                </div>
-                
-                <!-- Performance Score -->
-                <div>
-                    <div class="flex justify-between mb-2">
-                        <span class="text-slate-700 font-medium">Performance Score</span>
-                        <span class="text-slate-900 font-bold">9.2/10</span>
-                    </div>
-                    <div class="h-2 bg-slate-200 rounded-full overflow-hidden">
-                        <div class="h-full bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full" style="width: 92%"></div>
-                    </div>
-                </div>
-                
-                <!-- Battery Life -->
-                <div>
-                    <div class="flex justify-between mb-2">
-                        <span class="text-slate-700 font-medium">Battery Life</span>
-                        <span class="text-slate-900 font-bold">8.5/10</span>
-                    </div>
-                    <div class="h-2 bg-slate-200 rounded-full overflow-hidden">
-                        <div class="h-full bg-gradient-to-r from-green-500 to-emerald-500 rounded-full" style="width: 85%"></div>
-                    </div>
-                </div>
-                
-                <!-- Camera Quality -->
-                <div>
-                    <div class="flex justify-between mb-2">
-                        <span class="text-slate-700 font-medium">Camera Quality</span>
-                        <span class="text-slate-900 font-bold">9.0/10</span>
-                    </div>
-                    <div class="h-2 bg-slate-200 rounded-full overflow-hidden">
-                        <div class="h-full bg-gradient-to-r from-blue-500 to-cyan-500 rounded-full" style="width: 90%"></div>
-                    </div>
-                </div>
-                
-                <!-- Display Quality -->
-                <div>
-                    <div class="flex justify-between mb-2">
-                        <span class="text-slate-700 font-medium">Display Quality</span>
-                        <span class="text-slate-900 font-bold">9.5/10</span>
-                    </div>
-                    <div class="h-2 bg-slate-200 rounded-full overflow-hidden">
-                        <div class="h-full bg-gradient-to-r from-purple-500 to-pink-500 rounded-full" style="width: 95%"></div>
-                    </div>
-                </div>
-                
-                <!-- Value for Money -->
-                <div>
-                    <div class="flex justify-between mb-2">
-                        <span class="text-slate-700 font-medium">Value for Money</span>
-                        <span class="text-slate-900 font-bold">8.8/10</span>
-                    </div>
-                    <div class="h-2 bg-slate-200 rounded-full overflow-hidden">
-                        <div class="h-full bg-gradient-to-r from-amber-500 to-orange-500 rounded-full" style="width: 88%"></div>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Technical Highlights -->
-            <div class="mt-8 p-6 bg-gradient-to-r from-indigo-50 to-blue-50 rounded-2xl border border-indigo-100">
-                <h4 class="text-lg font-semibold text-slate-900 mb-3">Technical Highlights</h4>
-                <ul class="space-y-2 text-slate-700">
-                    {% if product.processor %}
-                    <li class="flex items-start">
-                        <i class="fas fa-microchip text-indigo-500 mt-1 mr-3"></i>
-                        <span>Powered by <strong>{{ product.processor }}</strong> processor</span>
-                    </li>
-                    {% endif %}
-                    
-                    {% if product.display_size %}
-                    <li class="flex items-start">
-                        <i class="fas fa-mobile-alt text-indigo-500 mt-1 mr-3"></i>
-                        <span>{{ product.display_size }}" {{ product.display_resolution|default:"High-resolution" }} display</span>
-                    </li>
-                    {% endif %}
-                    
-                    {% if product.ram and product.storage %}
-                    <li class="flex items-start">
-                        <i class="fas fa-memory text-indigo-500 mt-1 mr-3"></i>
-                        <span>{{ product.ram }} RAM with {{ product.storage }} storage</span>
-                    </li>
-                    {% endif %}
-                    
-                    {% if product.camera %}
-                    <li class="flex items-start">
-                        <i class="fas fa-camera text-indigo-500 mt-1 mr-3"></i>
-                        <span>{{ product.camera }} camera system</span>
-                    </li>
-                    {% endif %}
-                    
-                    {% if product.battery_capacity %}
-                    <li class="flex items-start">
-                        <i class="fas fa-battery-full text-indigo-500 mt-1 mr-3"></i>
-                        <span>{{ product.battery_capacity }} battery with fast charging</span>
-                    </li>
-                    {% endif %}
-                    
-                    {% if product.water_resistance %}
-                    <li class="flex items-start">
-                        <i class="fas fa-tint text-indigo-500 mt-1 mr-3"></i>
-                        <span>{{ product.water_resistance }} water and dust resistance</span>
-                    </li>
-                    {% endif %}
-                </ul>
-            </div>
-            
-            <!-- Connectivity Details -->
-            {% if product.connectivity %}
-            <div class="mt-6">
-                <h4 class="text-lg font-semibold text-slate-900 mb-3">Connectivity Details</h4>
-                <div class="bg-slate-50 rounded-xl p-4 border border-slate-200">
-                    <p class="text-slate-700 whitespace-pre-line">{{ product.connectivity }}</p>
-                </div>
-            </div>
-            {% endif %}
-        </div>
-    </div>
-</div>
-                        <!-- Performance Metrics Section -->
-<div>
-    <h3 class="text-2xl font-bold text-slate-900 mb-6">Performance Metrics</h3>
-    <div class="space-y-6">
-        {% for metric in performance_metrics %}
-        <div>
-            <div class="flex justify-between mb-2">
-                <span class="text-slate-700 font-medium">{{ metric.name }}</span>
-                <span class="text-slate-900 font-bold">{{ metric.score }}/10</span>
-            </div>
-            <div class="h-2 bg-slate-200 rounded-full overflow-hidden">
-                <!-- widthratio ট্যাগ ব্যবহার করে percentage ক্যালকুলেট করুন -->
-                {% widthratio metric.score 1 10 as width_percent %}
-                <div class="h-full bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full" 
-                     style="width: {{ width_percent }}%"></div>
-            </div>
-        </div>
-        {% endfor %}
-    </div>
-</div>
+
                 <!-- Reviews Tab -->
                 <div id="content-reviews" class="tab-content hidden">
                     <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                        <!-- Reviews Summary -->
                         <div>
                             <h3 class="text-2xl font-bold text-slate-900 mb-6">Customer Reviews</h3>
                             <div class="bg-gradient-to-br from-slate-50 to-white rounded-2xl p-6 border border-slate-200">
@@ -876,7 +1103,6 @@
                                     </div>
                                 </div>
                                 
-                                <!-- Rating Distribution -->
                                 <div class="space-y-3">
                                     {% for i in "54321"|make_list %}
                                     <div class="flex items-center">
@@ -892,7 +1118,6 @@
                             </div>
                         </div>
                         
-                        <!-- Write Review -->
                         <div>
                             <h3 class="text-2xl font-bold text-slate-900 mb-6">Write a Review</h3>
                             {% if user.is_authenticated %}
@@ -931,11 +1156,9 @@
                         </div>
                     </div>
                     
-                    <!-- Customer Reviews List -->
                     <div class="mt-12">
                         <h4 class="text-xl font-bold text-slate-900 mb-6">Customer Reviews (128)</h4>
                         <div class="space-y-6">
-                            <!-- Sample Review -->
                             <div class="bg-white rounded-xl border border-slate-200 p-6">
                                 <div class="flex items-start justify-between mb-4">
                                     <div>
@@ -975,7 +1198,6 @@
                     <div class="space-y-6">
                         <h3 class="text-2xl font-bold text-slate-900 mb-6">Frequently Asked Questions</h3>
                         
-                        <!-- FAQ Items -->
                         <div class="space-y-4">
                             <div class="faq-item border border-slate-200 rounded-xl overflow-hidden">
                                 <button class="faq-question w-full flex items-center justify-between p-6 text-left hover:bg-slate-50">
@@ -1028,7 +1250,6 @@
                             </div>
                         </div>
                         
-                        <!-- Ask Question Form -->
                         <div class="mt-8 p-6 bg-gradient-to-r from-indigo-50 to-blue-50 rounded-2xl border border-indigo-100">
                             <h4 class="text-lg font-semibold text-slate-900 mb-4">Still have questions?</h4>
                             <form class="space-y-4">
@@ -1136,7 +1357,6 @@
                 <p class="text-lg font-bold text-slate-900 mt-2">৳{{ viewed.price }}</p>
             </a>
             {% empty %}
-            <!-- If no recently viewed, show popular products -->
             {% for popular in popular_products %}
             <a href="{% url 'product_detail' popular.slug %}"
                class="bg-white rounded-xl border border-slate-200 p-4 hover:border-indigo-300 hover:shadow-sm transition-all group">
@@ -1158,7 +1378,18 @@
     </div>
 </div>
 
-<!-- Floating Cart Button (Mobile) -->
+<!-- Image Zoom Modal -->
+<div id="imageModal" class="image-modal" onclick="closeImageModalOnClick(event)">
+    <span class="close-modal" onclick="closeImageModal()">&times;</span>
+    <img id="modalImage" src="" alt="Zoomed Image" onclick="zoomImageOnClick(event)">
+    <div class="zoom-controls">
+        <button onclick="zoomImage(0.2)"><i class="fas fa-plus"></i></button>
+        <button onclick="zoomImage(-0.2)"><i class="fas fa-minus"></i></button>
+        <button onclick="resetZoom()"><i class="fas fa-undo-alt"></i></button>
+        <button onclick="rotateImage()"><i class="fas fa-rotate-right"></i></button>
+    </div>
+</div>
+
 <button onclick="addToCart({{ product.id }})"
         class="lg:hidden fixed bottom-6 right-6 z-50 w-16 h-16 bg-gradient-to-r from-indigo-600 to-indigo-700 text-white rounded-full shadow-2xl floating-cart-btn flex items-center justify-center">
     <i class="fas fa-shopping-cart text-xl"></i>
@@ -1172,12 +1403,68 @@
 
 {% block extra_js %}
 <script>
-// Product Gallery Functions
+// Image Zoom Modal Functions
+let currentZoom = 1;
+let currentRotation = 0;
+
+function openImageModal(imageSrc) {
+    const modal = document.getElementById('imageModal');
+    const modalImg = document.getElementById('modalImage');
+    modal.style.display = 'flex';
+    modalImg.src = imageSrc;
+    currentZoom = 1;
+    currentRotation = 0;
+    modalImg.style.transform = `scale(${currentZoom}) rotate(${currentRotation}deg)`;
+    document.body.style.overflow = 'hidden';
+}
+
+function closeImageModal() {
+    const modal = document.getElementById('imageModal');
+    modal.style.display = 'none';
+    document.body.style.overflow = 'auto';
+    resetZoom();
+}
+
+function closeImageModalOnClick(event) {
+    if (event.target === event.currentTarget) {
+        closeImageModal();
+    }
+}
+
+function zoomImage(delta) {
+    const modalImg = document.getElementById('modalImage');
+    currentZoom += delta;
+    currentZoom = Math.min(Math.max(0.5, currentZoom), 4);
+    modalImg.style.transform = `scale(${currentZoom}) rotate(${currentRotation}deg)`;
+}
+
+function zoomImageOnClick(event) {
+    event.stopPropagation();
+    if (currentZoom >= 2) {
+        zoomImage(-0.5);
+    } else {
+        zoomImage(0.5);
+    }
+}
+
+function resetZoom() {
+    const modalImg = document.getElementById('modalImage');
+    currentZoom = 1;
+    currentRotation = 0;
+    modalImg.style.transform = `scale(1) rotate(0deg)`;
+}
+
+function rotateImage() {
+    const modalImg = document.getElementById('modalImage');
+    currentRotation = (currentRotation + 90) % 360;
+    modalImg.style.transform = `scale(${currentZoom}) rotate(${currentRotation}deg)`;
+}
+
+// Gallery Functions
 function changeMainImage(imageUrl) {
     const mainImage = document.getElementById('mainProductImage');
     if (mainImage) {
         mainImage.src = imageUrl;
-        // Add animation
         mainImage.style.opacity = '0.5';
         setTimeout(() => {
             mainImage.style.opacity = '1';
@@ -1194,24 +1481,20 @@ function scrollGallery(direction) {
 
 // Tab Switching
 function switchTab(tabName) {
-    // Hide all tab contents
     document.querySelectorAll('.tab-content').forEach(content => {
         content.classList.add('hidden');
     });
     
-    // Remove active class from all tabs
     document.querySelectorAll('[id^="tab-"]').forEach(tab => {
         tab.classList.remove('border-indigo-500', 'text-indigo-600');
         tab.classList.add('text-slate-600', 'border-transparent');
     });
     
-    // Show selected tab content
     const content = document.getElementById(`content-${tabName}`);
     if (content) {
         content.classList.remove('hidden');
     }
     
-    // Activate selected tab
     const tab = document.getElementById(`tab-${tabName}`);
     if (tab) {
         tab.classList.add('border-indigo-500', 'text-indigo-600');
@@ -1219,19 +1502,23 @@ function switchTab(tabName) {
     }
 }
 
-// Initialize FAQ functionality
+// Keyboard Events
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        closeImageModal();
+    }
+});
+
+// Initialize
 document.addEventListener('DOMContentLoaded', function() {
-    // FAQ toggle functionality
+    // FAQ toggle
     document.querySelectorAll('.faq-question').forEach(question => {
         question.addEventListener('click', function() {
             const answer = this.nextElementSibling;
             const icon = this.querySelector('i');
-            
-            // Toggle current answer
             answer.classList.toggle('hidden');
             icon.classList.toggle('rotate-180');
             
-            // Close other answers (optional)
             document.querySelectorAll('.faq-item').forEach(item => {
                 if (item !== this.parentElement) {
                     item.querySelector('.faq-answer').classList.add('hidden');
@@ -1241,13 +1528,11 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
     
-    // Rating stars functionality
+    // Rating stars
     const ratingStars = document.querySelectorAll('#ratingStars .fa-star');
     ratingStars.forEach(star => {
         star.addEventListener('click', function() {
             const rating = parseInt(this.getAttribute('data-rating'));
-            
-            // Update star colors
             ratingStars.forEach((s, index) => {
                 if (index < rating) {
                     s.classList.remove('text-slate-300');
@@ -1259,7 +1544,6 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         });
         
-        // Hover effect
         star.addEventListener('mouseover', function() {
             const rating = parseInt(this.getAttribute('data-rating'));
             ratingStars.forEach((s, index) => {
@@ -1277,19 +1561,13 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
-// Wishlist, Compare, Share Functions
+// Action Functions
 function addToWishlist(productId) {
-    // Implement wishlist functionality
     alert('Added to wishlist!');
-    // In real implementation, use AJAX call
-    // fetch(`/wishlist/add/${productId}/`)
 }
 
 function compareProduct(productId) {
-    // Implement compare functionality
     alert('Added to compare!');
-    // In real implementation, use AJAX call
-    // fetch(`/compare/add/${productId}/`)
 }
 
 function shareProduct() {
@@ -1300,22 +1578,18 @@ function shareProduct() {
             url: window.location.href,
         });
     } else {
-        // Fallback - copy to clipboard
         navigator.clipboard.writeText(window.location.href)
             .then(() => {
                 alert('Link copied to clipboard!');
             })
             .catch(() => {
-                // Alternative fallback
                 prompt('Copy this link:', window.location.href);
             });
     }
 }
 
-// Add to cart function for mobile button
 function addToCart(productId) {
     if (confirm('Add this product to cart?')) {
-        // Use AJAX to add to cart
         fetch(`/cart/add/${productId}/`, {
             method: 'POST',
             headers: {
@@ -1328,7 +1602,6 @@ function addToCart(productId) {
         .then(data => {
             if (data.success) {
                 alert('Product added to cart!');
-                // Update cart count
                 if (data.cart_count) {
                     document.querySelectorAll('.cart-count').forEach(el => {
                         el.textContent = data.cart_count;

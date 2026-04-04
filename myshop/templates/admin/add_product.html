@@ -717,7 +717,8 @@
                         </div>
                     </div>
 
-                    <!-- Card: Technical Specifications -->
+                 
+<!-- Card: Technical Specifications -->
 <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden" id="specifications-section">
     <div class="px-8 py-6 border-b border-slate-200 bg-gradient-to-r from-slate-50 to-white">
         <div class="flex items-center space-x-3">
@@ -732,7 +733,75 @@
     </div>
     
     <div class="p-8">
-        <!-- Display Size -->
+        <!-- Display Specifications Row -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
+            <!-- Display Type -->
+            <div>
+                <label for="id_display_type" class="block text-sm font-semibold text-slate-700 mb-2">
+                    <i class="fas fa-tv mr-2 text-indigo-500"></i>Display Type
+                </label>
+                <div class="relative">
+                    <input type="text" 
+                           name="display_type" 
+                           id="id_display_type"
+                           value="{{ form.display_type.value|default:'' }}"
+                           placeholder="e.g., Dynamic AMOLED 2X, Super Retina XDR, LTPO OLED"
+                           class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 pl-10 text-slate-800 shadow-sm focus:border-indigo-500 focus:ring-3 focus:ring-indigo-500/20 transition-all duration-300">
+                    <div class="absolute left-3 top-3.5 text-slate-400">
+                        <i class="fas fa-desktop"></i>
+                    </div>
+                </div>
+                <p class="text-xs text-slate-400 mt-1">Display panel technology</p>
+            </div>
+            
+            <!-- Refresh Rate -->
+            <div>
+                <label for="id_refresh_rate" class="block text-sm font-semibold text-slate-700 mb-2">
+                    <i class="fas fa-tachometer-alt mr-2 text-indigo-500"></i>Refresh Rate
+                </label>
+                <div class="relative">
+                    <select name="refresh_rate" 
+                            id="id_refresh_rate"
+                            class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 pl-10 text-slate-800 shadow-sm focus:border-indigo-500 focus:ring-3 focus:ring-indigo-500/20 transition-all duration-300 appearance-none">
+                        <option value="">Select Refresh Rate</option>
+                        <option value="60Hz" {% if form.refresh_rate.value == '60Hz' %}selected{% endif %}>60Hz</option>
+                        <option value="90Hz" {% if form.refresh_rate.value == '90Hz' %}selected{% endif %}>90Hz</option>
+                        <option value="120Hz" {% if form.refresh_rate.value == '120Hz' %}selected{% endif %}>120Hz</option>
+                        <option value="144Hz" {% if form.refresh_rate.value == '144Hz' %}selected{% endif %}>144Hz</option>
+                        <option value="165Hz" {% if form.refresh_rate.value == '165Hz' %}selected{% endif %}>165Hz</option>
+                        <option value="Adaptive 1-120Hz" {% if form.refresh_rate.value == 'Adaptive 1-120Hz' %}selected{% endif %}>Adaptive 1-120Hz</option>
+                    </select>
+                    <div class="absolute left-3 top-3.5 text-slate-400 pointer-events-none">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <div class="absolute right-3 top-3.5 text-slate-400 pointer-events-none">
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                </div>
+                <p class="text-xs text-slate-400 mt-1">Screen refresh rate in Hz</p>
+            </div>
+            
+            <!-- Resolution -->
+            <div>
+                <label for="id_resolution" class="block text-sm font-semibold text-slate-700 mb-2">
+                    <i class="fas fa-expand-alt mr-2 text-indigo-500"></i>Resolution
+                </label>
+                <div class="relative">
+                    <input type="text" 
+                           name="resolution" 
+                           id="id_resolution"
+                           value="{{ form.resolution.value|default:'' }}"
+                           placeholder="e.g., 2796 x 1290 pixels, 3088 x 1440 pixels, FHD+"
+                           class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 pl-10 text-slate-800 shadow-sm focus:border-indigo-500 focus:ring-3 focus:ring-indigo-500/20 transition-all duration-300">
+                    <div class="absolute left-3 top-3.5 text-slate-400">
+                        <i class="fas fa-arrows-alt"></i>
+                    </div>
+                </div>
+                <p class="text-xs text-slate-400 mt-1">Screen resolution in pixels</p>
+            </div>
+        </div>
+        
+        <!-- Display Size (Existing) -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
             <div>
                 <label for="id_display_size" class="block text-sm font-semibold text-slate-700 mb-2">
@@ -743,38 +812,25 @@
                            name="display_size" 
                            id="id_display_size"
                            value="{{ form.display_size.value|default:'' }}"
-                           placeholder="e.g., 6.7 inches, 6.1 inches, 6.9 inches"
-                           class="w-full rounded-xl border {% if form.display_size.errors %}border-rose-500 bg-rose-50{% else %}border-slate-300 hover:border-slate-400{% endif %} bg-white px-4 py-3.5 pl-10 text-slate-800 shadow-sm focus:border-indigo-500 focus:ring-3 focus:ring-indigo-500/20 transition-all duration-300">
+                           placeholder="e.g., 6.7 inches, 6.1 inches"
+                           class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 pl-10 text-slate-800 shadow-sm focus:border-indigo-500 focus:ring-3 focus:ring-indigo-500/20 transition-all duration-300">
                     <div class="absolute left-3 top-3.5 text-slate-400">
-                        <i class="fas fa-arrows-alt"></i>
+                        <i class="fas fa-arrows-alt-h"></i>
                     </div>
                 </div>
-                <p class="text-xs text-slate-400 mt-2">
-                    <i class="fas fa-info-circle mr-1"></i> Screen size in inches
-                </p>
-                {% if form.display_size.errors %}
-                    <div class="mt-2 flex items-start space-x-2 text-rose-500">
-                        <i class="fas fa-exclamation-circle text-sm mt-0.5"></i>
-                        <div class="text-sm">
-                            {% for error in form.display_size.errors %}
-                                <p>{{ error }}</p>
-                            {% endfor %}
-                        </div>
-                    </div>
-                {% endif %}
             </div>
             
-            <!-- Display Resolution (Optional Addition) -->
+            <!-- Display Resolution (Existing) -->
             <div>
                 <label for="id_display_resolution" class="block text-sm font-semibold text-slate-700 mb-2">
-                    <i class="fas fa-tv mr-2 text-indigo-500"></i>Display Resolution
+                    <i class="fas fa-tv mr-2 text-indigo-500"></i>Display Resolution (Detailed)
                 </label>
                 <div class="relative">
                     <input type="text" 
                            name="display_resolution" 
                            id="id_display_resolution"
                            value="{{ form.display_resolution.value|default:'' }}"
-                           placeholder="e.g., 2796 x 1290 pixels, FHD+, 4K"
+                           placeholder="e.g., 2796 x 1290 pixels"
                            class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 pl-10 text-slate-800 shadow-sm focus:border-indigo-500 focus:ring-3 focus:ring-indigo-500/20 transition-all duration-300">
                     <div class="absolute left-3 top-3.5 text-slate-400">
                         <i class="fas fa-expand-alt"></i>
@@ -783,16 +839,152 @@
             </div>
         </div>
         
-        <!-- RAM & Storage -->
+        <!-- Camera Specifications -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+            <!-- Front Camera -->
+            <div>
+                <label for="id_front_camera" class="block text-sm font-semibold text-slate-700 mb-2">
+                    <i class="fas fa-camera-retro mr-2 text-indigo-500"></i>Front Camera
+                </label>
+                <div class="relative">
+                    <input type="text" 
+                           name="front_camera" 
+                           id="id_front_camera"
+                           value="{{ form.front_camera.value|default:'' }}"
+                           placeholder="e.g., 12MP TrueDepth Camera, 32MP Selfie Camera"
+                           class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 pl-10 text-slate-800 shadow-sm focus:border-indigo-500 focus:ring-3 focus:ring-indigo-500/20 transition-all duration-300">
+                    <div class="absolute left-3 top-3.5 text-slate-400">
+                        <i class="fas fa-camera"></i>
+                    </div>
+                </div>
+                <p class="text-xs text-slate-400 mt-1">Front/Selfie camera specifications</p>
+            </div>
+            
+            <!-- Video Recording -->
+            <div>
+                <label for="id_video_recording" class="block text-sm font-semibold text-slate-700 mb-2">
+                    <i class="fas fa-video mr-2 text-indigo-500"></i>Video Recording
+                </label>
+                <div class="relative">
+                    <input type="text" 
+                           name="video_recording" 
+                           id="id_video_recording"
+                           value="{{ form.video_recording.value|default:'' }}"
+                           placeholder="e.g., 4K @ 60fps, 8K @ 30fps, 1080p @ 240fps"
+                           class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 pl-10
+                            text-slate-800 shadow-sm focus:border-indigo-500 focus:ring-3 focus:ring-indigo-500/20 
+                            transition-all duration-300">
+                    <div class="absolute left-3 top-3.5 text-slate-400">
+                        <i class="fas fa-camcorder"></i>
+                    </div>
+                </div>
+                <p class="text-xs text-slate-400 mt-1">Video capture capabilities</p>
+            </div>
+        </div>
+        
+        <!-- Back Camera (Existing) -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+            <div>
+                <label for="id_camera" class="block text-sm font-semibold text-slate-700 mb-2">
+                    <i class="fas fa-camera mr-2 text-indigo-500"></i>Back Camera
+                </label>
+                <div class="relative">
+                    <input type="text" 
+                           name="camera" 
+                           id="id_camera"
+                           value="{{ form.camera.value|default:'' }}"
+                           placeholder="e.g., 50MP Main + 12MP Ultra Wide + 12MP Telephoto"
+                           class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 pl-10 text-slate-800 shadow-sm focus:border-indigo-500 focus:ring-3 focus:ring-indigo-500/20 transition-all duration-300">
+                    <div class="absolute left-3 top-3.5 text-slate-400">
+                        <i class="fas fa-camera-retro"></i>
+                    </div>
+                </div>
+                <p class="text-xs text-slate-400 mt-1">Rear camera specifications</p>
+            </div>
+            
+            <!-- Charging Speed -->
+            <div>
+                <label for="id_charging_speed" class="block text-sm font-semibold text-slate-700 mb-2">
+                    <i class="fas fa-bolt mr-2 text-indigo-500"></i>Charging Speed
+                </label>
+                <div class="relative">
+                    <select name="charging_speed" 
+                            id="id_charging_speed"
+                            class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 pl-10 text-slate-800 shadow-sm focus:border-indigo-500 focus:ring-3 focus:ring-indigo-500/20 transition-all duration-300 appearance-none">
+                        <option value="">Select Charging Speed</option>
+                        <option value="15W" {% if form.charging_speed.value == '15W' %}selected{% endif %}>15W</option>
+                        <option value="18W" {% if form.charging_speed.value == '18W' %}selected{% endif %}>18W</option>
+                        <option value="20W" {% if form.charging_speed.value == '20W' %}selected{% endif %}>20W</option>
+                        <option value="25W" {% if form.charging_speed.value == '25W' %}selected{% endif %}>25W</option>
+                        <option value="33W" {% if form.charging_speed.value == '33W' %}selected{% endif %}>33W</option>
+                        <option value="45W" {% if form.charging_speed.value == '45W' %}selected{% endif %}>45W</option>
+                        <option value="65W" {% if form.charging_speed.value == '65W' %}selected{% endif %}>65W</option>
+                        <option value="67W" {% if form.charging_speed.value == '67W' %}selected{% endif %}>67W</option>
+                        <option value="100W" {% if form.charging_speed.value == '100W' %}selected{% endif %}>100W</option>
+                        <option value="120W" {% if form.charging_speed.value == '120W' %}selected{% endif %}>120W</option>
+                        <option value="200W" {% if form.charging_speed.value == '200W' %}selected{% endif %}>200W</option>
+                        <option value="240W" {% if form.charging_speed.value == '240W' %}selected{% endif %}>240W</option>
+                    </select>
+                    <div class="absolute left-3 top-3.5 text-slate-400 pointer-events-none">
+                        <i class="fas fa-charging-station"></i>
+                    </div>
+                    <div class="absolute right-3 top-3.5 text-slate-400 pointer-events-none">
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                </div>
+                <p class="text-xs text-slate-400 mt-1">Fast charging wattage</p>
+            </div>
+        </div>
+        
+        <!-- Battery (Existing) -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+            <div>
+                <label for="id_battery_capacity" class="block text-sm font-semibold text-slate-700 mb-2">
+                    <i class="fas fa-battery-full mr-2 text-indigo-500"></i>Battery Capacity
+                </label>
+                <div class="relative">
+                    <input type="text" 
+                           name="battery_capacity" 
+                           id="id_battery_capacity"
+                           value="{{ form.battery_capacity.value|default:'' }}"
+                           placeholder="e.g., 5000 mAh"
+                           class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 pl-10 text-slate-800 shadow-sm focus:border-indigo-500 focus:ring-3 focus:ring-indigo-500/20 transition-all duration-300">
+                    <div class="absolute left-3 top-3.5 text-slate-400">
+                        <i class="fas fa-battery-quarter"></i>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Network -->
+            <div>
+                <label for="id_network" class="block text-sm font-semibold text-slate-700 mb-2">
+                    <i class="fas fa-wifi mr-2 text-indigo-500"></i>Network
+                </label>
+                <div class="relative">
+                    <input type="text" 
+                           name="network" 
+                           id="id_network"
+                           value="{{ form.network.value|default:'' }}"
+                           placeholder="e.g., 5G, 4G LTE, Wi-Fi 7, Bluetooth 5.3"
+                           class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 pl-10 text-slate-800 shadow-sm focus:border-indigo-500 focus:ring-3 focus:ring-indigo-500/20 transition-all duration-300">
+                    <div class="absolute left-3 top-3.5 text-slate-400">
+                        <i class="fas fa-globe"></i>
+                    </div>
+                </div>
+                <p class="text-xs text-slate-400 mt-1">Cellular and wireless connectivity</p>
+            </div>
+        </div>
+        
+        <!-- RAM & Storage (Existing) -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
             <div>
                 <label for="id_ram" class="block text-sm font-semibold text-slate-700 mb-2">
-                    <i class="fas fa-memory mr-2 text-indigo-500"></i>RAM
+                    <i class="fas fa-microchip mr-2 text-indigo-500"></i>RAM
                 </label>
                 <div class="relative">
                     <select name="ram" 
                             id="id_ram"
-                            class="w-full rounded-xl border {% if form.ram.errors %}border-rose-500 bg-rose-50{% else %}border-slate-300 hover:border-slate-400{% endif %} bg-white px-4 py-3.5 pl-10 text-slate-800 shadow-sm focus:border-indigo-500 focus:ring-3 focus:ring-indigo-500/20 transition-all duration-300 appearance-none">
+                            class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 pl-10 text-slate-800 shadow-sm focus:border-indigo-500 focus:ring-3 focus:ring-indigo-500/20 transition-all duration-300 appearance-none">
                         <option value="">Select RAM</option>
                         <option value="2GB" {% if form.ram.value == '2GB' %}selected{% endif %}>2GB</option>
                         <option value="4GB" {% if form.ram.value == '4GB' %}selected{% endif %}>4GB</option>
@@ -810,16 +1002,6 @@
                         <i class="fas fa-chevron-down"></i>
                     </div>
                 </div>
-                {% if form.ram.errors %}
-                    <div class="mt-2 flex items-start space-x-2 text-rose-500">
-                        <i class="fas fa-exclamation-circle text-sm mt-0.5"></i>
-                        <div class="text-sm">
-                            {% for error in form.ram.errors %}
-                                <p>{{ error }}</p>
-                            {% endfor %}
-                        </div>
-                    </div>
-                {% endif %}
             </div>
             
             <div>
@@ -829,7 +1011,7 @@
                 <div class="relative">
                     <select name="storage" 
                             id="id_storage"
-                            class="w-full rounded-xl border {% if form.storage.errors %}border-rose-500 bg-rose-50{% else %}border-slate-300 hover:border-slate-400{% endif %} bg-white px-4 py-3.5 pl-10 text-slate-800 shadow-sm focus:border-indigo-500 focus:ring-3 focus:ring-indigo-500/20 transition-all duration-300 appearance-none">
+                            class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 pl-10 text-slate-800 shadow-sm focus:border-indigo-500 focus:ring-3 focus:ring-indigo-500/20 transition-all duration-300 appearance-none">
                         <option value="">Select Storage</option>
                         <option value="32GB" {% if form.storage.value == '32GB' %}selected{% endif %}>32GB</option>
                         <option value="64GB" {% if form.storage.value == '64GB' %}selected{% endif %}>64GB</option>
@@ -846,20 +1028,10 @@
                         <i class="fas fa-chevron-down"></i>
                     </div>
                 </div>
-                {% if form.storage.errors %}
-                    <div class="mt-2 flex items-start space-x-2 text-rose-500">
-                        <i class="fas fa-exclamation-circle text-sm mt-0.5"></i>
-                        <div class="text-sm">
-                            {% for error in form.storage.errors %}
-                                <p>{{ error }}</p>
-                            {% endfor %}
-                        </div>
-                    </div>
-                {% endif %}
             </div>
         </div>
         
-        <!-- Processor & Camera -->
+        <!-- Processor (Existing) -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
             <div>
                 <label for="id_processor" class="block text-sm font-semibold text-slate-700 mb-2">
@@ -870,90 +1042,36 @@
                            name="processor" 
                            id="id_processor"
                            value="{{ form.processor.value|default:'' }}"
-                           placeholder="e.g., Snapdragon 8 Gen 3, A18 Pro, Dimensity 9300"
-                           class="w-full rounded-xl border {% if form.processor.errors %}border-rose-500 bg-rose-50{% else %}border-slate-300 hover:border-slate-400{% endif %} bg-white px-4 py-3.5 pl-10 text-slate-800 shadow-sm focus:border-indigo-500 focus:ring-3 focus:ring-indigo-500/20 transition-all duration-300">
+                           placeholder="e.g., Snapdragon 8 Gen 3, A18 Pro"
+                           class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 pl-10 text-slate-800 shadow-sm focus:border-indigo-500 focus:ring-3 focus:ring-indigo-500/20 transition-all duration-300">
                     <div class="absolute left-3 top-3.5 text-slate-400">
                         <i class="fas fa-microchip"></i>
                     </div>
                 </div>
-                <p class="text-xs text-slate-400 mt-2">
-                    <i class="fas fa-info-circle mr-1"></i> Processor model and speed
-                </p>
-                {% if form.processor.errors %}
-                    <div class="mt-2 flex items-start space-x-2 text-rose-500">
-                        <i class="fas fa-exclamation-circle text-sm mt-0.5"></i>
-                        <div class="text-sm">
-                            {% for error in form.processor.errors %}
-                                <p>{{ error }}</p>
-                            {% endfor %}
-                        </div>
-                    </div>
-                {% endif %}
             </div>
             
+            <!-- Weight -->
             <div>
-                <label for="id_camera" class="block text-sm font-semibold text-slate-700 mb-2">
-                    <i class="fas fa-camera mr-2 text-indigo-500"></i>Camera
+                <label for="id_weight" class="block text-sm font-semibold text-slate-700 mb-2">
+                    <i class="fas fa-weight-hanging mr-2 text-indigo-500"></i>Weight
                 </label>
                 <div class="relative">
                     <input type="text" 
-                           name="camera" 
-                           id="id_camera"
-                           value="{{ form.camera.value|default:'' }}"
-                           placeholder="e.g., 50MP Main + 12MP Ultra Wide + 12MP Telephoto"
-                           class="w-full rounded-xl border {% if form.camera.errors %}border-rose-500 bg-rose-50{% else %}border-slate-300 hover:border-slate-400{% endif %} bg-white px-4 py-3.5 pl-10 text-slate-800 shadow-sm focus:border-indigo-500 focus:ring-3 focus:ring-indigo-500/20 transition-all duration-300">
+                           name="weight" 
+                           id="id_weight"
+                           value="{{ form.weight.value|default:'' }}"
+                           placeholder="e.g., 221 grams, 187 grams"
+                           class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 pl-10 text-slate-800 shadow-sm focus:border-indigo-500 focus:ring-3 focus:ring-indigo-500/20 transition-all duration-300">
                     <div class="absolute left-3 top-3.5 text-slate-400">
-                        <i class="fas fa-camera-retro"></i>
+                        <i class="fas fa-weight-hanging"></i>
                     </div>
                 </div>
-                <p class="text-xs text-slate-400 mt-2">
-                    <i class="fas fa-info-circle mr-1"></i> Main, Ultra-wide, Telephoto specs
-                </p>
-                {% if form.camera.errors %}
-                    <div class="mt-2 flex items-start space-x-2 text-rose-500">
-                        <i class="fas fa-exclamation-circle text-sm mt-0.5"></i>
-                        <div class="text-sm">
-                            {% for error in form.camera.errors %}
-                                <p>{{ error }}</p>
-                            {% endfor %}
-                        </div>
-                    </div>
-                {% endif %}
+                <p class="text-xs text-slate-400 mt-1">Product weight in grams</p>
             </div>
         </div>
         
-        <!-- Battery & Operating System -->
+        <!-- Operating System (Existing) -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-            <div>
-                <label for="id_battery_capacity" class="block text-sm font-semibold text-slate-700 mb-2">
-                    <i class="fas fa-battery-full mr-2 text-indigo-500"></i>Battery
-                </label>
-                <div class="relative">
-                    <input type="text" 
-                           name="battery_capacity" 
-                           id="id_battery_capacity"
-                           value="{{ form.battery_capacity.value|default:'' }}"
-                           placeholder="e.g., 5000 mAh, 4500 mAh, 6000 mAh"
-                           class="w-full rounded-xl border {% if form.battery_capacity.errors %}border-rose-500 bg-rose-50{% else %}border-slate-300 hover:border-slate-400{% endif %} bg-white px-4 py-3.5 pl-10 text-slate-800 shadow-sm focus:border-indigo-500 focus:ring-3 focus:ring-indigo-500/20 transition-all duration-300">
-                    <div class="absolute left-3 top-3.5 text-slate-400">
-                        <i class="fas fa-charging-station"></i>
-                    </div>
-                </div>
-                <p class="text-xs text-slate-400 mt-2">
-                    <i class="fas fa-info-circle mr-1"></i> Battery capacity and fast charging support
-                </p>
-                {% if form.battery_capacity.errors %}
-                    <div class="mt-2 flex items-start space-x-2 text-rose-500">
-                        <i class="fas fa-exclamation-circle text-sm mt-0.5"></i>
-                        <div class="text-sm">
-                            {% for error in form.battery_capacity.errors %}
-                                <p>{{ error }}</p>
-                            {% endfor %}
-                        </div>
-                    </div>
-                {% endif %}
-            </div>
-            
             <div>
                 <label for="id_operating_system" class="block text-sm font-semibold text-slate-700 mb-2">
                     <i class="fab fa-android mr-2 text-indigo-500"></i>Operating System
@@ -961,16 +1079,13 @@
                 <div class="relative">
                     <select name="operating_system" 
                             id="id_operating_system"
-                            class="w-full rounded-xl border {% if form.operating_system.errors %}border-rose-500 bg-rose-50{% else %}border-slate-300 hover:border-slate-400{% endif %} bg-white px-4 py-3.5 pl-10 text-slate-800 shadow-sm focus:border-indigo-500 focus:ring-3 focus:ring-indigo-500/20 transition-all duration-300 appearance-none">
+                            class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 pl-10 text-slate-800 shadow-sm focus:border-indigo-500 focus:ring-3 focus:ring-indigo-500/20 transition-all duration-300 appearance-none">
                         <option value="">Select Operating System</option>
                         <option value="iOS 18" {% if form.operating_system.value == 'iOS 18' %}selected{% endif %}>iOS 18</option>
                         <option value="iOS 17" {% if form.operating_system.value == 'iOS 17' %}selected{% endif %}>iOS 17</option>
                         <option value="Android 15" {% if form.operating_system.value == 'Android 15' %}selected{% endif %}>Android 15</option>
                         <option value="Android 14" {% if form.operating_system.value == 'Android 14' %}selected{% endif %}>Android 14</option>
-                        <option value="Android 13" {% if form.operating_system.value == 'Android 13' %}selected{% endif %}>Android 13</option>
                         <option value="HarmonyOS 4.0" {% if form.operating_system.value == 'HarmonyOS 4.0' %}selected{% endif %}>HarmonyOS 4.0</option>
-                        <option value="Windows 11" {% if form.operating_system.value == 'Windows 11' %}selected{% endif %}>Windows 11</option>
-                        <option value="macOS Sonoma" {% if form.operating_system.value == 'macOS Sonoma' %}selected{% endif %}>macOS Sonoma</option>
                     </select>
                     <div class="absolute left-3 top-3.5 text-slate-400 pointer-events-none">
                         <i class="fab fa-android"></i>
@@ -979,23 +1094,32 @@
                         <i class="fas fa-chevron-down"></i>
                     </div>
                 </div>
-                {% if form.operating_system.errors %}
-                    <div class="mt-2 flex items-start space-x-2 text-rose-500">
-                        <i class="fas fa-exclamation-circle text-sm mt-0.5"></i>
-                        <div class="text-sm">
-                            {% for error in form.operating_system.errors %}
-                                <p>{{ error }}</p>
-                            {% endfor %}
-                        </div>
+            </div>
+            
+            <!-- Available Colors -->
+            <div>
+                <label for="id_available_colors" class="block text-sm font-semibold text-slate-700 mb-2">
+                    <i class="fas fa-palette mr-2 text-indigo-500"></i>Available Colors
+                </label>
+                <div class="relative">
+                    <input type="text" 
+                           name="available_colors" 
+                           id="id_available_colors"
+                           value="{{ form.available_colors.value|default:'' }}"
+                           placeholder="e.g., Black, White, Blue, Gold, Silver, Purple"
+                           class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 pl-10 text-slate-800 shadow-sm focus:border-indigo-500 focus:ring-3 focus:ring-indigo-500/20 transition-all duration-300">
+                    <div class="absolute left-3 top-3.5 text-slate-400">
+                        <i class="fas fa-palette"></i>
                     </div>
-                {% endif %}
+                </div>
+                <p class="text-xs text-slate-400 mt-1">Separate colors with commas (e.g., Black, White, Blue)</p>
             </div>
         </div>
         
-        <!-- Connectivity -->
+        <!-- Connectivity (Existing) -->
         <div class="mb-6">
             <label for="id_connectivity" class="block text-sm font-semibold text-slate-700 mb-2">
-                <i class="fas fa-wifi mr-2 text-indigo-500"></i>Connectivity
+                <i class="fas fa-wifi mr-2 text-indigo-500"></i>Connectivity Details
             </label>
             <div class="relative">
                 <textarea name="connectivity" 
@@ -1008,27 +1132,39 @@
 • NFC
 • USB-C 3.2 Gen 2
 • GPS, GLONASS, Galileo, QZSS"
-                          class="w-full rounded-xl border {% if form.connectivity.errors %}border-rose-500 bg-rose-50{% else %}border-slate-300 hover:border-slate-400{% endif %} bg-white px-4 py-3.5 pl-10 text-slate-800 shadow-sm focus:border-indigo-500 focus:ring-3 focus:ring-indigo-500/20 transition-all duration-300">{{ form.connectivity.value|default:'' }}</textarea>
+                          class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 pl-10 text-slate-800 shadow-sm focus:border-indigo-500 focus:ring-3 focus:ring-indigo-500/20 transition-all duration-300">{{ form.connectivity.value|default:'' }}</textarea>
                 <div class="absolute left-3 top-3.5 text-slate-400">
                     <i class="fas fa-plug"></i>
                 </div>
             </div>
-            <p class="text-xs text-slate-400 mt-2">
-                <i class="fas fa-info-circle mr-1"></i> Network, wireless, and port connectivity options
-            </p>
-            {% if form.connectivity.errors %}
-                <div class="mt-2 flex items-start space-x-2 text-rose-500">
-                    <i class="fas fa-exclamation-circle text-sm mt-0.5"></i>
-                    <div class="text-sm">
-                        {% for error in form.connectivity.errors %}
-                            <p>{{ error }}</p>
-                        {% endfor %}
-                    </div>
-                </div>
-            {% endif %}
         </div>
         
-        <!-- Additional Specifications (Optional Grid) -->
+        <!-- What's in the Box -->
+        <div class="mb-6">
+            <label for="id_whats_in_box" class="block text-sm font-semibold text-slate-700 mb-2">
+                <i class="fas fa-box-open mr-2 text-indigo-500"></i>What's in the Box
+            </label>
+            <div class="relative">
+                <textarea name="whats_in_box" 
+                          id="id_whats_in_box"
+                          rows="4"
+                          placeholder="List all items included in the box:
+• Smartphone
+• USB-C Charging Cable
+• Fast Charger (45W)
+• SIM Ejector Tool
+• User Manual
+• Warranty Card
+• Protective Case"
+                          class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 pl-10 text-slate-800 shadow-sm focus:border-indigo-500 focus:ring-3 focus:ring-indigo-500/20 transition-all duration-300">{{ form.whats_in_box.value|default:'' }}</textarea>
+                <div class="absolute left-3 top-3.5 text-slate-400">
+                    <i class="fas fa-box-open"></i>
+                </div>
+            </div>
+            <p class="text-xs text-slate-400 mt-1">List all accessories and items included with the product</p>
+        </div>
+        
+        <!-- Additional Specifications -->
         <div class="mt-8 pt-6 border-t border-slate-200">
             <h3 class="text-md font-semibold text-slate-800 mb-4">Additional Specifications</h3>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -1066,7 +1202,6 @@
         </div>
     </div>
 </div>
-
 <div class="p-8">
     <!-- Main Image -->
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
