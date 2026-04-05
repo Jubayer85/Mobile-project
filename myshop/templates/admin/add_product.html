@@ -644,78 +644,547 @@
                             </div>
                         </div>
                     </div>
-
-                    <!-- Card 3: Description (Similar pattern) -->
-                    <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden" id="description-section">
-                        <div class="px-8 py-6 border-b border-slate-200 bg-gradient-to-r from-slate-50 to-white">
-                            <div class="flex items-center space-x-3">
-                                <div class="w-10 h-10 rounded-lg bg-amber-100 text-amber-600 flex items-center justify-center">
-                                    <i class="fas fa-align-left"></i>
-                                </div>
-                                <div>
-                                    <h2 class="text-xl font-bold text-slate-900">Description & Details</h2>
-                                    <p class="text-slate-500 text-sm">Write detailed product description for customers</p>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="p-8">
-                            <div>
-                                <label for="id_description" class="block text-sm font-semibold text-slate-700 mb-2">
-                                    Product Description <span class="text-rose-500">*</span>
-                                </label>
-                                <textarea name="description" 
-                                          id="id_description"
-                                          required
-                                          rows="8"
-                                          placeholder="Describe the product features, specifications, and benefits..."
-                                          class="w-full rounded-xl border {% if form.description.errors %}border-rose-500 bg-rose-50{% else %}border-slate-300 hover:border-slate-400{% endif %} bg-white px-4 py-3.5 text-slate-800 shadow-sm focus:border-indigo-500 focus:ring-3 focus:ring-indigo-500/20 transition-all duration-300 placeholder:text-slate-400">{{ form.description.value|default:'' }}</textarea>
-                                {% if form.description.errors %}
-                                    <div class="mt-2 flex items-start space-x-2 text-rose-500">
-                                        <i class="fas fa-exclamation-circle text-sm mt-0.5"></i>
-                                        <div class="text-sm">
-                                            {% for error in form.description.errors %}
-                                                <p>{{ error }}</p>
-                                            {% endfor %}
-                                        </div>
-                                    </div>
-                                {% endif %}
-                                <div class="flex items-center justify-between mt-4 text-sm text-slate-500">
-                                    <div class="flex items-center space-x-4">
-                                        <span><i class="fas fa-keyboard mr-1"></i> Min. 100 characters</span>
-                                        <span><i class="fas fa-lightbulb mr-1"></i> Include keywords</span>
-                                    </div>
-                                    <span id="charCount" class="font-medium">{{ form.description.value|length|default:0 }} characters</span>
-                                </div>
-                            </div>
-                            
-                            <!-- Features -->
-                            <div class="mt-8">
-                                <label for="id_features" class="block text-sm font-semibold text-slate-700 mb-2">
-                                    Key Features
-                                </label>
-                                <textarea name="features" 
-                                          id="id_features"
-                                          rows="4"
-                                          placeholder="List key features (one per line)...
+<!-- Card 3: Description with Rich Text Editor -->
+<div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden" id="description-section">
+    <div class="px-8 py-6 border-b border-slate-200 bg-gradient-to-r from-slate-50 to-white">
+        <div class="flex items-center space-x-3">
+            <div class="w-10 h-10 rounded-lg bg-amber-100 text-amber-600 flex items-center justify-center">
+                <i class="fas fa-align-left"></i>
+            </div>
+            <div>
+                <h2 class="text-xl font-bold text-slate-900">Description & Details</h2>
+                <p class="text-slate-500 text-sm">Write detailed product description with rich formatting</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="p-8">
+        <div>
+            <label for="id_description" class="block text-sm font-semibold text-slate-700 mb-2">
+                Product Description <span class="text-rose-500">*</span>
+            </label>
+            
+            <!-- Rich Text Editor Toolbar -->
+            <div class="border border-slate-300 rounded-t-xl bg-slate-50 p-2 flex flex-wrap gap-1 sticky top-0 z-10">
+                <!-- Text Formatting -->
+                <button type="button" onclick="formatText('bold')" class="toolbar-btn p-2 hover:bg-slate-200 rounded transition" title="Bold (Ctrl+B)">
+                    <i class="fas fa-bold"></i>
+                </button>
+                <button type="button" onclick="formatText('italic')" class="toolbar-btn p-2 hover:bg-slate-200 rounded transition" title="Italic (Ctrl+I)">
+                    <i class="fas fa-italic"></i>
+                </button>
+                <button type="button" onclick="formatText('underline')" class="toolbar-btn p-2 hover:bg-slate-200 rounded transition" title="Underline (Ctrl+U)">
+                    <i class="fas fa-underline"></i>
+                </button>
+                <button type="button" onclick="formatText('strikeThrough')" class="toolbar-btn p-2 hover:bg-slate-200 rounded transition" title="Strikethrough">
+                    <i class="fas fa-strikethrough"></i>
+                </button>
+                
+                <div class="w-px h-6 bg-slate-300 mx-1"></div>
+                
+                <!-- Headings -->
+                <div class="relative">
+                    <button type="button" onclick="toggleHeadingDropdown()" class="toolbar-btn p-2 hover:bg-slate-200 rounded transition" title="Headings">
+                        <i class="fas fa-heading"></i> <i class="fas fa-chevron-down text-xs"></i>
+                    </button>
+                    <div id="headingDropdown" class="hidden absolute top-full left-0 mt-1 bg-white border border-slate-200 rounded-lg shadow-lg z-20 min-w-[120px]">
+                        <button type="button" onclick="formatHeading('h1')" class="w-full text-left px-4 py-2 hover:bg-slate-50 text-lg font-bold">H1 Heading</button>
+                        <button type="button" onclick="formatHeading('h2')" class="w-full text-left px-4 py-2 hover:bg-slate-50 text-md font-bold">H2 Heading</button>
+                        <button type="button" onclick="formatHeading('h3')" class="w-full text-left px-4 py-2 hover:bg-slate-50 text-sm font-bold">H3 Heading</button>
+                        <button type="button" onclick="formatHeading('h4')" class="w-full text-left px-4 py-2 hover:bg-slate-50 text-xs font-bold">H4 Heading</button>
+                        <button type="button" onclick="formatHeading('p')" class="w-full text-left px-4 py-2 hover:bg-slate-50">Normal Text</button>
+                    </div>
+                </div>
+                
+                <div class="w-px h-6 bg-slate-300 mx-1"></div>
+                
+                <!-- Lists -->
+                <button type="button" onclick="formatList('ul')" class="toolbar-btn p-2 hover:bg-slate-200 rounded transition" title="Bullet List">
+                    <i class="fas fa-list-ul"></i>
+                </button>
+                <button type="button" onclick="formatList('ol')" class="toolbar-btn p-2 hover:bg-slate-200 rounded transition" title="Numbered List">
+                    <i class="fas fa-list-ol"></i>
+                </button>
+                
+                <div class="w-px h-6 bg-slate-300 mx-1"></div>
+                
+                <!-- Alignment -->
+                <button type="button" onclick="formatText('justifyLeft')" class="toolbar-btn p-2 hover:bg-slate-200 rounded transition" title="Align Left">
+                    <i class="fas fa-align-left"></i>
+                </button>
+                <button type="button" onclick="formatText('justifyCenter')" class="toolbar-btn p-2 hover:bg-slate-200 rounded transition" title="Align Center">
+                    <i class="fas fa-align-center"></i>
+                </button>
+                <button type="button" onclick="formatText('justifyRight')" class="toolbar-btn p-2 hover:bg-slate-200 rounded transition" title="Align Right">
+                    <i class="fas fa-align-right"></i>
+                </button>
+                <button type="button" onclick="formatText('justifyFull')" class="toolbar-btn p-2 hover:bg-slate-200 rounded transition" title="Justify">
+                    <i class="fas fa-align-justify"></i>
+                </button>
+                
+                <div class="w-px h-6 bg-slate-300 mx-1"></div>
+                
+                <!-- Links & Media -->
+                <button type="button" onclick="insertLink()" class="toolbar-btn p-2 hover:bg-slate-200 rounded transition" title="Insert Link">
+                    <i class="fas fa-link"></i>
+                </button>
+                <button type="button" onclick="insertImage()" class="toolbar-btn p-2 hover:bg-slate-200 rounded transition" title="Insert Image">
+                    <i class="fas fa-image"></i>
+                </button>
+                
+                <div class="w-px h-6 bg-slate-300 mx-1"></div>
+                
+                <!-- Special -->
+                <button type="button" onclick="formatText('undo')" class="toolbar-btn p-2 hover:bg-slate-200 rounded transition" title="Undo (Ctrl+Z)">
+                    <i class="fas fa-undo-alt"></i>
+                </button>
+                <button type="button" onclick="formatText('redo')" class="toolbar-btn p-2 hover:bg-slate-200 rounded transition" title="Redo (Ctrl+Y)">
+                    <i class="fas fa-redo-alt"></i>
+                </button>
+                
+                <div class="w-px h-6 bg-slate-300 mx-1"></div>
+                
+                <!-- Code View -->
+                <button type="button" onclick="toggleCodeView()" class="toolbar-btn p-2 hover:bg-slate-200 rounded transition" title="Source Code">
+                    <i class="fas fa-code"></i>
+                </button>
+                
+                <!-- Clear Formatting -->
+                <button type="button" onclick="formatText('removeFormat')" class="toolbar-btn p-2 hover:bg-slate-200 rounded transition" title="Clear Formatting">
+                    <i class="fas fa-eraser"></i>
+                </button>
+            </div>
+            
+            <!-- Textarea (hidden initially, shown when code view is toggled) -->
+            <textarea name="description" 
+                      id="id_description"
+                      required
+                      rows="10"
+                      placeholder="Describe the product features, specifications, and benefits... Use the toolbar above for formatting."
+                      class="hidden w-full rounded-b-xl border border-t-0 border-slate-300 bg-white px-4 py-3.5 text-slate-800 shadow-sm focus:border-indigo-500 focus:ring-3 focus:ring-indigo-500/20 transition-all duration-300 placeholder:text-slate-400 font-mono text-sm">{{ form.description.value|default:'' }}</textarea>
+            
+            <!-- Content Editable Div (WYSIWYG Editor) -->
+            <div id="richEditor" 
+                 contenteditable="true"
+                 class="w-full rounded-b-xl border border-t-0 border-slate-300 bg-white px-4 py-3.5 text-slate-800 shadow-sm focus:border-indigo-500 focus:ring-3 focus:ring-indigo-500/20 transition-all duration-300 min-h-[300px] max-h-[500px] overflow-y-auto prose prose-sm"
+                 placeholder="Start writing...">
+                {{ form.description.value|default:''|safe }}
+            </div>
+            
+            {% if form.description.errors %}
+                <div class="mt-2 flex items-start space-x-2 text-rose-500">
+                    <i class="fas fa-exclamation-circle text-sm mt-0.5"></i>
+                    <div class="text-sm">
+                        {% for error in form.description.errors %}
+                            <p>{{ error }}</p>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endif %}
+            
+            <!-- Character Counter & Info -->
+            <div class="flex items-center justify-between mt-4 text-sm text-slate-500">
+                <div class="flex items-center space-x-4 flex-wrap gap-2">
+                    <span><i class="fas fa-keyboard mr-1"></i> Min. 100 characters</span>
+                    <span><i class="fas fa-lightbulb mr-1"></i> Use headings for better structure</span>
+                    <span><i class="fas fa-search mr-1"></i> Include SEO keywords</span>
+                    <span><i class="fas fa-mobile-alt mr-1"></i> Responsive formatting</span>
+                </div>
+                <div class="flex items-center gap-3">
+                    <span id="wordCount" class="font-medium text-indigo-600">0 words</span>
+                    <span class="text-slate-300">|</span>
+                    <span id="charCount" class="font-medium">{{ form.description.value|length|default:0 }} characters</span>
+                </div>
+            </div>
+            
+            <!-- Formatting Tips -->
+            <div class="mt-4 p-3 bg-indigo-50 rounded-lg border border-indigo-100">
+                <div class="flex items-start gap-2">
+                    <i class="fas fa-info-circle text-indigo-500 mt-0.5"></i>
+                    <div class="text-xs text-indigo-700">
+                        <span class="font-semibold">Pro Tips:</span> 
+                        Use <kbd class="px-1.5 py-0.5 bg-white rounded border text-xs">Ctrl+B</kbd> for bold, 
+                        <kbd class="px-1.5 py-0.5 bg-white rounded border text-xs">Ctrl+I</kbd> for italic,
+                        <kbd class="px-1.5 py-0.5 bg-white rounded border text-xs">Ctrl+Z</kbd> to undo.
+                        Headings help with SEO and readability!
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Features Field (Optional) -->
+        <div class="mt-8">
+            <label for="id_features" class="block text-sm font-semibold text-slate-700 mb-2">
+                <i class="fas fa-list-check mr-2 text-indigo-500"></i>Key Features
+            </label>
+            <textarea name="features" 
+                      id="id_features"
+                      rows="4"
+                      placeholder="List key features (one per line)...
 • 120Hz ProMotion display
 • A18 Pro chip
 • Titanium design
 • All-day battery life"
-                                          class="w-full rounded-xl border {% if form.features.errors %}border-rose-500 bg-rose-50{% else %}border-slate-300 hover:border-slate-400{% endif %} bg-white px-4 py-3.5 text-slate-800 shadow-sm focus:border-indigo-500 focus:ring-3 focus:ring-indigo-500/20 transition-all duration-300 placeholder:text-slate-400">{{ form.features.value|default:'' }}</textarea>
-                                {% if form.features.errors %}
-                                    <div class="mt-2 flex items-start space-x-2 text-rose-500">
-                                        <i class="fas fa-exclamation-circle text-sm mt-0.5"></i>
-                                        <div class="text-sm">
-                                            {% for error in form.features.errors %}
-                                                <p>{{ error }}</p>
-                                            {% endfor %}
-                                        </div>
-                                    </div>
-                                {% endif %}
-                            </div>
-                        </div>
+                      class="w-full rounded-xl border {% if form.features.errors %}border-rose-500 bg-rose-50{% else %}border-slate-300 hover:border-slate-400{% endif %} bg-white px-4 py-3.5 text-slate-800 shadow-sm focus:border-indigo-500 focus:ring-3 focus:ring-indigo-500/20 transition-all duration-300 placeholder:text-slate-400">{{ form.features.value|default:'' }}</textarea>
+            {% if form.features.errors %}
+                <div class="mt-2 flex items-start space-x-2 text-rose-500">
+                    <i class="fas fa-exclamation-circle text-sm mt-0.5"></i>
+                    <div class="text-sm">
+                        {% for error in form.features.errors %}
+                            <p>{{ error }}</p>
+                        {% endfor %}
                     </div>
+                </div>
+            {% endif %}
+            <p class="text-xs text-slate-400 mt-2">
+                <i class="fas fa-info-circle mr-1"></i> Each feature will be displayed with a checkmark icon
+            </p>
+        </div>
+    </div>
+</div>
+
+<!-- Rich Text Editor JavaScript -->
+<script>
+// Rich Text Editor Variables
+let isCodeView = false;
+let editorContent = '';
+
+// Initialize Editor
+document.addEventListener('DOMContentLoaded', function() {
+    const richEditor = document.getElementById('richEditor');
+    const textarea = document.getElementById('id_description');
+    const charCount = document.getElementById('charCount');
+    const wordCount = document.getElementById('wordCount');
+    
+    // Sync textarea with editor on page load
+    if (richEditor && textarea) {
+        richEditor.innerHTML = textarea.value;
+        updateCounters();
+    }
+    
+    // Update counters on input
+    if (richEditor) {
+        richEditor.addEventListener('input', function() {
+            updateCounters();
+            syncToTextarea();
+        });
+        
+        richEditor.addEventListener('keyup', function() {
+            updateCounters();
+            syncToTextarea();
+        });
+        
+        // Handle paste to clean HTML
+        richEditor.addEventListener('paste', function(e) {
+            e.preventDefault();
+            const text = (e.originalEvent || e).clipboardData.getData('text/plain');
+            document.execCommand('insertText', false, text);
+            updateCounters();
+            syncToTextarea();
+        });
+    }
+    
+    function updateCounters() {
+        if (!richEditor) return;
+        const text = richEditor.innerText || '';
+        const charLength = text.length;
+        const wordLength = text.trim().split(/\s+/).filter(word => word.length > 0).length;
+        
+        if (charCount) charCount.textContent = charLength + ' characters';
+        if (wordCount) wordCount.textContent = wordLength + ' words';
+        
+        // Color coding for character count
+        if (charCount) {
+            if (charLength < 100) {
+                charCount.classList.add('text-amber-500');
+                charCount.classList.remove('text-emerald-600');
+            } else {
+                charCount.classList.remove('text-amber-500');
+                charCount.classList.add('text-emerald-600');
+            }
+        }
+    }
+    
+    function syncToTextarea() {
+        if (textarea && richEditor) {
+            textarea.value = richEditor.innerHTML;
+        }
+    }
+    
+    // Make syncToTextarea available globally
+    window.syncToTextarea = syncToTextarea;
+});
+
+// Format Text Functions
+function formatText(command) {
+    document.execCommand(command, false, null);
+    document.getElementById('richEditor').focus();
+    updateCountersAndSync();
+}
+
+function formatHeading(tag) {
+    document.execCommand('formatBlock', false, tag);
+    document.getElementById('richEditor').focus();
+    updateCountersAndSync();
+    // Close dropdown if open
+    const dropdown = document.getElementById('headingDropdown');
+    if (dropdown) dropdown.classList.add('hidden');
+}
+
+function formatList(type) {
+    document.execCommand('insert' + (type === 'ul' ? 'UnorderedList' : 'OrderedList'), false, null);
+    document.getElementById('richEditor').focus();
+    updateCountersAndSync();
+}
+
+function updateCountersAndSync() {
+    const richEditor = document.getElementById('richEditor');
+    const textarea = document.getElementById('id_description');
+    const charCount = document.getElementById('charCount');
+    const wordCount = document.getElementById('wordCount');
+    
+    if (richEditor) {
+        const text = richEditor.innerText || '';
+        if (charCount) charCount.textContent = text.length + ' characters';
+        if (wordCount) wordCount.textContent = text.trim().split(/\s+/).filter(word => word.length > 0).length + ' words';
+        if (textarea) textarea.value = richEditor.innerHTML;
+    }
+}
+
+// Heading Dropdown
+function toggleHeadingDropdown() {
+    const dropdown = document.getElementById('headingDropdown');
+    if (dropdown) {
+        dropdown.classList.toggle('hidden');
+    }
+}
+
+// Close dropdown when clicking outside
+document.addEventListener('click', function(e) {
+    const dropdown = document.getElementById('headingDropdown');
+    const headingBtn = e.target.closest('[onclick="toggleHeadingDropdown()"]');
+    if (dropdown && !headingBtn && !dropdown.contains(e.target)) {
+        dropdown.classList.add('hidden');
+    }
+});
+
+// Insert Link
+function insertLink() {
+    const url = prompt('Enter URL:', 'https://');
+    if (url) {
+        document.execCommand('createLink', false, url);
+        document.getElementById('richEditor').focus();
+        updateCountersAndSync();
+    }
+}
+
+// Insert Image
+function insertImage() {
+    const url = prompt('Enter Image URL:', 'https://');
+    if (url) {
+        document.execCommand('insertImage', false, url);
+        document.getElementById('richEditor').focus();
+        updateCountersAndSync();
+    }
+}
+
+// Toggle Code View
+function toggleCodeView() {
+    const richEditor = document.getElementById('richEditor');
+    const textarea = document.getElementById('id_description');
+    
+    if (!isCodeView) {
+        // Switch to code view
+        editorContent = richEditor.innerHTML;
+        textarea.value = editorContent;
+        richEditor.classList.add('hidden');
+        textarea.classList.remove('hidden');
+        isCodeView = true;
+    } else {
+        // Switch to WYSIWYG view
+        richEditor.innerHTML = textarea.value;
+        textarea.classList.add('hidden');
+        richEditor.classList.remove('hidden');
+        isCodeView = false;
+        updateCountersAndSync();
+    }
+}
+
+// Keyboard Shortcuts
+document.addEventListener('keydown', function(e) {
+    const richEditor = document.getElementById('richEditor');
+    if (!richEditor || richEditor.classList.contains('hidden')) return;
+    
+    if (e.ctrlKey || e.metaKey) {
+        switch(e.key) {
+            case 'b':
+                e.preventDefault();
+                formatText('bold');
+                break;
+            case 'i':
+                e.preventDefault();
+                formatText('italic');
+                break;
+            case 'u':
+                e.preventDefault();
+                formatText('underline');
+                break;
+            case 'z':
+                e.preventDefault();
+                formatText('undo');
+                break;
+            case 'y':
+                e.preventDefault();
+                formatText('redo');
+                break;
+        }
+    }
+});
+
+// Character counter for features field
+const featuresField = document.getElementById('id_features');
+if (featuresField) {
+    featuresField.addEventListener('input', function() {
+        // Optional: Add counter for features
+    });
+}
+</script>
+
+<style>
+/* Rich Editor Styles */
+#richEditor {
+    min-height: 300px;
+    max-height: 500px;
+    overflow-y: auto;
+    line-height: 1.6;
+}
+
+#richEditor:focus {
+    outline: none;
+}
+
+#richEditor:empty:before {
+    content: attr(placeholder);
+    color: #94a3b8;
+}
+
+/* Editor Content Styles */
+#richEditor h1 {
+    font-size: 2rem;
+    font-weight: 800;
+    margin: 0.75rem 0;
+    color: #0f172a;
+    border-bottom: 2px solid #e2e8f0;
+    padding-bottom: 0.5rem;
+}
+
+#richEditor h2 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin: 0.5rem 0;
+    color: #1e293b;
+}
+
+#richEditor h3 {
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin: 0.5rem 0;
+    color: #334155;
+}
+
+#richEditor h4 {
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin: 0.5rem 0;
+    color: #475569;
+}
+
+#richEditor p {
+    margin: 0.5rem 0;
+    line-height: 1.6;
+}
+
+#richEditor ul, #richEditor ol {
+    padding-left: 1.5rem;
+    margin: 0.5rem 0;
+}
+
+#richEditor li {
+    margin: 0.25rem 0;
+}
+
+#richEditor blockquote {
+    border-left: 4px solid #6366f1;
+    padding-left: 1rem;
+    margin: 0.5rem 0;
+    color: #475569;
+    font-style: italic;
+}
+
+#richEditor a {
+    color: #6366f1;
+    text-decoration: underline;
+}
+
+#richEditor img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 0.5rem;
+    margin: 0.5rem 0;
+}
+
+#richEditor code {
+    background: #f1f5f9;
+    padding: 0.125rem 0.375rem;
+    border-radius: 0.25rem;
+    font-family: monospace;
+    font-size: 0.875rem;
+}
+
+#richEditor pre {
+    background: #1e293b;
+    color: #e2e8f0;
+    padding: 1rem;
+    border-radius: 0.5rem;
+    overflow-x: auto;
+    margin: 0.5rem 0;
+}
+
+#richEditor pre code {
+    background: transparent;
+    padding: 0;
+    color: inherit;
+}
+
+#richEditor table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 0.5rem 0;
+}
+
+#richEditor th, #richEditor td {
+    border: 1px solid #e2e8f0;
+    padding: 0.5rem;
+    text-align: left;
+}
+
+#richEditor th {
+    background: #f8fafc;
+    font-weight: 700;
+}
+
+/* Toolbar Button Active State */
+.toolbar-btn:active {
+    transform: scale(0.95);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .toolbar-btn {
+        padding: 0.5rem;
+    }
+}
+</style>
 
                  
 <!-- Card: Technical Specifications -->

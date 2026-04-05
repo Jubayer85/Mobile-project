@@ -211,6 +211,564 @@
         pointer-events: none;
         z-index: 5;
     }
+
+
+
+
+
+    MODERN DESCRIPTION TAB STYLES
+   ======================================== */
+
+.description-wrapper {
+    max-width: 100%;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+/* Hot Offer Banner */
+.hot-offer-banner {
+    background: linear-gradient(135deg, #ff6b6b, #ee5a24, #ff3838);
+    border-radius: 20px;
+    padding: 1.5rem 2rem;
+    margin-bottom: 2.5rem;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.5rem;
+    box-shadow: 0 10px 30px rgba(238, 90, 36, 0.3);
+}
+
+.hot-offer-content {
+    flex: 1;
+}
+
+.hot-offer-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(255,255,255,0.2);
+    backdrop-filter: blur(10px);
+    padding: 5px 15px;
+    border-radius: 50px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: white;
+    margin-bottom: 10px;
+}
+
+.hot-offer-badge i {
+    font-size: 1rem;
+}
+
+.hot-offer-title {
+    font-size: 1.8rem;
+    font-weight: 800;
+    color: white;
+    margin: 0 0 5px 0;
+}
+
+.hot-offer-desc {
+    font-size: 0.9rem;
+    color: rgba(255,255,255,0.9);
+    margin: 0;
+}
+
+.hot-offer-timer {
+    display: flex;
+    gap: 15px;
+}
+
+.timer-box {
+    text-align: center;
+    background: rgba(0,0,0,0.3);
+    backdrop-filter: blur(10px);
+    padding: 10px 15px;
+    border-radius: 12px;
+    min-width: 70px;
+}
+
+.timer-number {
+    display: block;
+    font-size: 1.8rem;
+    font-weight: 800;
+    color: white;
+    line-height: 1;
+}
+
+.timer-label {
+    font-size: 0.7rem;
+    color: rgba(255,255,255,0.8);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+/* Section Styles */
+.description-section {
+    margin-bottom: 2.5rem;
+}
+
+.section-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 2px solid #e2e8f0;
+}
+
+.section-icon-wrapper {
+    width: 50px;
+    height: 50px;
+    background: linear-gradient(135deg, #eef2ff, #e0e7ff);
+    border-radius: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.section-icon {
+    font-size: 1.5rem;
+    color: #6366f1;
+}
+
+.section-title {
+    font-size: 1.6rem;
+    font-weight: 800;
+    color: #0f172a;
+    margin: 0;
+    letter-spacing: -0.02em;
+}
+
+.section-subtitle {
+    font-size: 0.85rem;
+    color: #64748b;
+    margin: 4px 0 0 0;
+}
+
+/* Description Content - Rich Text */
+.description-content {
+    line-height: 1.8;
+    color: #334155;
+    padding: 0.5rem 0;
+}
+
+.description-content h1 {
+    font-size: 2.2rem;
+    font-weight: 800;
+    color: #0f172a;
+    margin: 1.5rem 0 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 3px solid #6366f1;
+    display: inline-block;
+}
+
+.description-content h2 {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: #1e293b;
+    margin: 1.25rem 0 0.75rem;
+    padding-left: 0.5rem;
+    border-left: 4px solid #6366f1;
+}
+
+.description-content h3 {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: #334155;
+    margin: 1rem 0 0.5rem;
+}
+
+.description-content h4 {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #475569;
+    margin: 0.75rem 0 0.5rem;
+}
+
+.description-content p {
+    margin-bottom: 1rem;
+    line-height: 1.7;
+}
+
+.description-content strong,
+.description-content b {
+    font-weight: 700;
+    color: #0f172a;
+}
+
+.description-content em,
+.description-content i {
+    font-style: italic;
+}
+
+.description-content ul {
+    list-style: none;
+    padding-left: 0;
+    margin: 1rem 0;
+}
+
+.description-content ul li {
+    padding-left: 1.8rem;
+    position: relative;
+    margin-bottom: 0.6rem;
+}
+
+.description-content ul li::before {
+    content: "▹";
+    position: absolute;
+    left: 0;
+    color: #6366f1;
+    font-weight: bold;
+}
+
+.description-content ol {
+    padding-left: 1.5rem;
+    margin: 1rem 0;
+}
+
+.description-content ol li {
+    margin-bottom: 0.5rem;
+}
+
+.description-content a {
+    color: #6366f1;
+    text-decoration: none;
+    font-weight: 500;
+    border-bottom: 1px dashed #6366f1;
+}
+
+.description-content a:hover {
+    color: #4f46e5;
+    border-bottom-color: #4f46e5;
+}
+
+.description-content blockquote {
+    border-left: 4px solid #6366f1;
+    padding: 0.5rem 0 0.5rem 1.25rem;
+    margin: 1.25rem 0;
+    background: linear-gradient(90deg, #f8fafc, transparent);
+    border-radius: 0 12px 12px 0;
+    font-style: italic;
+    color: #475569;
+}
+
+.description-content code {
+    background: #f1f5f9;
+    padding: 0.2rem 0.5rem;
+    border-radius: 8px;
+    font-family: 'Courier New', monospace;
+    font-size: 0.875rem;
+    color: #d946ef;
+}
+
+.description-content pre {
+    background: #1e293b;
+    color: #e2e8f0;
+    padding: 1rem 1.25rem;
+    border-radius: 12px;
+    overflow-x: auto;
+    margin: 1.25rem 0;
+}
+
+.description-content pre code {
+    background: transparent;
+    padding: 0;
+    color: inherit;
+}
+
+.description-content table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1.25rem 0;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.description-content th,
+.description-content td {
+    border: 1px solid #e2e8f0;
+    padding: 0.75rem 1rem;
+    text-align: left;
+}
+
+.description-content th {
+    background: #f8fafc;
+    font-weight: 700;
+    color: #0f172a;
+}
+
+.description-content tr:hover {
+    background: #f8fafc;
+}
+
+.description-content img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 12px;
+    margin: 1rem 0;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.description-content hr {
+    margin: 1.5rem 0;
+    border: none;
+    border-top: 1px solid #e2e8f0;
+}
+
+/* Features Grid */
+.features-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1rem;
+}
+
+.feature-card {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem 1.25rem;
+    background: #f8fafc;
+    border-radius: 16px;
+    transition: all 0.3s ease;
+    border: 1px solid #e2e8f0;
+}
+
+.feature-card:hover {
+    background: linear-gradient(135deg, #eef2ff, white);
+    transform: translateX(5px);
+    border-color: #6366f1;
+}
+
+.feature-icon {
+    width: 36px;
+    height: 36px;
+    background: linear-gradient(135deg, #6366f1, #8b5cf6);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.feature-icon i {
+    font-size: 1rem;
+    color: white;
+}
+
+.feature-text {
+    font-size: 0.95rem;
+    color: #334155;
+    line-height: 1.4;
+}
+
+/* What's in the Box */
+.whats-in-box-content {
+    background: linear-gradient(135deg, #f8fafc, #ffffff);
+    border-radius: 20px;
+    padding: 1.5rem;
+    border: 1px solid #e2e8f0;
+}
+
+.box-items-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 1.25rem;
+}
+
+.box-card {
+    text-align: center;
+    padding: 1.5rem 1rem;
+    background: white;
+    border-radius: 20px;
+    transition: all 0.3s ease;
+    border: 1px solid #e2e8f0;
+}
+
+.box-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 20px 25px -12px rgba(0, 0, 0, 0.15);
+    border-color: #6366f1;
+}
+
+.box-icon {
+    width: 70px;
+    height: 70px;
+    margin: 0 auto 1rem;
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
+}
+
+.box-icon.device {
+    background: linear-gradient(135deg, #eef2ff, #e0e7ff);
+    color: #6366f1;
+}
+
+.box-icon.charger {
+    background: linear-gradient(135deg, #ecfdf5, #d1fae5);
+    color: #10b981;
+}
+
+.box-icon.cable {
+    background: linear-gradient(135deg, #fef3c7, #fde68a);
+    color: #f59e0b;
+}
+
+.box-icon.sim {
+    background: linear-gradient(135deg, #fae8ff, #f3e8ff);
+    color: #d946ef;
+}
+
+.box-icon.docs {
+    background: linear-gradient(135deg, #f1f5f9, #e2e8f0);
+    color: #64748b;
+}
+
+.box-icon.case {
+    background: linear-gradient(135deg, #fff7ed, #fed7aa);
+    color: #ea580c;
+}
+
+.box-title {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #0f172a;
+    margin-bottom: 0.25rem;
+}
+
+.box-desc {
+    font-size: 0.75rem;
+    color: #64748b;
+}
+
+/* Timer Animation */
+@keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+}
+
+.hot-offer-banner {
+    animation: pulse 2s infinite;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .hot-offer-banner {
+        flex-direction: column;
+        text-align: center;
+        padding: 1.5rem;
+    }
+    
+    .hot-offer-title {
+        font-size: 1.4rem;
+    }
+    
+    .hot-offer-timer {
+        justify-content: center;
+    }
+    
+    .timer-box {
+        padding: 5px 10px;
+        min-width: 55px;
+    }
+    
+    .timer-number {
+        font-size: 1.3rem;
+    }
+    
+    .section-title {
+        font-size: 1.3rem;
+    }
+    
+    .section-icon-wrapper {
+        width: 40px;
+        height: 40px;
+    }
+    
+    .section-icon {
+        font-size: 1.2rem;
+    }
+    
+    .features-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .box-items-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
+    }
+    
+    .description-content h1 {
+        font-size: 1.6rem;
+    }
+    
+    .description-content h2 {
+        font-size: 1.4rem;
+    }
+    
+    .description-content h3 {
+        font-size: 1.2rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .box-items-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .feature-card {
+        padding: 0.75rem 1rem;
+    }
+    
+    .feature-text {
+        font-size: 0.875rem;
+    }
+}
+
+/* Animations */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.description-section {
+    animation: fadeInUp 0.5s ease-out;
+}
+
+.feature-card {
+    animation: fadeInUp 0.4s ease-out;
+    animation-fill-mode: both;
+}
+
+.feature-card:nth-child(1) { animation-delay: 0.05s; }
+.feature-card:nth-child(2) { animation-delay: 0.1s; }
+.feature-card:nth-child(3) { animation-delay: 0.15s; }
+.feature-card:nth-child(4) { animation-delay: 0.2s; }
+.feature-card:nth-child(5) { animation-delay: 0.25s; }
+.feature-card:nth-child(6) { animation-delay: 0.3s; }
+
+.box-card {
+    animation: fadeInUp 0.4s ease-out;
+    animation-fill-mode: both;
+}
+
+.box-card:nth-child(1) { animation-delay: 0.1s; }
+.box-card:nth-child(2) { animation-delay: 0.15s; }
+.box-card:nth-child(3) { animation-delay: 0.2s; }
+.box-card:nth-child(4) { animation-delay: 0.25s; }
+.box-card:nth-child(5) { animation-delay: 0.3s; }
+.box-card:nth-child(6) { animation-delay: 0.35s; }
+
+
 </style>
 {% endblock %}
 
@@ -1021,69 +1579,147 @@
     </div>
 </div>
 
-                <!-- Description Tab -->
-                <div id="content-description" class="tab-content hidden">
-                    <div class="prose prose-lg max-w-none">
-                        {% if product.description %}
-                        <div class="mb-8">
-                            <h3 class="text-2xl font-bold text-slate-900 mb-4">Product Overview</h3>
-                            <div class="text-slate-700 leading-relaxed">
-                                {{ product.description|linebreaks }}
-                            </div>
+<!-- Description Tab -->
+<div id="content-description" class="tab-content hidden">
+    <div class="description-wrapper">
+        <!-- Hot Offer Banner -->
+        {% if product.is_featured %}
+        <div class="hot-offer-banner">
+            <div class="hot-offer-content">
+                <span class="hot-offer-badge">
+                    <i class="fas fa-fire-flame"></i> Hot Offer
+                </span>
+                <h3 class="hot-offer-title">Limited Time Deal!</h3>
+                <p class="hot-offer-desc">Get special discount on this product</p>
+            </div>
+            <div class="hot-offer-timer">
+                <div class="timer-box">
+                    <span class="timer-number" id="days">00</span>
+                    <span class="timer-label">Days</span>
+                </div>
+                <div class="timer-box">
+                    <span class="timer-number" id="hours">00</span>
+                    <span class="timer-label">Hours</span>
+                </div>
+                <div class="timer-box">
+                    <span class="timer-number" id="minutes">00</span>
+                    <span class="timer-label">Mins</span>
+                </div>
+                <div class="timer-box">
+                    <span class="timer-number" id="seconds">00</span>
+                    <span class="timer-label">Secs</span>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Product Overview Section -->
+        {% if product.description %}
+        <div class="description-section">
+            <div class="section-header">
+                <div class="section-icon-wrapper">
+                    <i class="fas fa-align-left section-icon"></i>
+                </div>
+                <div>
+                    <h2 class="section-title">Product Overview</h2>
+                    <p class="section-subtitle">Complete details about {{ product.name }}</p>
+                </div>
+            </div>
+            <div class="description-content">
+                {{ product.description|safe|linebreaks }}
+            </div>
+        </div>
+        {% endif %}
+        
+        <!-- Features Section -->
+        {% if features_list %}
+        <div class="description-section">
+            <div class="section-header">
+                <div class="section-icon-wrapper">
+                    <i class="fas fa-star section-icon"></i>
+                </div>
+                <div>
+                    <h2 class="section-title">Key Features</h2>
+                    <p class="section-subtitle">What makes this product special</p>
+                </div>
+            </div>
+            <div class="features-grid">
+                {% for feature in features_list %}
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-check"></i>
+                    </div>
+                    <span class="feature-text">{{ feature }}</span>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+        
+        <!-- What's in the Box Section -->
+        <div class="description-section">
+            <div class="section-header">
+                <div class="section-icon-wrapper">
+                    <i class="fas fa-box-open section-icon"></i>
+                </div>
+                <div>
+                    <h2 class="section-title">What's in the Box</h2>
+                    <p class="section-subtitle">Package contents and accessories</p>
+                </div>
+            </div>
+            {% if product.whats_in_box %}
+                <div class="whats-in-box-content">
+                    {{ product.whats_in_box|safe|linebreaks }}
+                </div>
+            {% else %}
+                <div class="box-items-grid">
+                    <div class="box-card">
+                        <div class="box-icon device">
+                            <i class="fas fa-mobile-alt"></i>
                         </div>
-                        {% endif %}
-                        
-                        {% if features_list %}
-                        <div class="mb-8">
-                            <h3 class="text-2xl font-bold text-slate-900 mb-4">Key Features</h3>
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                {% for feature in features_list %}
-                                <div class="flex items-start space-x-3">
-                                    <div class="w-6 h-6 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center flex-shrink-0 mt-1">
-                                        <i class="fas fa-check text-xs"></i>
-                                    </div>
-                                    <span class="text-slate-700">{{ feature }}</span>
-                                </div>
-                                {% endfor %}
-                            </div>
+                        <h4 class="box-title">Smartphone</h4>
+                        <p class="box-desc">1 Unit with pre-applied screen protector</p>
+                    </div>
+                    <div class="box-card">
+                        <div class="box-icon charger">
+                            <i class="fas fa-charging-station"></i>
                         </div>
-                        {% endif %}
-                        
-                        <div>
-                            <h3 class="text-2xl font-bold text-slate-900 mb-4">What's in the Box</h3>
-                            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                                <div class="text-center">
-                                    <div class="w-16 h-16 mx-auto mb-3 bg-gradient-to-br from-indigo-50 to-blue-50 rounded-xl flex items-center justify-center">
-                                        <i class="fas fa-mobile-alt text-2xl text-indigo-600"></i>
-                                    </div>
-                                    <p class="font-medium text-slate-900">Device</p>
-                                    <p class="text-sm text-slate-500">1 Unit</p>
-                                </div>
-                                <div class="text-center">
-                                    <div class="w-16 h-16 mx-auto mb-3 bg-gradient-to-br from-emerald-50 to-green-50 rounded-xl flex items-center justify-center">
-                                        <i class="fas fa-charging-station text-2xl text-emerald-600"></i>
-                                    </div>
-                                    <p class="font-medium text-slate-900">Charger</p>
-                                    <p class="text-sm text-slate-500">USB-C Fast Charger</p>
-                                </div>
-                                <div class="text-center">
-                                    <div class="w-16 h-16 mx-auto mb-3 bg-gradient-to-br from-amber-50 to-orange-50 rounded-xl flex items-center justify-center">
-                                        <i class="fas fa-headphones text-2xl text-amber-600"></i>
-                                    </div>
-                                    <p class="font-medium text-slate-900">Earphones</p>
-                                    <p class="text-sm text-slate-500">Wired Earphones</p>
-                                </div>
-                                <div class="text-center">
-                                    <div class="w-16 h-16 mx-auto mb-3 bg-gradient-to-br from-purple-50 to-pink-50 rounded-xl flex items-center justify-center">
-                                        <i class="fas fa-file text-2xl text-purple-600"></i>
-                                    </div>
-                                    <p class="font-medium text-slate-900">Documentation</p>
-                                    <p class="text-sm text-slate-500">User Manual & Warranty</p>
-                                </div>
-                            </div>
+                        <h4 class="box-title">Fast Charger</h4>
+                        <p class="box-desc">80W SuperVOOC Charging Adapter</p>
+                    </div>
+                    <div class="box-card">
+                        <div class="box-icon cable">
+                            <i class="fas fa-plug"></i>
                         </div>
+                        <h4 class="box-title">USB Cable</h4>
+                        <p class="box-desc">Type-C to Type-C Cable</p>
+                    </div>
+                    <div class="box-card">
+                        <div class="box-icon sim">
+                            <i class="fas fa-sim-card"></i>
+                        </div>
+                        <h4 class="box-title">SIM Ejector Tool</h4>
+                        <p class="box-desc">For SIM card installation</p>
+                    </div>
+                    <div class="box-card">
+                        <div class="box-icon docs">
+                            <i class="fas fa-file-alt"></i>
+                        </div>
+                        <h4 class="box-title">Documentation</h4>
+                        <p class="box-desc">User Manual & Warranty Card</p>
+                    </div>
+                    <div class="box-card">
+                        <div class="box-icon case">
+                            <i class="fas fa-mobile-alt"></i>
+                        </div>
+                        <h4 class="box-title">Protective Case</h4>
+                        <p class="box-desc">Silicone Back Cover</p>
                     </div>
                 </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
 
                 <!-- Reviews Tab -->
                 <div id="content-reviews" class="tab-content hidden">
@@ -1618,4 +2254,4 @@ function addToCart(productId) {
     }
 }
 </script>
-{% endblock %}
+{% endblock %} 
