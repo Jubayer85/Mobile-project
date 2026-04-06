@@ -88,6 +88,8 @@ urlpatterns = [
     path('track-order/', views.track_order, name='track_order'),
     path('newsletter/subscribe/', views.newsletter_subscribe, name='newsletter_subscribe'),
 
+  
+
 
    
 

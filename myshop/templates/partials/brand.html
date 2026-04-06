@@ -21,7 +21,7 @@
                 {% if brands %}
                     {% for brand in brands %}
                     <div class="brand-item" data-tier="{{ brand.tier }}">
-                        <a href="{% url 'myshop:brand_products' brand.slug %}" class="brand-link">
+                        <a href="{% url 'brand_products' brand.slug %}" class="brand-link">
                             <div class="brand-logo-wrapper {% if brand.tier == 'premium' %}premium-border{% endif %}">
                                 {% if brand.logo %}
                                     <img src="{{ brand.logo.url }}" alt="{{ brand.name }}" class="brand-logo">
@@ -82,7 +82,7 @@
         <!-- View All Brands Link -->
         {% if brands and brands.count > 6 %}
         <div class="view-all-wrapper text-center">
-            <a href="{% url 'admin:all_brands' %}" class="view-all-btn">
+            <a href="{% url 'all_brands' %}" class="view-all-btn">
                 View All Brands <i class="fas fa-arrow-right"></i>
             </a>
         </div>

@@ -566,7 +566,7 @@
         <div class="col-lg-9">
             <div class="brands-grid" id="brandsGrid">
                 {% for brand in brands %}
-                <a href="{% url 'shop:brand_products' brand.slug %}" class="brand-card {% if brand.is_featured %}featured{% endif %}" 
+                <a href="{% url 'brand_products' brand.slug %}" class="brand-card {% if brand.is_featured %}featured{% endif %}" 
                    data-tier="{{ brand.tier }}"
                    data-country="{{ brand.country|default:'Unspecified' }}"
                    data-name="{{ brand.name }}"

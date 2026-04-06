@@ -18,7 +18,7 @@ from django.http import HttpResponse, HttpResponseBadRequest
 from django.conf import settings 
 from django.core.paginator import Paginator
 from django.db.models import Q
-from django.contrib.auth.models import User
+from django.db.models import Count, Q
 from .forms import CategoryForm, SubCategoryForm, BrandForm
 from django.contrib.auth.decorators import login_required, user_passes_test
 from .models import ( Product, Brand, Category,SubCategory,ProductImage,Cart, CartItem,Order, OrderItem, Customer, Wishlist)
@@ -29,6 +29,8 @@ from django.db import models
 from django.db.models.functions import TruncDate
 from django.utils.timezone import now, timedelta
 from django.db.models import Q, Count, Prefetch
+import json
+from django.db.models import Max as MaxDB
 
 
 from django.forms import inlineformset_factory
@@ -51,16 +53,14 @@ def home(request):
     
     # Get brands for brand section
     brands = Brand.objects.filter(
-        is_active=True,
-        show_in_brands=True
-    ).annotate(
-        product_count=Count('products', filter=Q(products__is_active=True))
-    ).filter(
-        product_count__gt=0
-    ).order_by(
-        '-is_featured',  # Featured brands first
-        'name'
-    )[:12]  # Limit to 12 brands for home page
+    is_active=True,
+    show_in_brands=True
+).annotate(
+    product_count=Count(
+        'products',
+        filter=Q(products__is_active=True)
+    )
+).order_by('-is_featured', 'name')[:12] # Limit to 12 brands for home page
     
     # Get new arrivals - changed is_available to is_active
     new_arrivals = Product.objects.filter(
@@ -89,11 +89,14 @@ def home(request):
 def all_brands(request):
     """Display all brands with filtering and sorting"""
     brands = Brand.objects.filter(
-        is_active=True,
-        show_in_brands=True
-    ).annotate(
-        product_count=Count('products', filter=Q(products__is_active=True, products__stock_quantity__gt=0))
-    ).filter(product_count__gt=0)
+    is_active=True,
+    show_in_brands=True
+).annotate(
+    product_count=Count(
+        'products',
+        filter=Q(products__is_active=True, products__stock_quantity__gt=0)
+    )
+)
     
     # Apply tier filter
     tier = request.GET.get('tier')
@@ -138,7 +141,6 @@ def all_brands(request):
         'current_sort': sort_by,
     }
     return render(request, 'admin/all_brands.html', context)
-
 
 # ====================== BRAND PRODUCTS VIEW ======================
 def brand_products(request, slug):

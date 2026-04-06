@@ -39,7 +39,8 @@ class ProductAdmin(admin.ModelAdmin):
 # ======================================================
 @admin.register(Brand)
 class BrandAdmin(admin.ModelAdmin):
-    list_display = ('name', 'slug')
+    list_display = ('name', 'slug', 'is_active', 'show_in_brands', 'is_featured', 'tier')
+    list_filter = ('is_active', 'show_in_brands', 'is_featured', 'tier')
     search_fields = ('name',)
     prepopulated_fields = {'slug': ('name',)}
 
