@@ -31,7 +31,7 @@ from django.utils.timezone import now, timedelta
 from django.db.models import Q, Count, Prefetch
 import json
 from django.db.models import Max as MaxDB
-
+from .forms import BrandForm 
 
 from django.forms import inlineformset_factory
 

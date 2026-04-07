@@ -46,7 +46,9 @@ urlpatterns = [
     path('admin-dashboard/toggle-product-status/<int:product_id>/', views.toggle_product_status, name='toggle_product_status'),
      path('admin-dashboard/duplicate-product/<int:product_id>/', views.duplicate_product, name='duplicate_product'),
 
-    path('brands/', views.all_brands, name='all_brands'),
+
+# PBrand URLs
+    path('brands/', views.all_brands, name='admin_brand_list'),
     path('brands/<slug:slug>/', views.brand_products, name='brand_products'),
     path('brands/<slug:slug>/filter/', views.brand_products_filter, name='brand_products_filter'),
     
